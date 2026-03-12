@@ -1,3 +1,13 @@
+input[type="text"], input[type="search"] {
+  background: #181828;
+  color: #fff;
+  border: 1px solid #333;
+  outline: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-shadow: none;
+}
 @font-face {
   font-family: 'Onest';
   src: url('/fonts/Onest-Regular.woff2') format('woff2');
@@ -362,7 +372,7 @@ color:#00ccff;
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
-  z-index: 1000;
+  z-index: 1001;
   display: flex;
   flex-direction: column;
   align-items: center;
