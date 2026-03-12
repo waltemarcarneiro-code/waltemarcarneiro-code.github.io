@@ -188,15 +188,11 @@ function startProgressLoop() {
 
 btnPlay.onclick = () => {
 
-  if (!player) return;
   const iframe = document.getElementById('ytplayer');
   if (!iframe) return;
   // Envia comandos para o iframe YouTube API
-  if (playing) {
-    iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }), '*');
-  } else {
-    iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo', args: [] }), '*');
-  }
+  iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: playing ? 'pauseVideo' : 'playVideo', args: [] }), '*');
+  // Estado será atualizado pelo evento do YouTube, mas para feedback imediato:
   playing = !playing;
   btnPlay.textContent = playing ? "pause_circle" : "play_circle_outline";
 
@@ -380,6 +376,7 @@ btnPlaylist.onclick = () => {
         currentIndex = 0;
         loadVideo();
         document.querySelector('.modern-bottom-sheet')?.remove();
+        document.querySelector('.sheet-overlay')?.remove();
       };
     });
   }, 100);
@@ -417,7 +414,8 @@ btnSearch.onclick = () => {
                 currentPlaylist = p
                 currentIndex = i
                 loadVideo()
-                document.querySelector('.modern-bottom-sheet')?.remove()
+                document.querySelector('.modern-bottom-sheet')?.remove();
+                document.querySelector('.sheet-overlay')?.remove();
               }
             })
           })
