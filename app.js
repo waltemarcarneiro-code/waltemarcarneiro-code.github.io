@@ -254,15 +254,20 @@ btnRepeat.onclick = () => {
 
 bar.onclick = (e) => {
 
-  if (!player) return
-
-  const rect = bar.getBoundingClientRect()
-
-  const percent = (e.clientX - rect.left) / rect.width
-
-  const duration = player.getDuration()
-
-  player.seekTo(duration * percent, true)
+  const iframe = document.getElementById('ytplayer');
+  if (!iframe) return;
+  // Envia comando de seek via postMessage
+  // Precisa obter duração do vídeo via barra
+  // Não temos acesso direto, então estimamos pelo fill
+  // Alternativamente, podemos guardar a duração em uma variável global
+  // Melhor: usar o valor mostrado em totalTimeEl
+  const rect = bar.getBoundingClientRect();
+  const percent = (e.clientX - rect.left) / rect.width;
+  // Extrai minutos e segundos do totalTimeEl
+  const [min, sec] = totalTimeEl.textContent.split(':');
+  const duration = parseInt(min) * 60 + parseInt(sec);
+  const seekTo = duration * percent;
+  iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [seekTo, true] }), '*');
 
 }
 
