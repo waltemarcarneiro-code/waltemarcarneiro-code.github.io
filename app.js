@@ -119,7 +119,7 @@ function loadVideo() {
   artistEl.textContent = video.artist
 
   const artistSlug = video.artist.toLowerCase().replace(/\s/g, "-")
-  bgBlur.style.backgroundImage = `url(/covers/artists/${artistSlug}.jpg)`
+  bgBlur.style.backgroundImage = `url(/covers/artists/${artistSlug}.webp)`
 
   const videoId = video.id
 
