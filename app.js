@@ -360,14 +360,14 @@ function createBottomSheet(contentHTML) {
 btnPlaylist.onclick = () => {
 
   let html = "<h3>Playlists</h3>"
-
   playlists.forEach((p, i) => {
-
-    html += `<p class='playlist-option' style="margin:10px 0;cursor:pointer" data-index="${i}">${p.name}</p>`
-
-  })
-
-  createBottomSheet(html)
+    const cover = `/covers/playlists/${p.slug}.webp`;
+    html += `<div class='playlist-option' data-index="${i}" style="display:flex;align-items:center;margin:10px 0;cursor:pointer;gap:12px;">
+      <img src='${cover}' alt='cover' style='width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid #333;background:#181828;'>
+      <span>${p.name}</span>
+    </div>`;
+  });
+  createBottomSheet(html);
 
   setTimeout(() => {
     document.querySelectorAll('.playlist-option').forEach(el => {
@@ -392,36 +392,42 @@ btnSearch.onclick = () => {
   createBottomSheet(`
     <input id="searchInput" type="text" placeholder="Buscar..." style="width:100%;padding:10px">
     <div id="searchResults"></div>
-  `)
+  `);
 
   setTimeout(() => {
     document.getElementById('searchInput').oninput = function() {
-      const query = this.value.toLowerCase()
-      let results = []
+      const query = this.value.toLowerCase();
+      let results = [];
       playlists.forEach(p => {
         p.videos.forEach(v => {
           if (v.title.toLowerCase().includes(query) || v.artist.toLowerCase().includes(query)) {
-            results.push(`<div class='search-result' style='margin:8px 0;cursor:pointer'>${v.title} - ${v.artist}</div>`)
+            const artistSlug = v.artist.toLowerCase().replace(/\s/g, "-");
+            const cover = `/covers/artists/${artistSlug}.webp`;
+            results.push(`<div class='search-result' style='display:flex;align-items:center;gap:12px;margin:8px 0;cursor:pointer;'>
+              <img src='${cover}' alt='cover' style='width:32px;height:32px;border-radius:8px;object-fit:cover;border:1px solid #333;background:#181828;'>
+              <span>${v.title} - ${v.artist}</span>
+            </div>`);
           }
-        })
-      })
-      document.getElementById('searchResults').innerHTML = results.join('')
+        });
+      });
+      document.getElementById('searchResults').innerHTML = results.join('');
       document.querySelectorAll('.search-result').forEach((el, idx) => {
         el.onclick = () => {
+          const text = el.querySelector('span').textContent;
           playlists.forEach(p => {
             p.videos.forEach((v, i) => {
-              if (`${v.title} - ${v.artist}` === el.textContent) {
-                currentPlaylist = p
-                currentIndex = i
-                loadVideo()
+              if (`${v.title} - ${v.artist}` === text) {
+                currentPlaylist = p;
+                currentIndex = i;
+                loadVideo();
                 document.querySelector('.modern-bottom-sheet')?.remove();
                 document.querySelector('.sheet-overlay')?.remove();
               }
-            })
-          })
-        }
-      })
-    }
+            });
+          });
+        };
+      });
+    };
   }, 100)
 
 }
