@@ -1,1 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LoveSongs Player</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0C0224">
+
+<link rel="icon" href="icons/icon-192.png">
+
+<link rel="stylesheet" href="style.css">
+
+<!-- MATERIAL ICONS -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+</head>
+
+
+<body>
+
+<!-- BACKGROUND BLUR -->
+<div class="background-blur" id="bgBlur"></div>
+
+
+<main class="container">
+
+
+<!-- VIDEO FRAME -->
+
+<section class="video-frame">
+
+<div id="videoPlayer"></div>
+
+</section>
+
+
+
+<!-- PLAYER -->
+
+<section class="player">
+
+
+<!-- HEADER -->
+
+<header class="player-header">
+
+<div class="header-left">
+
+<span class="playlist-name">LoveSongs</span>
+
+</div>
+
+
+<div class="header-right">
+
+<span class="material-icons-outlined">search</span>
+
+<span class="material-icons-outlined">share</span>
+
+<span class="material-icons-outlined">favorite_border</span>
+
+<span class="material-icons-outlined">queue_music</span>
+
+<span class="material-icons-outlined">more_vert</span>
+
+</div>
+
+</header>
+
+
+
+<!-- CONTENT -->
+
+<div class="player-content">
+
+<h1 class="song-title">
+Selecione uma playlist
+</h1>
+
+<h2 class="song-artist"></h2>
+
+</div>
+
+
+
+<!-- FOOTER -->
+
+<footer class="player-footer">
+
+
+<!-- PROGRESS -->
+
+<div class="progress-bar">
+
+<span class="current-time">0:00</span>
+
+<div class="bar">
+
+<div class="fill"></div>
+
+</div>
+
+<span class="total-time">0:00</span>
+
+</div>
+
+
+
+<!-- CONTROLS -->
+
+<div class="controls">
+
+<span class="material-icons-outlined">shuffle</span>
+
+<span class="material-icons-outlined">skip_previous</span>
+
+<span class="material-icons-outlined">play_circle_outline</span>
+
+<span class="material-icons-outlined">skip_next</span>
+
+<span class="material-icons-outlined">repeat</span>
+
+</div>
+
+
+</footer>
+
+</section>
+
+
+</main>
+
+
+<script src="app.js"></script>
+
+</body>
+
+</html>

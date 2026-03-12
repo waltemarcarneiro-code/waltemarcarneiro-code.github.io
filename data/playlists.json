@@ -1,0 +1,21 @@
+{
+  "playlists":[
+    {
+      "name":"LoveSongs",
+      "slug":"lovesongs",
+      "cover":"lovesongs.webp",
+      "videos":[
+        {
+          "id":"8RqnQKSP_Rk",
+          "title":"Praying for Time",
+          "artist":"George Michael"
+        },
+        {
+          "id":"GP9IB2ji02s",
+          "title":"Knife",
+          "artist":"Rockweel"
+        }
+      ]
+    }
+  ]
+}
