@@ -142,7 +142,7 @@ body {
     font-size: clamp(1.5rem,2vw + 1rem,3rem);
     margin-bottom: .3rem;
     color: #fff;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .song-artist {
@@ -279,3 +279,4 @@ body {
         font-size: 1rem;
     }
 }
+
