@@ -124,7 +124,12 @@ function loadVideo() {
   const videoId = video.id
 
   // Substitui o conteúdo do videoPlayer por um iframe padrão
-  videoPlayer.innerHTML = `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`
+  videoPlayer.innerHTML = `<iframe id="ytplayer" width="100%" height="315" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1" frameborder="0" allowfullscreen></iframe>`
+  setTimeout(() => {
+    player = videoPlayer.querySelector('iframe').contentWindow;
+    playing = false;
+    btnPlay.textContent = "play_circle_outline";
+  }, 500);
 
   updateURL()
 
@@ -183,39 +188,39 @@ function startProgressLoop() {
 
 btnPlay.onclick = () => {
 
-  if (!player) return
-
+  if (!player) return;
+  const iframe = document.getElementById('ytplayer');
+  if (!iframe) return;
+  // Envia comandos para o iframe YouTube API
   if (playing) {
-    player.pauseVideo()
+    iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }), '*');
   } else {
-    player.playVideo()
+    iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo', args: [] }), '*');
   }
+  playing = !playing;
+  btnPlay.textContent = playing ? "pause_circle" : "play_circle_outline";
 
 }
 
 btnNext.onclick = () => {
 
   if (shuffle) {
-
-    currentIndex = Math.floor(Math.random() * currentPlaylist.videos.length)
-
+    let nextIndex;
+    do {
+      nextIndex = Math.floor(Math.random() * currentPlaylist.videos.length);
+    } while (currentPlaylist.videos.length > 1 && nextIndex === currentIndex);
+    currentIndex = nextIndex;
   } else {
-
-    currentIndex++
-
+    currentIndex++;
     if (currentIndex >= currentPlaylist.videos.length) {
-
       if (repeat) {
-        currentIndex = 0
+        currentIndex = 0;
       } else {
-        currentIndex = 0
+        currentIndex = currentPlaylist.videos.length - 1;
       }
-
     }
-
   }
-
-  loadVideo()
+  loadVideo();
 
 }
 
@@ -241,9 +246,9 @@ btnShuffle.onclick = () => {
 
 btnRepeat.onclick = () => {
 
-  repeat = !repeat
-
-  btnRepeat.style.opacity = repeat ? 1 : 0.5
+  repeat = !repeat;
+  btnRepeat.style.opacity = repeat ? 1 : 0.5;
+  btnRepeat.classList.toggle('active', repeat);
 
 }
 
@@ -320,20 +325,34 @@ btnFavorite.onclick = () => {
 
 function createBottomSheet(contentHTML) {
 
-  const sheet = document.createElement("div")
-  sheet.className = "modern-bottom-sheet"
+  const sheet = document.createElement("div");
+  sheet.className = "modern-bottom-sheet";
   sheet.innerHTML = `
     <div class="sheet-content" style="width:100vw">
       ${contentHTML}
     </div>
-  `
-  document.body.appendChild(sheet)
+  `;
+  document.body.appendChild(sheet);
   // Fecha ao clicar fora da .sheet-content
   sheet.addEventListener('mousedown', function(e) {
     const content = sheet.querySelector('.sheet-content');
     if (content && !content.contains(e.target)) {
       sheet.remove();
     }
+  });
+  // Cria overlay de fundo
+  const overlay = document.createElement('div');
+  overlay.className = 'sheet-overlay';
+  document.body.appendChild(overlay);
+
+  // Fecha ao clicar no overlay
+  overlay.addEventListener('mousedown', function(e) {
+    overlay.remove();
+    sheet.remove();
+  });
+  // Impede propagação do clique dentro do conteúdo
+  sheet.querySelector('.sheet-content').addEventListener('mousedown', function(e) {
+    e.stopPropagation();
   });
 
 }
@@ -357,21 +376,13 @@ btnPlaylist.onclick = () => {
   setTimeout(() => {
     document.querySelectorAll('.playlist-option').forEach(el => {
       el.onclick = (e) => {
-        currentPlaylist = playlists[parseInt(el.dataset.index)]
-        currentIndex = 0
-        loadVideo()
-        // Fecha o modal ao escolher
-        document.querySelector('.modern-bottom-sheet')?.remove()
-      }
-    })
-    // Fecha ao clicar fora da .sheet-content
-    const sheet = document.querySelector('.modern-bottom-sheet')
-    if (sheet) {
-      sheet.onclick = (e) => {
-        if (e.target === sheet) sheet.remove()
-      }
-    }
-  }, 100)
+        currentPlaylist = playlists[parseInt(el.dataset.index)];
+        currentIndex = 0;
+        loadVideo();
+        document.querySelector('.modern-bottom-sheet')?.remove();
+      };
+    });
+  }, 100);
 
 }
 
