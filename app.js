@@ -57,44 +57,23 @@ let videoDuration = 0;
 /* =========================
    YOUTUBE API
 ========================= */
-// Listener para mensagens do YouTube iframe
-window.addEventListener('message', (event) => {
-  if (event.origin !== 'https://www.youtube.com') return;
-  let data = event.data;
-  if (typeof data === 'string') {
-    try {
-      data = JSON.parse(data);
-    } catch {
-      return;
-    }
-  }
-  if (!data || typeof data !== 'object') return;
 
-  if (data.event === 'onReady') {
-    // Vídeo pronto
-  } else if (data.event === 'onStateChange') {
-    onStateChange({ data: data.info });
-  } else if (data.event === 'infoDelivery' && data.info) {
-    const info = data.info;
-    if (typeof info === 'number') {
-      // Resposta de getCurrentTime
-      const current = info;
-      const percent = videoDuration ? (current / videoDuration) * 100 : 0;
-      fill.style.width = percent + "%";
-      currentTimeEl.textContent = formatTime(current);
-    } else {
-      if (typeof info.duration === 'number') {
-        videoDuration = info.duration;
-        totalTimeEl.textContent = formatTime(videoDuration);
-      }
-      if (typeof info.currentTime === 'number') {
-        const current = info.currentTime;
-        const percent = videoDuration ? (current / videoDuration) * 100 : 0;
-        fill.style.width = percent + "%";
-        currentTimeEl.textContent = formatTime(current);
-      }
-    }
-  }
+// Carrega a API JS do YouTube dinamicamente
+function loadYouTubeAPI() {
+  if (window.YT && window.YT.Player) return Promise.resolve();
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = 'https://www.youtube.com/iframe_api';
+    script.onload = () => {
+      window.onYouTubeIframeAPIReady = () => resolve();
+    };
+    document.head.appendChild(script);
+  });
+}
+
+// Listener para mensagens do YouTube iframe (fallback, não usado com API JS)
+window.addEventListener('message', (event) => {
+  // Removido, pois usamos API JS
 });
 
 async function getCoverUrl(path, fallback = '/covers/cover.svg') {
@@ -179,22 +158,32 @@ async function loadVideo() {
 
   const videoId = video.id
 
-  // Substitui o conteúdo do videoPlayer por um iframe padrão
-  videoPlayer.innerHTML = `<iframe id="ytplayer" width="100%" height="315" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1" frameborder="0" allowfullscreen></iframe>`
-  setTimeout(() => {
-    player = videoPlayer.querySelector('iframe').contentWindow;
-    playing = false;
-    btnPlay.textContent = "play_circle_outline";
-    // Envia comando para obter duração
-    player.postMessage(JSON.stringify({ event: 'command', func: 'getDuration', args: [] }), '*');
-    // Se devemos tocar automaticamente (após término), toca
-    if (autoPlayNext) {
-      autoPlayNext = false;
-      player.postMessage(JSON.stringify({ event: 'command', func: 'playVideo', args: [] }), '*');
-      playing = true;
-      btnPlay.textContent = "pause_circle";
+  // Carrega a API se necessário
+  await loadYouTubeAPI();
+
+  // Cria o player YouTube
+  if (player) {
+    player.destroy();
+  }
+  player = new YT.Player('videoPlayer', {
+    height: '315',
+    width: '100%',
+    videoId: videoId,
+    playerVars: {
+      'playsinline': 1,
+      'controls': 0,
+      'disablekb': 1,
+      'fs': 0,
+      'iv_load_policy': 3,
+      'modestbranding': 1,
+      'rel': 0,
+      'showinfo': 0
+    },
+    events: {
+      'onReady': onPlayerReady,
+      'onStateChange': onPlayerStateChange
     }
-  }, 500);
+  });
 
   updateURL()
 
@@ -204,25 +193,27 @@ async function loadVideo() {
    PLAYER EVENTS
 ========================= */
 
-function onPlayerReady() {
-
-  startProgressLoop()
-
+function onPlayerReady(event) {
+  startProgressLoop();
+  // Se devemos tocar automaticamente
+  if (shouldAutoPlay || autoPlayNext) {
+    shouldAutoPlay = false;
+    autoPlayNext = false;
+    player.playVideo();
+    playing = true;
+    btnPlay.textContent = "pause_circle";
+  }
 }
 
-function onStateChange(e) {
+function onPlayerStateChange(event) {
+  playing = event.data === YT.PlayerState.PLAYING;
+  btnPlay.textContent = playing ? "pause_circle" : "play_circle_outline";
 
-  playing = e.data === 1
-
-  btnPlay.textContent =
-    playing ? "pause_circle" : "play_circle_outline"
-
-  // Se o vídeo terminou (0), avança para o próximo
-  if (e.data === 0) {
-    autoPlayNext = true
+  // Se o vídeo terminou, avança para o próximo
+  if (event.data === YT.PlayerState.ENDED) {
+    autoPlayNext = true;
     btnNext.onclick();
   }
-
 }
 
 /* =========================
@@ -235,10 +226,19 @@ function startProgressLoop() {
 
   progressTimer = setInterval(() => {
 
-    if (!player || !videoDuration) return
+    if (!player || !player.getCurrentTime) return
 
-    // Envia comando para obter currentTime
-    player.postMessage(JSON.stringify({ event: 'command', func: 'getCurrentTime', args: [] }), '*');
+    const duration = player.getDuration()
+    const current = player.getCurrentTime()
+
+    if (!duration) return
+
+    const percent = (current / duration) * 100
+
+    fill.style.width = percent + "%"
+
+    currentTimeEl.textContent = formatTime(current)
+    totalTimeEl.textContent = formatTime(duration)
 
   }, 500)
 
@@ -255,11 +255,12 @@ btnPlay.onclick = () => {
     return
   }
 
-  const iframe = document.getElementById('ytplayer');
-  if (!iframe) return;
-  // Envia comandos para o iframe YouTube API
-  iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: playing ? 'pauseVideo' : 'playVideo', args: [] }), '*');
-  // Estado será atualizado pelo evento do YouTube, mas para feedback imediato:
+  if (!player) return;
+  if (playing) {
+    player.pauseVideo();
+  } else {
+    player.playVideo();
+  }
   playing = !playing;
   btnPlay.textContent = playing ? "pause_circle" : "play_circle_outline";
 
@@ -331,12 +332,14 @@ btnRepeat.onclick = () => {
 
 bar.onclick = (e) => {
 
-  const iframe = document.getElementById('ytplayer');
-  if (!iframe || !videoDuration) return;
+  if (!player || !player.seekTo) return;
   const rect = bar.getBoundingClientRect();
   const percent = (e.clientX - rect.left) / rect.width;
-  const seekTo = videoDuration * percent;
-  iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [seekTo, true] }), '*');
+  const duration = player.getDuration();
+  const seekTo = duration * percent;
+  player.seekTo(seekTo, true);
+  // Atualiza imediatamente a barra para feedback visual
+  fill.style.width = percent * 100 + "%";
 }
 
 /* =========================
