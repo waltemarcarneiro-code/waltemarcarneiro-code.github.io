@@ -185,7 +185,7 @@ async function loadVideo() {
     player.destroy();
   }
   player = new YT.Player('videoPlayer', {
-    height: '315',
+    height: '100%',
     width: '100%',
     videoId: videoId,
     playerVars: {
