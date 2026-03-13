@@ -260,7 +260,7 @@ body {
     border-top-right-radius: 32px;
     padding: 40px 32px;
     min-width: 320px;
-    max-width: 95vw;
+    max-width: 100vw;
     box-shadow: 0 -8px 40px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.12);
     z-index: 1001;
     animation: sheetUp .3s cubic-bezier(.68,-0.55,.27,1.55);
@@ -287,3 +287,4 @@ body {
         font-size: 1rem;
     }
 }
+
