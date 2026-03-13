@@ -238,6 +238,8 @@ body {
     .player {
         flex: 1;
         min-height: 0;
+        max-height: 50%;
+        padding: 1rem 1.5rem;
     }
 
     .sheet-content {
