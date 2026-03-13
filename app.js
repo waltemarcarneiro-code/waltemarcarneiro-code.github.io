@@ -500,6 +500,12 @@ btnSearch.onclick = () => {
   setTimeout(() => {
     const searchInput = document.getElementById('searchInput');
     searchInput.focus();
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchInput.blur();
+      }
+    });
     document.getElementById('searchInput').oninput = function() {
       const query = this.value.toLowerCase();
       let results = [];
