@@ -81,6 +81,11 @@ body {
 #videoPlayer {
     position: absolute;
     inset: 0;
+
+    background-image: url(covers/cover.svg);
+    background-repeat: no-repeat;
+    background-position:center;
+    background-size:contain;
 }
 
 #videoPlayer iframe {
@@ -287,4 +292,3 @@ body {
         font-size: 1rem;
     }
 }
-
