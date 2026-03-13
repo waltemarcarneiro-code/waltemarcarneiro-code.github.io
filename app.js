@@ -228,10 +228,16 @@ function onPlayerStateChange(event) {
   playing = event.data === YT.PlayerState.PLAYING;
   btnPlay.textContent = playing ? "pause_circle" : "play_circle_outline";
 
-  // Se o vídeo terminou, avança para o próximo
+  // Se o vídeo terminou
   if (event.data === YT.PlayerState.ENDED) {
-    autoPlayNext = true;
-    btnNext.onclick();
+    if (repeat) {
+      // Repetir o vídeo atual
+      player.playVideo();
+    } else {
+      // Avançar para o próximo
+      autoPlayNext = true;
+      btnNext.onclick();
+    }
   }
 }
 
