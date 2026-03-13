@@ -51,23 +51,37 @@ let shuffle = false
 
 let progressTimer = null
 
-let favorites = JSON.parse(localStorage.getItem("favorites") || "[]")
+let videoDuration = 0;
 
 /* =========================
-   UTIL
+   YOUTUBE API
 ========================= */
+// Listener para mensagens do YouTube iframe
+window.addEventListener('message', (event) => {
+  if (event.origin !== 'https://www.youtube.com') return;
+  const data = JSON.parse(event.data);
+  if (data.event === 'onReady') {
+    // Vídeo pronto
+  } else if (data.event === 'onStateChange') {
+    onStateChange({ data: data.info });
+  } else if (data.event === 'infoDelivery' && data.info && data.info.duration) {
+    videoDuration = data.info.duration;
+    totalTimeEl.textContent = formatTime(videoDuration);
+  } else if (data.event === 'infoDelivery' && data.info && typeof data.info.currentTime === 'number') {
+    const current = data.info.currentTime;
+    const percent = (current / videoDuration) * 100;
+    fill.style.width = percent + "%";
+    currentTimeEl.textContent = formatTime(current);
+  }
+});
 
-function formatTime(sec) {
-
-  sec = Math.floor(sec)
-
-  const m = Math.floor(sec / 60)
-  let s = sec % 60
-
-  if (s < 10) s = "0" + s
-
-  return `${m}:${s}`
-
+async function getCoverUrl(path, fallback = '/covers/cover.svg') {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(path);
+    img.onerror = () => resolve(fallback);
+    img.src = path;
+  });
 }
 
 /* =========================
@@ -86,8 +100,8 @@ async function loadPlaylists() {
 
   playlists = data.playlists
 
-  // Não carrega playlist automaticamente
-  showChoosePlaylist()
+  // Carrega playlist automaticamente se houver na URL
+  loadFromURL()
 
 }
 
@@ -97,7 +111,27 @@ async function loadPlaylists() {
 
 function loadFromURL() {
 
-  // Não carrega playlist automaticamente
+  const urlParams = new URLSearchParams(window.location.search);
+  const playlistSlug = urlParams.get('p');
+  const videoId = urlParams.get('v');
+
+  if (playlistSlug && videoId) {
+    const playlist = playlists.find(p => p.slug === playlistSlug);
+    if (playlist) {
+      const videoIndex = playlist.videos.findIndex(v => v.id === videoId);
+      if (videoIndex !== -1) {
+        currentPlaylist = playlist;
+        currentIndex = videoIndex;
+        loadVideo();
+        return;
+      }
+    }
+  }
+
+  // Se não houver parâmetros ou não encontrar, mostra escolha de playlist
+  showChoosePlaylist();
+
+}
   // Função mantida para compatibilidade
 function showChoosePlaylist() {
   titleEl.textContent = "Escolha uma Playlist"
@@ -105,13 +139,12 @@ function showChoosePlaylist() {
   videoPlayer.innerHTML = ""
 }
 
-}
 
 /* =========================
    CARREGAR VIDEO
 ========================= */
 
-function loadVideo() {
+async function loadVideo() {
 
   const video = currentPlaylist.videos[currentIndex]
 
@@ -119,7 +152,8 @@ function loadVideo() {
   artistEl.textContent = video.artist
 
   const artistSlug = video.artist.toLowerCase().replace(/\s/g, "-")
-  bgBlur.style.backgroundImage = `url(/covers/artists/${artistSlug}.webp)`
+  const coverUrl = await getCoverUrl(`/covers/artists/${artistSlug}.webp`);
+  bgBlur.style.backgroundImage = `url(${coverUrl})`
 
   const videoId = video.id
 
@@ -129,6 +163,8 @@ function loadVideo() {
     player = videoPlayer.querySelector('iframe').contentWindow;
     playing = false;
     btnPlay.textContent = "play_circle_outline";
+    // Envia comando para obter duração
+    player.postMessage(JSON.stringify({ event: 'command', func: 'getDuration', args: [] }), '*');
   }, 500);
 
   updateURL()
@@ -152,6 +188,11 @@ function onStateChange(e) {
   btnPlay.textContent =
     playing ? "pause_circle" : "play_circle_outline"
 
+  // Se o vídeo terminou (0), avança para o próximo
+  if (e.data === 0) {
+    btnNext.onclick();
+  }
+
 }
 
 /* =========================
@@ -164,19 +205,10 @@ function startProgressLoop() {
 
   progressTimer = setInterval(() => {
 
-    if (!player || !player.getDuration) return
+    if (!player || !videoDuration) return
 
-    const duration = player.getDuration()
-    const current = player.getCurrentTime()
-
-    if (!duration) return
-
-    const percent = (current / duration) * 100
-
-    fill.style.width = percent + "%"
-
-    currentTimeEl.textContent = formatTime(current)
-    totalTimeEl.textContent = formatTime(duration)
+    // Envia comando para obter currentTime
+    player.postMessage(JSON.stringify({ event: 'command', func: 'getCurrentTime', args: [] }), '*');
 
   }, 500)
 
@@ -255,20 +287,11 @@ btnRepeat.onclick = () => {
 bar.onclick = (e) => {
 
   const iframe = document.getElementById('ytplayer');
-  if (!iframe) return;
-  // Envia comando de seek via postMessage
-  // Precisa obter duração do vídeo via barra
-  // Não temos acesso direto, então estimamos pelo fill
-  // Alternativamente, podemos guardar a duração em uma variável global
-  // Melhor: usar o valor mostrado em totalTimeEl
+  if (!iframe || !videoDuration) return;
   const rect = bar.getBoundingClientRect();
   const percent = (e.clientX - rect.left) / rect.width;
-  // Extrai minutos e segundos do totalTimeEl
-  const [min, sec] = totalTimeEl.textContent.split(':');
-  const duration = parseInt(min) * 60 + parseInt(sec);
-  const seekTo = duration * percent;
+  const seekTo = videoDuration * percent;
   iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [seekTo, true] }), '*');
-
 }
 
 /* =========================
@@ -365,8 +388,8 @@ function createBottomSheet(contentHTML) {
 btnPlaylist.onclick = () => {
 
   let html = "<h3>Playlists</h3>"
-  playlists.forEach((p, i) => {
-    const cover = `/covers/playlists/${p.slug}.webp`;
+  playlists.forEach(async (p, i) => {
+    const cover = await getCoverUrl(`/covers/playlists/${p.slug}.webp`);
     html += `<div class='playlist-option' data-index="${i}" style="display:flex;align-items:center;margin:10px 0;cursor:pointer;gap:12px;">
       <img src='${cover}' alt='cover' style='width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid #333;background:#181828;'>
       <span>${p.name}</span>
@@ -404,10 +427,10 @@ btnSearch.onclick = () => {
       const query = this.value.toLowerCase();
       let results = [];
       playlists.forEach(p => {
-        p.videos.forEach(v => {
+        p.videos.forEach(async (v) => {
           if (v.title.toLowerCase().includes(query) || v.artist.toLowerCase().includes(query)) {
             const artistSlug = v.artist.toLowerCase().replace(/\s/g, "-");
-            const cover = `/covers/artists/${artistSlug}.webp`;
+            const cover = await getCoverUrl(`/covers/artists/${artistSlug}.webp`);
             results.push(`<div class='search-result' style='display:flex;align-items:center;gap:12px;margin:8px 0;cursor:pointer;'>
               <img src='${cover}' alt='cover' style='width:32px;height:32px;border-radius:8px;object-fit:cover;border:1px solid #333;background:#181828;'>
               <span>${v.title} - ${v.artist}</span>
