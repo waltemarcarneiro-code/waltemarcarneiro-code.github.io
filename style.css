@@ -80,8 +80,10 @@ body {
 }
 
 #videoPlayer {
-    position: absolute;
-    inset: 0;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 
     background-image: url(covers/cover.svg);
     background-repeat: no-repeat;
@@ -90,17 +92,15 @@ body {
 }
 
 #videoPlayer iframe {
-    width: 100% !important;
-    height: 100% !important;
     border: 0;
-    object-fit: cover;
-    object-position: center;
 }
 
-/* Para o player YouTube ocupar toda a área */
-#videoPlayer .ytp-embed {
-    width: 100% !important;
-    height: 100% !important;
+/* Centralizar o div do player YouTube */
+#videoPlayer div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* PLAYER */
@@ -301,4 +301,3 @@ body {
         font-size: 1rem;
     }
 }
-

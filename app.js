@@ -180,13 +180,28 @@ async function loadVideo() {
   // Carrega a API se necessário
   await loadYouTubeAPI();
 
+  // Calcula dimensões para cobrir a área com aspect ratio 1:1
+  const rect = videoPlayer.getBoundingClientRect();
+  const containerWidth = rect.width;
+  const containerHeight = rect.height;
+  const videoAspect = 1; // 1:1 para zoom e crop
+  let playerWidth, playerHeight;
+
+  if (containerWidth / containerHeight > videoAspect) {
+    playerHeight = containerHeight;
+    playerWidth = containerHeight * videoAspect;
+  } else {
+    playerWidth = containerWidth;
+    playerHeight = containerWidth / videoAspect;
+  }
+
   // Cria o player YouTube
   if (player) {
     player.destroy();
   }
   player = new YT.Player('videoPlayer', {
-    height: '100%',
-    width: '100%',
+    height: playerHeight,
+    width: playerWidth,
     videoId: videoId,
     playerVars: {
       'playsinline': 1,
