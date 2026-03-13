@@ -340,6 +340,7 @@ btnShuffle.onclick = () => {
   shuffle = !shuffle
 
   btnShuffle.style.opacity = shuffle ? 1 : 0.5
+  btnShuffle.textContent = shuffle ? "shuffle_on" : "shuffle"
 
 }
 
@@ -347,7 +348,7 @@ btnRepeat.onclick = () => {
 
   repeat = !repeat;
   btnRepeat.style.opacity = repeat ? 1 : 0.5;
-  btnRepeat.classList.toggle('active', repeat);
+  btnRepeat.textContent = repeat ? "repeat_one" : "repeat";
 
 }
 
