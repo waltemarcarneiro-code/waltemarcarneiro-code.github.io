@@ -42,6 +42,7 @@ input[type="text"], input[type="search"] {
 html {
     font-size: 100%;
     font-family: 'Onest',sans-serif;
+    background-color: #0C0224;
 }
 
 body {
@@ -300,3 +301,4 @@ body {
         font-size: 1rem;
     }
 }
+
