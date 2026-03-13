@@ -205,11 +205,19 @@ body {
     font-size: 2.5rem;
     cursor: pointer;
     background: rgba(0,0,0,.2);
-    padding: 5px;
+    /* padding: 5px; */
     border-radius: 50%;
     transition: .3s;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    width: 3rem;
+    height: 3rem;
 }
-
+.controls .material-icons-outlined.pp{
+    font-size: 4rem;
+    
+}
 .controls .material-icons-outlined:hover {
     color: #00ccff;
 }
