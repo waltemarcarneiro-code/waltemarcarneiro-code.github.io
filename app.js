@@ -48,6 +48,7 @@ let player = null
 let playing = false
 let repeat = false
 let shuffle = false
+let autoPlayNext = false
 
 let progressTimer = null
 
@@ -59,19 +60,40 @@ let videoDuration = 0;
 // Listener para mensagens do YouTube iframe
 window.addEventListener('message', (event) => {
   if (event.origin !== 'https://www.youtube.com') return;
-  const data = JSON.parse(event.data);
+  let data = event.data;
+  if (typeof data === 'string') {
+    try {
+      data = JSON.parse(data);
+    } catch {
+      return;
+    }
+  }
+  if (!data || typeof data !== 'object') return;
+
   if (data.event === 'onReady') {
     // Vídeo pronto
   } else if (data.event === 'onStateChange') {
     onStateChange({ data: data.info });
-  } else if (data.event === 'infoDelivery' && data.info && data.info.duration) {
-    videoDuration = data.info.duration;
-    totalTimeEl.textContent = formatTime(videoDuration);
-  } else if (data.event === 'infoDelivery' && data.info && typeof data.info.currentTime === 'number') {
-    const current = data.info.currentTime;
-    const percent = (current / videoDuration) * 100;
-    fill.style.width = percent + "%";
-    currentTimeEl.textContent = formatTime(current);
+  } else if (data.event === 'infoDelivery' && data.info) {
+    const info = data.info;
+    if (typeof info === 'number') {
+      // Resposta de getCurrentTime
+      const current = info;
+      const percent = videoDuration ? (current / videoDuration) * 100 : 0;
+      fill.style.width = percent + "%";
+      currentTimeEl.textContent = formatTime(current);
+    } else {
+      if (typeof info.duration === 'number') {
+        videoDuration = info.duration;
+        totalTimeEl.textContent = formatTime(videoDuration);
+      }
+      if (typeof info.currentTime === 'number') {
+        const current = info.currentTime;
+        const percent = videoDuration ? (current / videoDuration) * 100 : 0;
+        fill.style.width = percent + "%";
+        currentTimeEl.textContent = formatTime(current);
+      }
+    }
   }
 });
 
@@ -165,6 +187,13 @@ async function loadVideo() {
     btnPlay.textContent = "play_circle_outline";
     // Envia comando para obter duração
     player.postMessage(JSON.stringify({ event: 'command', func: 'getDuration', args: [] }), '*');
+    // Se devemos tocar automaticamente (após término), toca
+    if (autoPlayNext) {
+      autoPlayNext = false;
+      player.postMessage(JSON.stringify({ event: 'command', func: 'playVideo', args: [] }), '*');
+      playing = true;
+      btnPlay.textContent = "pause_circle";
+    }
   }, 500);
 
   updateURL()
@@ -190,6 +219,7 @@ function onStateChange(e) {
 
   // Se o vídeo terminou (0), avança para o próximo
   if (e.data === 0) {
+    autoPlayNext = true
     btnNext.onclick();
   }
 
@@ -220,6 +250,11 @@ function startProgressLoop() {
 
 btnPlay.onclick = () => {
 
+  if (!currentPlaylist) {
+    alert("Selecione uma playlist primeiro!")
+    return
+  }
+
   const iframe = document.getElementById('ytplayer');
   if (!iframe) return;
   // Envia comandos para o iframe YouTube API
@@ -231,6 +266,11 @@ btnPlay.onclick = () => {
 }
 
 btnNext.onclick = () => {
+
+  if (!currentPlaylist) {
+    alert("Selecione uma playlist primeiro!")
+    return
+  }
 
   if (shuffle) {
     let nextIndex;
@@ -253,6 +293,11 @@ btnNext.onclick = () => {
 }
 
 btnPrev.onclick = () => {
+
+  if (!currentPlaylist) {
+    alert("Selecione uma playlist primeiro!")
+    return
+  }
 
   currentIndex--
 
@@ -301,7 +346,7 @@ bar.onclick = (e) => {
 btnShare.onclick = () => {
 
   if (!currentPlaylist) {
-    alert("Escolha uma playlist primeiro!")
+    alert("Selecione um vídeo primeiro")
     return
   }
   const video = currentPlaylist.videos[currentIndex]
@@ -326,7 +371,7 @@ btnShare.onclick = () => {
 btnFavorite.onclick = () => {
 
   if (!currentPlaylist) {
-    alert("Escolha uma playlist primeiro!")
+    alert("Selecione um vídeo primeiro")
     return
   }
   const video = currentPlaylist.videos[currentIndex]
@@ -388,13 +433,14 @@ function createBottomSheet(contentHTML) {
 btnPlaylist.onclick = () => {
 
   let html = "<h3>Playlists</h3>"
-  playlists.forEach(async (p, i) => {
-    const cover = await getCoverUrl(`/covers/playlists/${p.slug}.webp`);
+  for (let i = 0; i < playlists.length; i++) {
+    const p = playlists[i];
+    const cover = `/covers/playlists/${p.slug}.webp`;
     html += `<div class='playlist-option' data-index="${i}" style="display:flex;align-items:center;margin:10px 0;cursor:pointer;gap:12px;">
-      <img src='${cover}' alt='cover' style='width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid #333;background:#181828;'>
+      <img src='${cover}' alt='cover' onerror="this.src='/covers/cover.svg'" style='width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid #333;background:#181828;'>
       <span>${p.name}</span>
     </div>`;
-  });
+  }
   createBottomSheet(html);
 
   setTimeout(() => {
@@ -427,12 +473,12 @@ btnSearch.onclick = () => {
       const query = this.value.toLowerCase();
       let results = [];
       playlists.forEach(p => {
-        p.videos.forEach(async (v) => {
+        p.videos.forEach(v => {
           if (v.title.toLowerCase().includes(query) || v.artist.toLowerCase().includes(query)) {
             const artistSlug = v.artist.toLowerCase().replace(/\s/g, "-");
-            const cover = await getCoverUrl(`/covers/artists/${artistSlug}.webp`);
+            const cover = `/covers/artists/${artistSlug}.webp`;
             results.push(`<div class='search-result' style='display:flex;align-items:center;gap:12px;margin:8px 0;cursor:pointer;'>
-              <img src='${cover}' alt='cover' style='width:32px;height:32px;border-radius:8px;object-fit:cover;border:1px solid #333;background:#181828;'>
+              <img src='${cover}' alt='cover' onerror="this.src='/covers/cover.svg'" style='width:32px;height:32px;border-radius:8px;object-fit:cover;border:1px solid #333;background:#181828;'>
               <span>${v.title} - ${v.artist}</span>
             </div>`);
           }
