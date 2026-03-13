@@ -54,6 +54,25 @@ let progressTimer = null
 
 let videoDuration = 0;
 
+let shouldAutoPlay = false;
+
+/* =========================
+   UTIL
+========================= */
+
+function formatTime(sec) {
+
+  sec = Math.floor(sec)
+
+  const m = Math.floor(sec / 60)
+  let s = sec % 60
+
+  if (s < 10) s = "0" + s
+
+  return `${m}:${s}`
+
+}
+
 /* =========================
    YOUTUBE API
 ========================= */
