@@ -498,6 +498,8 @@ btnSearch.onclick = () => {
   `);
 
   setTimeout(() => {
+    const searchInput = document.getElementById('searchInput');
+    searchInput.focus();
     document.getElementById('searchInput').oninput = function() {
       const query = this.value.toLowerCase();
       let results = [];
