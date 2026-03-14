@@ -56,6 +56,14 @@ let videoDuration = 0;
 
 let shouldAutoPlay = false;
 
+// Inicializa favoritos a partir do localStorage
+let favorites = [];
+try {
+  favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+} catch (e) {
+  favorites = [];
+}
+
 /* =========================
    UTIL
 ========================= */
@@ -180,11 +188,18 @@ async function loadVideo() {
   // Carrega a API se necessário
   await loadYouTubeAPI();
 
-  // Calcula dimensões para cobrir a área com aspect ratio 1:1
+  // Atualiza o ícone do botão de favoritos
+  if (favorites.includes(videoId)) {
+    btnFavorite.textContent = "favorite";
+  } else {
+    btnFavorite.textContent = "favorite_border";
+  }
+
+  // Calcula dimensões para cortar o vídeo para aspecto 1:1 (cortando laterais)
   const rect = videoPlayer.getBoundingClientRect();
   const containerWidth = rect.width;
   const containerHeight = rect.height;
-  const videoAspect = 1; // 1:1 para zoom e crop
+  const videoAspect = 16 / 9; // Aspecto do vídeo YouTube
   let playerWidth, playerHeight;
 
   if (containerWidth / containerHeight > videoAspect) {
@@ -565,12 +580,98 @@ btnSearch.onclick = () => {
 btnMore.onclick = () => {
 
   createBottomSheet(`
-    <div style='text-align:center;'>
-      <p style='font-size:1.2rem;font-weight:bold;'>LoveSongs Player</p>
-      <p>Autor: Waltemar</p>
-      <p style='margin-top:16px;color:#00ccff;'>Projeto open-source</p>
+    <div class="more-sheet-list">
+      <button class="sheet-option" data-action="favorites">
+        <span class="material-icons-outlined">favorite</span>
+        <span>Favoritos</span>
+      </button>
+      <button class="sheet-option" data-action="backup">
+        <span class="material-icons-outlined">cloud_upload</span>
+        <span>Fazer Backup e Restaurar</span>
+      </button>
+      <button class="sheet-option" data-action="login">
+        <span class="material-icons-outlined">person</span>
+        <span>Login</span>
+      </button>
+      <button class="sheet-option" data-action="share">
+        <span class="material-icons-outlined">share</span>
+        <span>Compartilhar LoveSongs</span>
+      </button>
+      <button class="sheet-option" data-action="privacy">
+        <span class="material-icons-outlined">policy</span>
+        <span>Política de Privacidade</span>
+      </button>
+      <button class="sheet-option" data-action="terms">
+        <span class="material-icons-outlined">gavel</span>
+        <span>Termos de Serviço</span>
+      </button>
+      <button class="sheet-option" data-action="about">
+        <span class="material-icons-outlined">info</span>
+        <span>Sobre</span>
+      </button>
+      <button class="sheet-option" data-action="donate">
+        <span class="material-icons-outlined">volunteer_activism</span>
+        <span>Doação</span>
+      </button>
     </div>
-  `)
+  `);
+  // Handlers para links externos
+  setTimeout(() => {
+    document.querySelectorAll('.sheet-option[data-action="privacy"]').forEach(btn => {
+      btn.onclick = () => {
+        window.open('politica-de-privacidade.html', '_blank');
+      };
+    });
+    document.querySelectorAll('.sheet-option[data-action="terms"]').forEach(btn => {
+      btn.onclick = () => {
+        window.open('termos-de-servico.html', '_blank');
+      };
+    });
+    document.querySelectorAll('.sheet-option[data-action="favorites"]').forEach(btn => {
+      btn.onclick = () => {
+        // Monta os cards dos favoritos
+        let favs = JSON.parse(localStorage.getItem('favorites') || '[]');
+        let allVideos = [];
+        playlists.forEach(pl => allVideos.push(...pl.videos.map(v => ({...v, playlist: pl}))));
+        let favVideos = favs.map(id => allVideos.find(v => v.id === id)).filter(Boolean);
+        let html = `<h2 class='fav-title'>Favoritos</h2>`;
+        if (favVideos.length === 0) {
+          html += `<div class='fav-empty'>Nenhum vídeo favoritado ainda.</div>`;
+        } else {
+          html += `<div class='fav-cards'>`;
+          favVideos.forEach(video => {
+            html += `
+              <div class='fav-card' data-id='${video.id}'>
+                <img src='/covers/artists/${video.artist.toLowerCase().replace(/\s/g, '-')}.webp' onerror="this.src='/covers/cover.svg'" alt='${video.artist}' />
+                <div class='fav-info'>
+                  <div class='fav-title-main'>${video.title}</div>
+                  <div class='fav-artist'>${video.artist}</div>
+                </div>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+        createBottomSheet(html);
+        setTimeout(() => {
+          document.querySelectorAll('.fav-card').forEach(card => {
+            card.onclick = () => {
+              const id = card.getAttribute('data-id');
+              // Busca o vídeo e playlist
+              let v = allVideos.find(v => v.id === id);
+              if (v) {
+                currentPlaylist = v.playlist;
+                currentIndex = currentPlaylist.videos.findIndex(vid => vid.id === id);
+                loadVideo();
+                // Fecha o bottom-sheet
+                document.querySelectorAll('.modern-bottom-sheet, .sheet-overlay').forEach(e => e.remove());
+              }
+            };
+          });
+        }, 100);
+      };
+    });
+  }, 100);
 
 }
 

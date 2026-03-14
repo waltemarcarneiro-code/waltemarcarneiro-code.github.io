@@ -1,0 +1,52 @@
+body {
+  font-family: 'Onest', Arial, sans-serif;
+  background: #18122b;
+  color: #f3f3f3;
+  margin: 0;
+  padding: 0;
+}
+
+.header-native {
+  display: flex;
+  align-items: center;
+  background: #2a1846;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #332255;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-native button {
+  background: none;
+  border: none;
+  color: #ff3399;
+  font-size: 2rem;
+  cursor: pointer;
+  margin-right: 1rem;
+  display: flex;
+  align-items: center;
+  transition: color .2s;
+}
+.header-native button:hover {
+  color: #00ccff;
+}
+
+.header-native h1 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .header-native h1 {
+    font-size: 1.05rem;
+  }
+}
+
+.main-content-native {
+  padding: 2rem 1rem 1.5rem 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}

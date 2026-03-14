@@ -1,3 +1,63 @@
+/* FAVORITOS BOTTOM SHEET */
+.fav-title {
+    font-size: clamp(1.3rem, 2vw, 2rem);
+    color: #ff3399;
+    margin-bottom: 1.2rem;
+    text-align: center;
+}
+.fav-empty {
+    color: #aaa;
+    text-align: center;
+    padding: 2rem 0 1.5rem 0;
+    font-size: 1.1rem;
+}
+.fav-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: clamp(1rem, 3vw, 2rem);
+    padding-bottom: 1rem;
+}
+.fav-card {
+    background: rgba(255,255,255,0.04);
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: background .2s, box-shadow .2s, transform .15s;
+    padding: 1.2rem 1rem 1rem 1rem;
+    position: relative;
+    min-width: 0;
+}
+.fav-card:hover, .fav-card:focus {
+    background: rgba(0,204,255,0.10);
+    box-shadow: 0 4px 24px rgba(0,204,255,0.10);
+    transform: translateY(-2px) scale(1.03);
+}
+.fav-card img {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+    background: #181828;
+    border: 2px solid #ff3399;
+}
+.fav-info {
+    text-align: center;
+}
+.fav-title-main {
+    font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+.fav-artist {
+    color: #ff3399;
+    font-size: clamp(.95rem, 1vw, 1.1rem);
+    font-weight: 400;
+}
 input[type="text"], input[type="search"] {
     background: #181828;
     color: #fff;
@@ -248,6 +308,7 @@ body {
     }
 }
 
+
 /* Modern Bottom Sheet Styles */
 .modern-bottom-sheet {
     position: fixed;
@@ -258,6 +319,9 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100vw;
+    max-width: 480px;
+    max-height: 96vh;
 }
 
 .sheet-overlay {
@@ -274,14 +338,51 @@ body {
     background: linear-gradient(180deg, #2a1846 0%, #18122b 100%);
     border-top-left-radius: 32px;
     border-top-right-radius: 32px;
-    padding: 40px 32px;
-    min-width: 320px;
+    padding: clamp(1.5rem, 4vw, 40px) clamp(1rem, 4vw, 32px);
+    min-width: 280px;
     max-width: 100vw;
+    max-height: 92vh;
+    overflow-y: auto;
     box-shadow: 0 -8px 40px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.12);
     z-index: 1001;
     animation: sheetUp .3s cubic-bezier(.68,-0.55,.27,1.55);
     transition: background .3s, box-shadow .3s, padding .3s;
     color: #f3f3f3;
+}
+
+.more-sheet-list {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.5rem, 2vw, 16px);
+    width: 100%;
+    max-width: 100vw;
+}
+
+.sheet-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    padding: clamp(0.75rem, 2vw, 18px) clamp(1rem, 4vw, 32px);
+    background: rgba(255,255,255,0.04);
+    border: none;
+    border-radius: 16px;
+    color: #fff;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+    outline: none;
+}
+.sheet-option:hover, .sheet-option:focus {
+    background: rgba(0,204,255,0.12);
+    color: #00ccff;
+}
+.sheet-option .material-icons-outlined {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: #ff3399;
+    flex-shrink: 0;
 }
 
 @keyframes sheetUp {
