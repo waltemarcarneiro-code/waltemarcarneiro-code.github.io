@@ -1,143 +1,112 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>LoveSongs Player</title>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0C0224">
-
-<link rel="icon" href="icons/icon-192.png">
-
-<link rel="stylesheet" href="style.css">
-
-<!-- MATERIAL ICONS -->
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
-
+  <link rel="stylesheet" href="styles.css">
 </head>
-
-
 <body>
 
-<!-- BACKGROUND BLUR -->
-<div class="background-blur" id="bgBlur"></div>
+<div class="layout">
 
+  <!-- ESQUERDA -->
+  <section class="section section--primary">
+    <div class="content">
+      <h1>Vídeos</h1>
+    </div>
+  </section>
 
-<main class="container">
+  <!-- DIREITA -->
+  <section class="section section--secondary">
 
+    <!-- HEADER -->
+    <header class="section-header">
+      <span>LOVEPLAYER</span>
 
-<!-- VIDEO FRAME -->
+      <div class="header-actions">
+        
+        <img src="icons/heart.svg">
+        <img src="icons/playlist.svg" alt="playlists">
+        <img src="icons/search.svg">
 
-<section class="video-frame">
+        <img src="icons/more.svg" id="openModal">
+      </div>
+    </header>
 
-<div id="videoPlayer"></div>
+    <!-- INFO -->
+    <div class="section-info">
+      <div class="media-info">
+        <h2>Nome da Música</h2>
+        <p>Artista</p>
+      </div>
+    </div>
 
-</section>
+    <!-- CONTROLES -->
+    <footer class="section-controls">
 
+      <div class="progress">
+        <input type="range">
+      </div>
 
+      <div class="controls">
+        <img src="icons/shuffle.svg">
 
-<!-- PLAYER -->
+        <img src="icons/prev.svg">
+        
+        <button class="play">
+          <img src="icons/play.svg">
+        </button>
+        
+        <img src="icons/next.svg">
 
-<section class="player">
+        <img src="icons/repeat.svg">
+      </div>
 
+    </footer>
 
-<!-- HEADER -->
-
-<header class="player-header">
-
-<div class="header-left">
-
-<span class="playlist-name">LoveSongs</span>
-
-</div>
-
-
-<div class="header-right">
-
-<span class="material-icons-outlined">search</span>
-
-<span class="material-icons-outlined">share</span>
-
-<span class="material-icons-outlined">favorite_border</span>
-
-<span class="material-icons-outlined">queue_music</span>
-
-<span class="material-icons-outlined">more_vert</span>
-
-</div>
-
-</header>
-
-
-
-<!-- CONTENT -->
-
-<div class="player-content">
-
-<h1 class="song-title">
-Selecione uma playlist
-</h1>
-
-<h2 class="song-artist"></h2>
+  </section>
 
 </div>
 
+<!-- MODAL -->
+<div class="modal" id="modal">
 
+  <div class="modal-header">
+    <span>Menu</span>
+    <img src="icons/close.svg" id="closeModal">
+  </div>
 
-<!-- FOOTER -->
-
-<footer class="player-footer">
-
-
-<!-- PROGRESS -->
-
-<div class="progress-bar">
-
-<span class="current-time">0:00</span>
-
-<div class="bar">
-
-<div class="fill"></div>
-
-</div>
-
-<span class="total-time">0:00</span>
-
-</div>
-
-
-
-<!-- CONTROLS -->
-
-<div class="controls">
-
-<span class="material-icons-outlined">shuffle</span>
-
-<span class="material-icons-outlined">skip_previous</span>
-
-<span class="material-icons-outlined pp">play_circle_outline</span>
-
-<span class="material-icons-outlined">skip_next</span>
-
-<span class="material-icons-outlined">repeat</span>
+  <div class="modal-list">
+    <div class="modal-item" id="toggleTheme"><img src="icons/theme.svg">Tema Dark/Light</div>
+    <div class="modal-item"><img src="icons/heart.svg">Favoritos</div>
+    <div class="modal-item"><img src="icons/login.svg">Login</div>
+    <div class="modal-item"><img src="icons/bkp.svg">Fazer Backup</div>
+    <div class="modal-item"><img src="icons/share.svg">Compartilhe este App</div>
+    <div class="modal-item"><img src="icons/arrow.svg">Política de Privacidade</div>
+    <div class="modal-item"><img src="icons/arrow.svg">Termo de Serviço</div>
+    <div class="modal-item"><img src="icons/arrow.svg">Sobre</div>
+    <div class="modal-item"><img src="icons/donate.svg">Doação</div>
+  </div>
 
 </div>
 
+<!-- Modal Bottom para Playlists -->
+<div id="playlistModal" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; background: white; z-index: 1000; max-height: 50vh; overflow-y: auto; border-radius: 16px 16px 0 0; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);">
+  <div style="padding: 16px; border-bottom: 1px solid #eee;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Minhas Playlists</h3>
+      <button id="closePlaylistModal" style="background: none; border: none; font-size: 24px; cursor: pointer; padding: 0;">×</button>
+    </div>
+  </div>
+  <div id="playlistList" style="padding: 0;"></div>
+</div>
 
-</footer>
-
-</section>
-
-
-</main>
-
+<!-- Overlay para fechar o modal -->
+<div id="playlistOverlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.3); z-index: 999;"></div>
 
 <script src="app.js"></script>
 
 </body>
-
 </html>
