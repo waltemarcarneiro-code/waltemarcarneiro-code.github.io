@@ -117,6 +117,11 @@ function loadVideo(index) {
   videoData.querySelector('h2').textContent = video.title;
   videoData.querySelector('p').textContent = video.artist;
 
+  // Resetar estado do play
+  isPlaying = false;
+  playButton.querySelector('img').src = 'icons/play.svg';
+  progressBar.value = 0;
+
   primarySection.innerHTML = '';
   
   const playerDiv = document.createElement('div');
