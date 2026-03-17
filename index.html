@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Player</title>
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-status-bar-style" content="light">
+  <title>LovePlayer</title>
 
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -23,7 +25,7 @@
 
     <!-- HEADER -->
     <header class="section-header">
-      <span>LOVEPLAYER</span>
+      <span>LovePlaer</span>
 
       <div class="header-actions">
         
@@ -93,18 +95,24 @@
 </div>
 
 <!-- Modal Bottom para Playlists -->
-<div id="playlistModal" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; background: white; z-index: 1000; max-height: 50vh; overflow-y: auto; border-radius: 16px 16px 0 0; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);">
-  <div style="padding: 16px; border-bottom: 1px solid #eee;">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Minhas Playlists</h3>
-      <button id="closePlaylistModal" style="background: none; border: none; font-size: 24px; cursor: pointer; padding: 0;">×</button>
-    </div>
+<div id="playlistModal" class="playlist-modal">
+  <div class="modal-header">
+    <span>Minhas Playlists</span>
+    <img src="icons/close.svg" id="closePlaylistModal">
   </div>
-  <div id="playlistList" style="padding: 0;"></div>
+  <div id="playlistList" class="modal-list"></div>
 </div>
 
 <!-- Overlay para fechar o modal -->
-<div id="playlistOverlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.3); z-index: 999;"></div>
+<div id="playlistOverlay" class="playlist-overlay"></div>
+
+<!-- Feedback Bottom Sheet -->
+<div id="feedbackModal" class="feedback-modal">
+  <div class="feedback-content">
+    <img id="feedbackIcon" src="icons/play.svg" alt="feedback">
+    <span id="feedbackMessage">Mensagem de feedback</span>
+  </div>
+</div>
 
 <script src="app.js"></script>
 

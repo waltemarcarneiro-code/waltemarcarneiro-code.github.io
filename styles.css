@@ -75,10 +75,26 @@ body {
     align-items: center;
     justify-content: center;
     color: #888;
-    background-image: url(icons/cover.svg);
-    background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
+    overflow: hidden;
+}
+
+.section--primary .content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+    background-image: url(icons/cover.svg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.section--primary h1 {
+  margin: 0;
 }
 
 /* DIREITA */
@@ -247,7 +263,103 @@ body.dark img {
     grid-template-columns: 1fr;
   }
 
-  .section {
+  .section--primary {
     height: 50dvh;
+    order: 1;
   }
+
+  .section--secondary {
+    height: 50dvh;
+    order: 2;
+  }
+
+  .playlist-modal {
+    max-height: 60vh;
+  }
+}
+
+/* =========================
+   PLAYLIST MODAL
+========================= */
+.playlist-modal {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg);
+  z-index: 1000;
+  max-height: 50vh;
+  overflow-y: auto;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.playlist-modal.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+.playlist-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 999;
+  
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.playlist-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* =========================
+   FEEDBACK MODAL
+========================= */
+.feedback-modal {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg);
+  z-index: 1001;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.feedback-modal.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+.feedback-content {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  padding: clamp(1rem, 2vw, 1.5rem);
+  min-height: 60px;
+  font-family: "Onest-Medium";
+  font-size: clamp(1rem, 2vw, 1.2rem);
+}
+
+.feedback-content img {
+  width: clamp(1.5rem, 2vw, 2rem);
+  height: auto;
 }
