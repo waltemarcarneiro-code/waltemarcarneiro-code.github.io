@@ -1,0 +1,46 @@
+{
+  "playlists":[
+    {
+      "name":"LoveSongs",
+      "slug":"lovesongs",
+      "cover":"lovesongs.webp",
+      "videos":[
+        {
+          "id":"8RqnQKSP_Rk",
+          "title":"Praying for Time",
+          "artist":"George Michael"
+        },
+        {
+          "id":"GP9IB2ji02s",
+          "title":"Knife",
+          "artist":"Rockweel"
+        },
+        {
+          "id":"2nfdKzmskDk",
+          "title":"You And I",
+          "artist":"Kenny Rogers"
+        },
+        {
+          "id":"KLVq0IAzh1A",
+          "title":"Fields of Gold",
+          "artist":"Sting"
+        },
+        {
+          "id":"3ZdbHUolTi8",
+          "title":"My All",
+          "artist":"Mariah Carey"
+        },
+        {
+          "id":"cWc9qeHTLQM",
+          "title":"By My Side",
+          "artist":"INXS"
+        },
+        {
+          "id":"ns5PMI6mrsI",
+          "title":"The Best LoveSongs 2026",
+          "artist":"Collection"
+        }
+      ]
+    }
+  ]
+}

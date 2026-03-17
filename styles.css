@@ -1,0 +1,253 @@
+/* =========================
+   FONTES LOCAIS
+========================= */
+@font-face {
+  font-family: "Onest-Regular";
+  src: url("fonts/Onest-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Onest-Medium";
+  src: url("fonts/Onest-Medium.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Onest-Bold";
+  src: url("fonts/Onest-Bold.woff2") format("woff2");
+}
+
+/* =========================
+   RESET
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* =========================
+   TEMA
+========================= */
+:root {
+  --bg: #ffffff;
+  --text: #111;
+  --accent: #c218a3;
+  --surface: #f5f5f5;
+  --divider: rgba(0,0,0,0.08);
+}
+
+body.dark {
+  --bg: #0d0d0d;
+  --text: #fff;
+  --accent: #ff4fc3;
+  --surface: #1a1a1a;
+  --divider: rgba(255,255,255,0.08);
+}
+
+/* =========================
+   BASE
+========================= */
+body {
+  font-family: "Onest-Regular", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: all .3s ease;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100dvh;
+}
+
+.section {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ESQUERDA */
+.section--primary {
+    background: #0f0f0f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    background-image: url(icons/cover.svg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+/* DIREITA */
+.section--secondary {
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* =========================
+   HEADER
+========================= */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(1rem, 2vw, 2rem);
+  border-bottom: 1px solid var(--divider);
+  font-family: "Onest-Medium";
+}
+
+.header-actions {
+  display: flex;
+  gap: clamp(0.5rem, 1vw, 1rem);
+}
+
+/* =========================
+   INFO
+========================= */
+.section-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.media-info h2 {
+  font-family: "Onest-Regular";
+  font-size: clamp(1.8rem, 4vw, 3rem);
+}
+
+.media-info p {
+  font-family: "Onest-Medium";
+  font-size: clamp(1rem, 2vw, 1.4rem);
+}
+
+/* =========================
+   CONTROLES
+========================= */
+.section-controls {
+  padding: clamp(1rem, 2vw, 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2vw, 2rem);
+}
+
+.progress input {
+  width: 100%;
+  height: 3px;
+  outline: none;
+}
+
+/* CONTROLES */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* ICONES */
+img {
+  width: clamp(2rem, 2.5vw, 32px);
+  height: auto;
+  cursor: pointer;
+
+  filter: brightness(0);
+}
+
+body.dark img {
+  filter: brightness(0) invert(1);
+}
+
+/* PLAY */
+.play {
+  /*width: clamp(70px, 8vw, 110px);*/
+  /*height: clamp(70px, 8vw, 110px);*/
+
+  border-radius: 50%;
+  /*border: 2px solid var(--text);*/
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+}
+
+.play img {
+  width: clamp(3rem, 3vw, 40px);
+}
+
+.play:hover {
+  
+  border-color: var(--accent);
+}
+
+/* =========================
+   MODAL
+========================= */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+
+  display: flex;
+  flex-direction: column;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transform: translateY(20px);
+  transition: .3s ease;
+  overflow-y: auto;
+  
+}
+
+.modal.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  padding: clamp(1rem, 2vw, 2rem);
+  border-bottom: 1px solid var(--divider);
+}
+
+.modal-list {
+  flex: 1;
+}
+
+.modal-item {
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border-bottom: 1px solid var(--divider);
+  cursor: pointer;
+  font-weight: 600;
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.modal-item:hover {
+  background: var(--surface);
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .section {
+    height: 50dvh;
+  }
+}
