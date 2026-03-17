@@ -139,16 +139,14 @@ async function loadPlaylists() {
 
 function loadFromURL() {
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const playlistSlug = urlParams.get('p');
-  const videoId = urlParams.get('v');
-
   if (playlistSlug && videoId) {
     const playlist = playlists.find(p => p.slug === playlistSlug);
     if (playlist) {
       const videoIndex = playlist.videos.findIndex(v => v.id === videoId);
       if (videoIndex !== -1) {
         currentPlaylist = playlist;
+
+
         currentIndex = videoIndex;
         loadVideo();
         return;
@@ -456,7 +454,10 @@ function createBottomSheet(contentHTML) {
   const sheet = document.createElement("div");
   sheet.className = "modern-bottom-sheet";
   sheet.innerHTML = `
-    <div class="sheet-content" style="width:100vw">
+    <div class="sheet-content" style="width:100vw; position:relative;">
+      <button class="sheet-close-btn" title="Fechar" aria-label="Fechar">
+        <span class="material-icons-outlined">close</span>
+      </button>
       ${contentHTML}
     </div>
   `;
@@ -465,7 +466,7 @@ function createBottomSheet(contentHTML) {
   sheet.addEventListener('mousedown', function(e) {
     const content = sheet.querySelector('.sheet-content');
     if (content && !content.contains(e.target)) {
-      sheet.remove();
+      closeSheet(sheet);
     }
   });
   // Cria overlay de fundo
@@ -475,13 +476,24 @@ function createBottomSheet(contentHTML) {
 
   // Fecha ao clicar no overlay
   overlay.addEventListener('mousedown', function(e) {
-    overlay.remove();
-    sheet.remove();
+    closeSheet(sheet, overlay);
   });
   // Impede propagação do clique dentro do conteúdo
   sheet.querySelector('.sheet-content').addEventListener('mousedown', function(e) {
     e.stopPropagation();
   });
+  // Fecha ao clicar no botão X
+  sheet.querySelector('.sheet-close-btn').onclick = () => closeSheet(sheet, overlay);
+}
+
+function closeSheet(sheet, overlay) {
+  // Animação de recolher para baixo
+  sheet.classList.add('sheet-hide');
+  setTimeout(() => {
+    if (sheet) sheet.remove();
+    if (overlay) overlay.remove();
+    else document.querySelectorAll('.sheet-overlay').forEach(e => e.remove());
+  }, 250);
 
 }
 
@@ -579,6 +591,10 @@ btnSearch.onclick = () => {
 
 btnMore.onclick = () => {
 
+  if (!playlists || playlists.length === 0) {
+    createBottomSheet('<div style="padding:2rem;text-align:center;font-size:1.1rem;">Aguarde, carregando playlists...</div>');
+    return;
+  }
   createBottomSheet(`
     <div class="more-sheet-list">
       <button class="sheet-option" data-action="favorites">
@@ -615,7 +631,7 @@ btnMore.onclick = () => {
       </button>
     </div>
   `);
-  // Handlers para links externos
+  // Handlers para links externos e internos
   setTimeout(() => {
     document.querySelectorAll('.sheet-option[data-action="privacy"]').forEach(btn => {
       btn.onclick = () => {
@@ -627,6 +643,140 @@ btnMore.onclick = () => {
         window.open('termos-de-servico.html', '_blank');
       };
     });
+    document.querySelectorAll('.sheet-option[data-action="about"]').forEach(btn => {
+      btn.onclick = showAboutSheet;
+    });
+    document.querySelectorAll('.sheet-option[data-action="backup"]').forEach(btn => {
+      btn.onclick = showBackupSheet;
+    });
+      document.querySelectorAll('.sheet-option[data-action="login"]').forEach(btn => {
+        btn.onclick = showLoginSheet;
+      });
+      document.querySelectorAll('.sheet-option[data-action="donate"]').forEach(btn => {
+        btn.onclick = showDonateSheet;
+      });
+      document.querySelectorAll('.sheet-option[data-action="share"]').forEach(btn => {
+        btn.onclick = () => {
+          if (navigator.share) {
+            navigator.share({
+              title: 'LoveSongs Player',
+              text: 'Ouça músicas românticas no LoveSongs Player!',
+              url: location.origin + location.pathname
+            });
+          } else {
+            navigator.clipboard.writeText(location.origin + location.pathname);
+            alert('Link do LoveSongs copiado! Compartilhe com quem você ama.');
+          }
+        };
+      });
+// Função para exibir o modal de Backup e Restaurar (romântico)
+function showBackupSheet() {
+  createBottomSheet(`
+    <div class="backup-sheet" style="text-align:center;">
+      <h2 style="color:#e4405f;">Backup do Amor</h2>
+      <div style="font-size:1.1rem;margin-bottom:1.2rem;">Guarde e restaure suas músicas favoritas e memórias românticas.<br>O amor também merece backup! 💖</div>
+      <div style="margin: 1.5rem 0;">
+        <button id="exportBackupBtn" style="padding:0.7rem 1.5rem;font-size:1rem;margin-bottom:1rem;background:#e4405f;color:#fff;border:none;border-radius:8px;">Exportar Backup do Amor</button><br>
+        <input type="file" id="importBackupInput" accept="application/json" style="display:none;">
+        <button id="importBackupBtn" style="padding:0.7rem 1.5rem;font-size:1rem;background:#e4405f;color:#fff;border:none;border-radius:8px;">Restaurar Backup do Amor</button>
+      </div>
+      <div id="backupStatus" style="color:#888;font-size:0.95rem;"></div>
+      <div style="margin-top:1.5rem;font-size:0.95rem;color:#e4405f;">O arquivo se chama <b>lovesongs.json</b>.<br>Guarde com carinho! 💌</div>
+    </div>
+  `);
+
+  // Exportar backup
+  document.getElementById('exportBackupBtn').onclick = function() {
+    const data = {
+      playlists,
+      favorites
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'lovesongs.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+    document.getElementById('backupStatus').textContent = 'Backup exportado com sucesso! Que o amor nunca se perca.';
+  };
+
+  // Importar backup
+  document.getElementById('importBackupBtn').onclick = function() {
+    document.getElementById('importBackupInput').click();
+  };
+  document.getElementById('importBackupInput').onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      try {
+        const data = JSON.parse(evt.target.result);
+        if (data.playlists && Array.isArray(data.playlists)) {
+          playlists = data.playlists;
+          localStorage.setItem('favorites', JSON.stringify(data.favorites || []));
+          favorites = data.favorites || [];
+          document.getElementById('backupStatus').textContent = 'Backup restaurado! Recarregue a página e continue vivendo seu romance musical.';
+        } else {
+          document.getElementById('backupStatus').textContent = 'Arquivo inválido. O amor não foi encontrado.';
+        }
+      } catch (err) {
+        document.getElementById('backupStatus').textContent = 'Erro ao importar backup. O cupido se confundiu!';
+      }
+    };
+    reader.readAsText(file);
+  };
+}
+
+// Função para exibir o modal de Login (romântico)
+function showLoginSheet() {
+  createBottomSheet(`
+    <div class="login-sheet" style="text-align:center;">
+      <h2 style="color:#e4405f;">Entrar no LoveSongs</h2>
+      <div style="font-size:1.1rem;margin-bottom:1.2rem;">Faça login para guardar suas playlists e eternizar seu romance musical! 💘</div>
+      <input type="text" id="loginUser" placeholder="Seu nome de amor" style="padding:0.7rem 1rem;font-size:1rem;margin-bottom:1rem;border-radius:8px;border:1px solid #e4405f;width:80%;max-width:260px;"><br>
+      <input type="password" id="loginPass" placeholder="Senha secreta" style="padding:0.7rem 1rem;font-size:1rem;margin-bottom:1.2rem;border-radius:8px;border:1px solid #e4405f;width:80%;max-width:260px;"><br>
+      <button id="loginBtn" style="padding:0.7rem 1.5rem;font-size:1rem;background:#e4405f;color:#fff;border:none;border-radius:8px;">Entrar</button>
+      <div id="loginStatus" style="color:#888;font-size:0.95rem;margin-top:1rem;"></div>
+    </div>
+  `);
+  document.getElementById('loginBtn').onclick = function() {
+    const user = document.getElementById('loginUser').value.trim();
+    const pass = document.getElementById('loginPass').value.trim();
+    if (!user || !pass) {
+      document.getElementById('loginStatus').textContent = 'Preencha todos os campos para entrar no LoveSongs!';
+      return;
+    }
+    // Apenas simulação
+    document.getElementById('loginStatus').textContent = `Bem-vindo(a), ${user}! Que o amor toque sua playlist! ❤️`;
+  };
+}
+
+// Função para exibir o modal de Doação (romântico)
+function showDonateSheet() {
+  createBottomSheet(`
+    <div class="donate-sheet" style="text-align:center;">
+      <h2 style="color:#e4405f;">Doe Amor 💝</h2>
+      <div style="font-size:1.1rem;margin-bottom:1.2rem;">Ajude o LoveSongs a espalhar mais músicas e sentimentos!<br>Qualquer valor é um gesto de carinho. Obrigado! 💞</div>
+      <div style="margin:1.5rem 0;">
+        <button id="donatePixBtn" style="padding:0.7rem 1.5rem;font-size:1rem;background:#e4405f;color:#fff;border:none;border-radius:8px;margin-bottom:1rem;">Doar via Pix</button><br>
+        <button id="donateCoffeeBtn" style="padding:0.7rem 1.5rem;font-size:1rem;background:#e4405f;color:#fff;border:none;border-radius:8px;">Me pague um café ☕</button>
+      </div>
+      <div id="donateStatus" style="color:#888;font-size:0.95rem;"></div>
+    </div>
+  `);
+  document.getElementById('donatePixBtn').onclick = function() {
+    document.getElementById('donateStatus').textContent = 'Chave Pix: seuemail@provedor.com (copiado!)';
+    navigator.clipboard.writeText('seuemail@provedor.com');
+  };
+  document.getElementById('donateCoffeeBtn').onclick = function() {
+    window.open('https://www.buymeacoffee.com/', '_blank');
+  };
+}
     document.querySelectorAll('.sheet-option[data-action="favorites"]').forEach(btn => {
       btn.onclick = () => {
         // Monta os cards dos favoritos
@@ -657,14 +807,16 @@ btnMore.onclick = () => {
           document.querySelectorAll('.fav-card').forEach(card => {
             card.onclick = () => {
               const id = card.getAttribute('data-id');
+              // Fecha o bottom-sheet corretamente usando closeSheet
+              const sheet = document.querySelector('.modern-bottom-sheet');
+              const overlay = document.querySelector('.sheet-overlay');
+              if (sheet) closeSheet(sheet, overlay);
               // Busca o vídeo e playlist
               let v = allVideos.find(v => v.id === id);
               if (v) {
                 currentPlaylist = v.playlist;
                 currentIndex = currentPlaylist.videos.findIndex(vid => vid.id === id);
                 loadVideo();
-                // Fecha o bottom-sheet
-                document.querySelectorAll('.modern-bottom-sheet, .sheet-overlay').forEach(e => e.remove());
               }
             };
           });
@@ -672,6 +824,33 @@ btnMore.onclick = () => {
       };
     });
   }, 100);
+
+// Função para exibir o modal "Sobre"
+function showAboutSheet() {
+  createBottomSheet(`
+    <div class="about-sheet">
+      <div class="about-header">
+        <img src="/icons/icon-192.png" alt="Logo" class="about-logo" style="width:64px;height:64px;border-radius:16px;">
+        <div>
+          <div class="about-appname">LoveSongs Player</div>
+          <div class="about-version">Versão 1.0</div>
+        </div>
+      </div>
+      <div class="about-author">Desenvolvido por <span>Seu Nome</span></div>
+      <div class="about-contact">
+        <span class="material-icons-outlined">email</span>
+        <a href="mailto:contato@email.com">contato@email.com</a>
+      </div>
+      <div class="about-socials">
+        <a class="about-social whatsapp" href="#" title="WhatsApp"><span class="material-icons-outlined">whatsapp</span></a>
+        <a class="about-social instagram" href="#" title="Instagram"><span class="material-icons-outlined">instagram</span></a>
+        <a class="about-social facebook" href="#" title="Facebook"><span class="material-icons-outlined">facebook</span></a>
+        <a class="about-social telegram" href="#" title="Telegram"><span class="material-icons-outlined">telegram</span></a>
+      </div>
+      <div class="about-desc" style="margin-top:1.5rem;">Este app foi criado para tocar suas músicas favoritas de forma simples e elegante.</div>
+    </div>
+  `);
+}
 
 }
 

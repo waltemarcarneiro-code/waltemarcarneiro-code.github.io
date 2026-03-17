@@ -1,3 +1,129 @@
+/* SOBRE BOTTOM SHEET */
+.about-sheet {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(1.2rem, 3vw, 2.2rem);
+    padding: 1.2rem 0 0.5rem 0;
+    min-width: 0;
+}
+.about-header {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+.about-logo {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    color: #ff3399;
+    background: linear-gradient(135deg, #ff3399 60%, #00ccff 100%);
+    border-radius: 50%;
+    box-shadow: 0 2px 16px #ff3399a0;
+    padding: 0.5rem;
+}
+.about-appname {
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+}
+.about-version {
+    color: #00ccff;
+    font-size: 1rem;
+    font-weight: 500;
+}
+.about-author {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+.about-author span {
+    color: #ff3399;
+    font-weight: 600;
+}
+.about-contact {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #fff;
+    font-size: 1.05rem;
+}
+.about-contact .material-icons-outlined {
+    color: #00ccff;
+    font-size: 1.3rem;
+}
+.about-contact a {
+    color: #00ccff;
+    text-decoration: none;
+    font-weight: 500;
+}
+.about-socials {
+    display: flex;
+    gap: 1.2rem;
+    margin: 0.5rem 0 0.2rem 0;
+}
+.about-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.07);
+    transition: background .2s, box-shadow .2s, transform .15s;
+    font-size: 2rem;
+    box-shadow: 0 2px 8px #0002;
+}
+.about-social:hover, .about-social:focus {
+    background: #ff3399;
+    color: #fff;
+    transform: scale(1.08);
+    box-shadow: 0 4px 16px #ff3399a0;
+}
+.about-social.whatsapp .material-icons-outlined { color: #25d366; }
+.about-social.instagram .material-icons-outlined { color: #e4405f; }
+.about-social.facebook .material-icons-outlined { color: #1877f3; }
+.about-social.telegram .material-icons-outlined { color: #229ed9; }
+.about-desc {
+    color: #fff;
+    font-size: 1.08rem;
+    text-align: center;
+    margin-top: 0.5rem;
+    opacity: 0.85;
+}
+/* BOTÃO FECHAR BOTTOM SHEET */
+.sheet-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(0,0,0,0.12);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: background .2s;
+}
+.sheet-close-btn:hover, .sheet-close-btn:focus {
+    background: rgba(255,51,153,0.18);
+}
+.sheet-close-btn .material-icons-outlined {
+    font-size: 2rem;
+    color: #fff;
+}
+
+/* ANIMAÇÃO RECOLHER BOTTOM SHEET */
+.modern-bottom-sheet {
+    transition: transform .25s cubic-bezier(.4,1.4,.6,1), opacity .2s;
+}
+.modern-bottom-sheet.sheet-hide {
+    transform: translateY(100%);
+    opacity: 0;
+}
 /* FAVORITOS BOTTOM SHEET */
 .fav-title {
     font-size: clamp(1.3rem, 2vw, 2rem);
@@ -330,7 +456,7 @@ body {
     top: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0,0,0,0.3);
+    background: #0C0224;
     z-index: 1000;
 }
 
