@@ -66,7 +66,7 @@
           "artist": "Andru Donalds"
         },
         {
-          "id": "ZhVMv61chwg",
+          "id": "ho49Do8yg",
           "title": "I'll Be Over You",
           "artist": "TOTO"
         },
@@ -87,13 +87,13 @@
         },
         {
           "id": "T5hdNCuuIYw",
-          "title": "The Miracle of Love",
+          "title": "The Miracle of Love (2018 Remastered)",
           "artist": "Eurythmics"
         },
         {
           "id": "lEovjFyXuGw",
           "title": "My Love",
-          "artist": " Little Texas"
+          "artist": "Little Texas"
         },
         {
           "id": "5kp0dw4MuWs",
@@ -103,7 +103,7 @@
         {
           "id": "JkK8g6FMEXE",
           "title": "I Don't Want to Miss a Thing",
-          "artist": "Aerosmith"
+          "artist": "Aerosmith "
         },
         {
           "id": "EFOxYGOgTfQ",
@@ -112,7 +112,7 @@
         },
         {
           "id": "A__YafP_TWY",
-          "title": "One Last Cry",
+          "title": " One Last Cry",
           "artist": "Marina Elali"
         },
         {
@@ -129,6 +129,11 @@
           "id": "3JWTaaS7LdU",
           "title": "I Will Always Love You",
           "artist": "Whitney Houston"
+        },
+        {
+          "id": "VXMbiiw6soM",
+          "title": "Lea",
+          "artist": "TOTO"
         }
       ]
     },
