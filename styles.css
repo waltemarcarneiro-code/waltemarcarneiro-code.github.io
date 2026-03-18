@@ -136,6 +136,7 @@ body {
 .media-info h2 {
   font-family: "Onest-Regular";
   font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 300;
 }
 
 .media-info p {
