@@ -396,6 +396,11 @@ function loadVideo(index) {
     return;
   }
 
+  // Limpar intervalo anterior para evitar conflitos
+  if (updateProgressInterval) {
+    clearInterval(updateProgressInterval);
+  }
+
   const video = currentPlaylist[index];
   videoData.querySelector('h2').textContent = video.title;
   videoData.querySelector('p').textContent = video.artist;
@@ -430,9 +435,9 @@ function loadVideo(index) {
 function onPlayerReady(event) {
   // Atualizar barra de progresso
   updateProgressInterval = setInterval(() => {
-    if (player.getPlayerState() === YT.PlayerState.PLAYING) {
-      const duration = player.getDuration();
-      const currentTime = player.getCurrentTime();
+    if (event.target && event.target.getPlayerState() === YT.PlayerState.PLAYING) {
+      const duration = event.target.getDuration();
+      const currentTime = event.target.getCurrentTime();
       if (duration > 0) {
         progressBar.value = (currentTime / duration) * 100;
       }
