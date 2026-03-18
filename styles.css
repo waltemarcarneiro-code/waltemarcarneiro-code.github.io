@@ -153,10 +153,61 @@ body {
   gap: clamp(1rem, 2vw, 2rem);
 }
 
-.progress input {
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
+}
+
+.progress input {
+  flex: 1;
   height: 3px;
   outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(to right, #800080 0%, #800080 var(--progress, 0%), var(--divider) var(--progress, 0%), var(--divider) 100%);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+/* Thumb para Chrome/Safari */
+.progress input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #800080;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(128, 0, 128, 0.5);
+}
+
+/* Thumb para Firefox */
+.progress input::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: #800080;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(128, 0, 128, 0.5);
+}
+
+/* Track para Firefox */
+.progress input::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+.progress .time-current,
+.progress .time-duration {
+  font-size: clamp(0.7rem, 1vw, 0.85rem);
+  color: var(--text);
+  opacity: 0.7;
+  font-family: "Onest-Medium";
+  min-width: 2.5rem;
+  text-align: center;
 }
 
 /* CONTROLES */

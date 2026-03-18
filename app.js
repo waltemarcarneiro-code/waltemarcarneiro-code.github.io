@@ -49,6 +49,8 @@ document.head.appendChild(script);
 const videoData = document.querySelector('.section-info .media-info');
 const primarySection = document.querySelector('.section--primary .content');
 const progressBar = document.querySelector('.progress input');
+const timeCurrent = document.querySelector('.progress .time-current');
+const timeDuration = document.querySelector('.progress .time-duration');
 const controls = document.querySelector('.section-controls .controls');
 const shuffleButton = controls.children[0];
 const prevButton = controls.children[1];
@@ -409,6 +411,8 @@ function loadVideo(index) {
   isPlaying = false;
   playButton.querySelector('img').src = 'icons/play.svg';
   progressBar.value = 0;
+  timeCurrent.textContent = '0:00';
+  timeDuration.textContent = '0:00';
 
   primarySection.innerHTML = '';
   
@@ -432,14 +436,26 @@ function loadVideo(index) {
   updateFavoriteIcon();
 }
 
+// Formatar tempo em MM:SS
+function formatTime(seconds) {
+  if (isNaN(seconds)) return '0:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+}
+
 function onPlayerReady(event) {
-  // Atualizar barra de progresso
+  // Atualizar barra de progresso e contadores de tempo
   updateProgressInterval = setInterval(() => {
     if (event.target && event.target.getPlayerState() === YT.PlayerState.PLAYING) {
       const duration = event.target.getDuration();
       const currentTime = event.target.getCurrentTime();
       if (duration > 0) {
-        progressBar.value = (currentTime / duration) * 100;
+        const percentage = (currentTime / duration) * 100;
+        progressBar.value = percentage;
+        progressBar.style.setProperty('--progress', percentage + '%');
+        timeCurrent.textContent = formatTime(currentTime);
+        timeDuration.textContent = formatTime(duration);
       }
     }
   }, 100);
@@ -521,8 +537,10 @@ repeatButton.addEventListener('click', toggleRepeat);
 // Controlar progresso
 progressBar.addEventListener('input', (e) => {
   if (player && playlistSelected) {
+    const percentage = e.target.value;
+    progressBar.style.setProperty('--progress', percentage + '%');
     const duration = player.getDuration();
-    const newTime = (e.target.value / 100) * duration;
+    const newTime = (percentage / 100) * duration;
     player.seekTo(newTime);
   }
 });
