@@ -13,6 +13,10 @@ modal.addEventListener('click', (e) => {
 });
 
 /* TEMA */
+// Aplicar tema escuro por padrão
+document.body.classList.add('dark');
+updateStatusBar();
+
 theme.onclick = () => {
   document.body.classList.toggle('dark');
   updateStatusBar();
