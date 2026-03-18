@@ -53,11 +53,25 @@ const nextButton = controls.children[3];
 const repeatButton = controls.children[4];
 
 // Modal de Playlists
-const playlistIcon = document.querySelector('.header-actions img[alt="playlists"]');
+const playlistIcon = document.getElementById('playlistIcon');
 const playlistModal = document.getElementById('playlistModal');
 const playlistOverlay = document.getElementById('playlistOverlay');
 const playlistList = document.getElementById('playlistList');
 const closePlaylistModalBtn = document.getElementById('closePlaylistModal');
+
+// Modal de Favoritos
+const favoritesIcon = document.getElementById('favoriteIcon');
+const favoritesModal = document.getElementById('favoritesModal');
+const favoritesOverlay = document.getElementById('favoritesOverlay');
+const favoritesList = document.getElementById('favoritesList');
+const closeFavoritesModalBtn = document.getElementById('closeFavoritesModal');
+
+// Modal de Busca
+const searchIcon = document.getElementById('searchIcon');
+const searchModal = document.getElementById('searchModal');
+const searchOverlay = document.getElementById('searchOverlay');
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
 
 // Estado da aplicação
 let currentPlaylist = [];
@@ -66,11 +80,32 @@ let isPlaying = false;
 let isShuffle = false;
 let isRepeat = false;
 let playlistSelected = false;
+let allPlaylists = [];
+let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
-// Função para fechar o modal de playlists
+// Carregar playlists ao iniciar
+fetch('playlists.json')
+  .then(response => response.json())
+  .then(data => {
+    allPlaylists = data.playlists;
+  });
+
+// Função para fechar modais
 function closePlaylistModal() {
   playlistModal.classList.remove('active');
   playlistOverlay.classList.remove('active');
+}
+
+function closeFavoritesModal() {
+  favoritesModal.classList.remove('active');
+  favoritesOverlay.classList.remove('active');
+}
+
+function closeSearchModal() {
+  searchModal.classList.remove('active');
+  searchOverlay.classList.remove('active');
+  searchInput.value = '';
+  searchResults.innerHTML = '';
 }
 
 // Abrir modal ao clicar no ícone de playlist
@@ -78,14 +113,18 @@ playlistIcon.addEventListener('click', () => {
   fetch('playlists.json')
     .then(response => response.json())
     .then(data => {
+      allPlaylists = data.playlists;
       playlistList.innerHTML = '';
       
       data.playlists.forEach(playlist => {
-        const playlistItem = document.createElement('div');
-        playlistItem.classList.add('modal-item');
-        playlistItem.textContent = playlist.name;
+        const card = document.createElement('div');
+        card.classList.add('playlist-card');
+        card.innerHTML = `
+          <img src="covers/playlists/${playlist.cover}" alt="${playlist.name}">
+          <div class="playlist-card-title">${playlist.name}</div>
+        `;
         
-        playlistItem.addEventListener('click', () => {
+        card.addEventListener('click', () => {
           currentPlaylist = playlist.videos;
           currentIndex = 0;
           playlistSelected = true;
@@ -94,7 +133,7 @@ playlistIcon.addEventListener('click', () => {
           closePlaylistModal();
         });
         
-        playlistList.appendChild(playlistItem);
+        playlistList.appendChild(card);
       });
       
       playlistModal.classList.add('active');
@@ -102,9 +141,208 @@ playlistIcon.addEventListener('click', () => {
     });
 });
 
-// Fechar modal
+// Favoritar/Desfavoritar ao clicar no ícone do coração
+favoritesIcon.addEventListener('click', () => {
+  if (!playlistSelected) {
+    showFeedback('Selecione uma playlist primeiro', 'warning');
+    return;
+  }
+  
+  const currentVideo = currentPlaylist[currentIndex];
+  if (isFavorited(currentVideo.id)) {
+    removeFavorite(currentVideo.id);
+  } else {
+    addFavorite(currentVideo);
+  }
+});
+
+// Abrir modal de busca
+searchIcon.addEventListener('click', () => {
+  searchModal.classList.add('active');
+  searchOverlay.classList.add('active');
+  searchInput.focus();
+});
+
+// Event listener para busca em tempo real
+searchInput.addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase();
+  searchResults.innerHTML = '';
+  
+  if (query.length < 2) {
+    return;
+  }
+  
+  const results = [];
+  allPlaylists.forEach(playlist => {
+    playlist.videos.forEach(video => {
+      if (video.title.toLowerCase().includes(query) || 
+          video.artist.toLowerCase().includes(query)) {
+        results.push(video);
+      }
+    });
+  });
+  
+  if (results.length === 0) {
+    const noResults = document.createElement('div');
+    noResults.style.padding = '2rem';
+    noResults.style.textAlign = 'center';
+    noResults.style.color = 'var(--text)';
+    noResults.textContent = 'Nenhum vídeo encontrado';
+    searchResults.appendChild(noResults);
+  } else {
+    results.forEach(video => {
+      createVideoCard(video, searchResults);
+    });
+  }
+});
+
+// Criar card de vídeo
+function createVideoCard(video, container) {
+  const card = document.createElement('div');
+  card.classList.add('video-card');
+  
+  // Validar que o vídeo tem as propriedades necessárias
+  if (!video.artist) {
+    console.warn('Video missing artist property:', video);
+    return;
+  }
+  
+  const artistSlug = video.artist.toLowerCase().replace(/\s+/g, '-');
+  const coverPath = `covers/artists/${artistSlug}.jpg`;
+  
+  card.innerHTML = `
+    <img src="${coverPath}" alt="${video.title}" class="video-card-img">
+    <div class="video-card-info">
+      <div class="video-card-title">${video.title}</div>
+      <div class="video-card-artist">${video.artist}</div>
+    </div>
+  `;
+  
+  card.addEventListener('click', () => {
+    // Procurar o vídeo em todas as playlists
+    for (let playlist of allPlaylists) {
+      const videoIndex = playlist.videos.findIndex(v => v.id === video.id);
+      if (videoIndex !== -1) {
+        currentPlaylist = playlist.videos;
+        currentIndex = videoIndex;
+        playlistSelected = true;
+        loadVideo(currentIndex);
+        closeSearchModal();
+        closeFavoritesModal();
+        return;
+      }
+    }
+    // Se não encontrou o vídeo em nenhuma playlist, mostrar erro
+    showFeedback('Vídeo não encontrado na playlist', 'error', 2000);
+  });
+  
+  container.appendChild(card);
+}
+
+// Fechar modais
 closePlaylistModalBtn.addEventListener('click', closePlaylistModal);
 playlistOverlay.addEventListener('click', closePlaylistModal);
+
+closeFavoritesModalBtn.addEventListener('click', closeFavoritesModal);
+favoritesOverlay.addEventListener('click', closeFavoritesModal);
+
+searchOverlay.addEventListener('click', closeSearchModal);
+
+// Abrir Meus Favoritos pelo menu
+const showFavoritesMenu = document.getElementById('showFavoritesMenu');
+
+// Verificar se os elementos estão sendo encontrados
+console.log('favoriteIcon:', favoritesIcon);
+console.log('favoritesModal:', favoritesModal);
+console.log('favoritesOverlay:', favoritesOverlay);
+console.log('favoritesList:', favoritesList);
+console.log('showFavoritesMenu:', showFavoritesMenu);
+if (showFavoritesMenu) {
+  console.log('Adding click listener to showFavoritesMenu');
+  showFavoritesMenu.addEventListener('click', () => {
+    console.log('showFavoritesMenu clicked');
+    modal.classList.remove('active');
+    showFavoritesModal();
+  });
+} else {
+  console.log('showFavoritesMenu not found!');
+}
+
+function showFavoritesModal() {
+  console.log('showFavoritesModal called');
+  
+  // Recarregar favoritos do localStorage
+  favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  console.log('Favorites:', favorites);
+  
+  // Limpar container
+  favoritesList.innerHTML = '';
+  
+  // Verificar se há favoritos
+  if (favorites.length === 0) {
+    console.log('No favorites, showing empty message');
+    // Mostrar mensagem de vazio
+    const emptyMsg = document.createElement('div');
+    emptyMsg.style.padding = '2rem';
+    emptyMsg.style.textAlign = 'center';
+    emptyMsg.style.color = 'var(--text)';
+    emptyMsg.textContent = 'Nenhum vídeo favoritado ainda';
+    favoritesList.appendChild(emptyMsg);
+  } else {
+    console.log('Creating cards for', favorites.length, 'videos');
+    // Criar cards para cada vídeo favorito
+    favorites.forEach((video, index) => {
+      console.log(`Video ${index}:`, video);
+      console.log(`  - id: ${video.id}`);
+      console.log(`  - title: ${video.title}`);
+      console.log(`  - artist: ${video.artist}`);
+      createVideoCard(video, favoritesList);
+    });
+  }
+  
+  console.log('Adding active class to favoritesModal and favoritesOverlay');
+  // Abrir modal
+  favoritesModal.classList.add('active');
+  favoritesOverlay.classList.add('active');
+  console.log('Modal classes:', favoritesModal.className, favoritesOverlay.className);
+}
+
+// Funções de Favoritos
+function addFavorite(video) {
+  if (!favorites.find(v => v.id === video.id)) {
+    favorites.push(video);
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    updateFavoriteIcon();
+    showFeedback(`"${video.title}" adicionado aos favoritos`, 'success', 2000);
+  } else {
+    showFeedback(`"${video.title}" já está nos favoritos`, 'info', 2000);
+  }
+}
+
+function removeFavorite(videoId) {
+  favorites = favorites.filter(v => v.id !== videoId);
+  localStorage.setItem('favorites', JSON.stringify(favorites));
+  updateFavoriteIcon();
+  showFeedback('Removido dos favoritos', 'success', 2000);
+}
+
+function isFavorited(videoId) {
+  return favorites.some(v => v.id === videoId);
+}
+
+function updateFavoriteIcon() {
+  if (!playlistSelected) {
+    favoritesIcon.classList.remove('favorited');
+    return;
+  }
+  
+  const currentVideo = currentPlaylist[currentIndex];
+  if (isFavorited(currentVideo.id)) {
+    favoritesIcon.classList.add('favorited');
+  } else {
+    favoritesIcon.classList.remove('favorited');
+  }
+}
 
 // Carregar vídeo
 function loadVideo(index) {
@@ -139,6 +377,9 @@ function loadVideo(index) {
       'onStateChange': onPlayerStateChange
     }
   });
+  
+  // Atualizar ícone de favorito
+  updateFavoriteIcon();
 }
 
 function onPlayerReady(event) {

@@ -29,9 +29,9 @@
 
       <div class="header-actions">
         
-        <img src="icons/heart.svg">
-        <img src="icons/playlist.svg" alt="playlists">
-        <img src="icons/search.svg">
+        <img src="icons/heart.svg" alt="favoritar" title="Favoritar" id="favoriteIcon">
+        <img src="icons/playlist.svg" alt="playlists" title="Playlists" id="playlistIcon">
+        <img src="icons/search.svg" alt="buscar" title="Buscar" id="searchIcon">
 
         <img src="icons/more.svg" id="openModal">
       </div>
@@ -82,10 +82,10 @@
 
   <div class="modal-list">
     <div class="modal-item" id="toggleTheme"><img src="icons/theme.svg">Tema Dark/Light</div>
-    <div class="modal-item"><img src="icons/heart.svg">Favoritos</div>
+    <div class="modal-item" id="showFavoritesMenu"><img src="icons/heart.svg">Meus Favoritos</div>
     <div class="modal-item"><img src="icons/login.svg">Login</div>
     <div class="modal-item"><img src="icons/bkp.svg">Fazer Backup</div>
-    <div class="modal-item"><img src="icons/share.svg">Compartilhe este App</div>
+    <div class="modal-item"><img src="icons/share.svg">Compartilhe App</div>
     <div class="modal-item"><img src="icons/arrow.svg">Política de Privacidade</div>
     <div class="modal-item"><img src="icons/arrow.svg">Termo de Serviço</div>
     <div class="modal-item"><img src="icons/arrow.svg">Sobre</div>
@@ -100,11 +100,34 @@
     <span>Minhas Playlists</span>
     <img src="icons/close.svg" id="closePlaylistModal">
   </div>
-  <div id="playlistList" class="modal-list"></div>
+  <div id="playlistList" class="playlist-grid"></div>
 </div>
 
 <!-- Overlay para fechar o modal -->
 <div id="playlistOverlay" class="playlist-overlay"></div>
+
+<!-- Modal Bottom para Favoritos -->
+<div id="favoritesModal" class="playlist-modal">
+  <div class="modal-header">
+    <span>Vídeos Favoritados</span>
+    <img src="icons/close.svg" id="closeFavoritesModal">
+  </div>
+  <div id="favoritesList" class="video-grid"></div>
+</div>
+
+<!-- Overlay para Favoritos -->
+<div id="favoritesOverlay" class="playlist-overlay"></div>
+
+<!-- Modal Bottom para Busca -->
+<div id="searchModal" class="playlist-modal">
+  <div class="modal-header">
+    <input type="text" id="searchInput" placeholder="Buscar vídeos..." class="search-input">
+  </div>
+  <div id="searchResults" class="video-grid"></div>
+</div>
+
+<!-- Overlay para Busca -->
+<div id="searchOverlay" class="playlist-overlay"></div>
 
 <!-- Feedback Bottom Sheet -->
 <div id="feedbackModal" class="feedback-modal">
