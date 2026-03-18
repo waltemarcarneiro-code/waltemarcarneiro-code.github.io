@@ -73,6 +73,9 @@ const searchOverlay = document.getElementById('searchOverlay');
 const searchInput = document.getElementById('searchInput');
 const searchResults = document.getElementById('searchResults');
 
+// Ícone de compartilhamento
+const shareIcon = document.getElementById('share');
+
 // Estado da aplicação
 let currentPlaylist = [];
 let currentIndex = 0;
@@ -88,7 +91,32 @@ fetch('playlists.json')
   .then(response => response.json())
   .then(data => {
     allPlaylists = data.playlists;
+    // Verificar se há um vídeo compartilhado na URL
+    loadSharedVideo();
   });
+
+// Carregar vídeo compartilhado se houver na URL
+function loadSharedVideo() {
+  const hash = window.location.hash;
+  if (!hash) return;
+  
+  const params = new URLSearchParams(hash.substring(1));
+  const videoId = params.get('videoId');
+  
+  if (!videoId) return;
+  
+  // Procurar o vídeo em todas as playlists
+  for (let playlist of allPlaylists) {
+    const videoIndex = playlist.videos.findIndex(v => v.id === videoId);
+    if (videoIndex !== -1) {
+      currentPlaylist = playlist.videos;
+      currentIndex = videoIndex;
+      playlistSelected = true;
+      loadVideo(currentIndex);
+      return;
+    }
+  }
+}
 
 // Função para fechar modais
 function closePlaylistModal() {
@@ -203,7 +231,6 @@ function createVideoCard(video, container) {
   
   // Validar que o vídeo tem as propriedades necessárias
   if (!video.artist) {
-    console.warn('Video missing artist property:', video);
     return;
   }
   
@@ -250,37 +277,58 @@ searchOverlay.addEventListener('click', closeSearchModal);
 
 // Abrir Meus Favoritos pelo menu
 const showFavoritesMenu = document.getElementById('showFavoritesMenu');
-
-// Verificar se os elementos estão sendo encontrados
-console.log('favoriteIcon:', favoritesIcon);
-console.log('favoritesModal:', favoritesModal);
-console.log('favoritesOverlay:', favoritesOverlay);
-console.log('favoritesList:', favoritesList);
-console.log('showFavoritesMenu:', showFavoritesMenu);
 if (showFavoritesMenu) {
-  console.log('Adding click listener to showFavoritesMenu');
   showFavoritesMenu.addEventListener('click', () => {
-    console.log('showFavoritesMenu clicked');
     modal.classList.remove('active');
     showFavoritesModal();
   });
-} else {
-  console.log('showFavoritesMenu not found!');
+}
+
+// Compartilhar vídeo atual
+if (shareIcon) {
+  shareIcon.addEventListener('click', shareVideo);
+}
+
+function shareVideo() {
+  if (!playlistSelected) {
+    showFeedback('Selecione uma playlist primeiro', 'warning');
+    return;
+  }
+  
+  const currentVideo = currentPlaylist[currentIndex];
+  const baseUrl = window.location.origin + window.location.pathname;
+  const shareUrl = baseUrl + '#videoId=' + currentVideo.id;
+  
+  // Tentar usar Web Share API (mobile)
+  if (navigator.share) {
+    navigator.share({
+      title: 'LovePlayer',
+      text: `Confira: ${currentVideo.title} - ${currentVideo.artist}`,
+      url: shareUrl
+    }).catch(err => {
+      if (err.name !== 'AbortError') {
+        console.log('Erro ao compartilhar:', err);
+      }
+    });
+  } else {
+    // Fallback para copiar para clipboard (desktop)
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showFeedback(`Link copiado: ${currentVideo.title}`, 'success', 3000);
+    }).catch(() => {
+      showFeedback('Link: ' + shareUrl, 'info', 5000);
+    });
+  }
 }
 
 function showFavoritesModal() {
-  console.log('showFavoritesModal called');
-  
   // Recarregar favoritos do localStorage
   favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-  console.log('Favorites:', favorites);
   
   // Limpar container
   favoritesList.innerHTML = '';
   
   // Verificar se há favoritos
   if (favorites.length === 0) {
-    console.log('No favorites, showing empty message');
     // Mostrar mensagem de vazio
     const emptyMsg = document.createElement('div');
     emptyMsg.style.padding = '2rem';
@@ -289,22 +337,15 @@ function showFavoritesModal() {
     emptyMsg.textContent = 'Nenhum vídeo favoritado ainda';
     favoritesList.appendChild(emptyMsg);
   } else {
-    console.log('Creating cards for', favorites.length, 'videos');
     // Criar cards para cada vídeo favorito
-    favorites.forEach((video, index) => {
-      console.log(`Video ${index}:`, video);
-      console.log(`  - id: ${video.id}`);
-      console.log(`  - title: ${video.title}`);
-      console.log(`  - artist: ${video.artist}`);
+    favorites.forEach(video => {
       createVideoCard(video, favoritesList);
     });
   }
   
-  console.log('Adding active class to favoritesModal and favoritesOverlay');
   // Abrir modal
   favoritesModal.classList.add('active');
   favoritesOverlay.classList.add('active');
-  console.log('Modal classes:', favoritesModal.className, favoritesOverlay.className);
 }
 
 // Funções de Favoritos
