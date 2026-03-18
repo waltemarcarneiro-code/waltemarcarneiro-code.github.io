@@ -116,10 +116,14 @@ body {
   border-bottom: 1px solid var(--divider);
   font-family: "Onest-Medium";
 }
+/*ICONES DE HEADER*/
+.section-header img{
+    width: clamp(1.3rem, 2.5vw, 32px);
 
+}
 .header-actions {
   display: flex;
-  gap: clamp(0.5rem, 1vw, 1rem);
+  gap: clamp(1rem, 1vw, 1rem);
 }
 
 /* =========================
@@ -244,7 +248,7 @@ body.dark .feedback-content img {
   filter: brightness(0) invert(1);
 }
 
-/* Imagens dos cards não devem ter filtro */
+/* Imagens dos cards nÃ£o devem ter filtro */
 .playlist-card img,
 .video-card img {
   filter: none !important;
