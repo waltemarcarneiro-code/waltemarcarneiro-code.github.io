@@ -37,9 +37,11 @@ function updateStatusBar() {
 
 // YouTube Iframe API
 let player;
-function onYouTubeIframeAPIReady() {
-  // API está pronta
-}
+let youtubeApiReady = new Promise(resolve => {
+  window.onYouTubeIframeAPIReady = function() {
+    resolve();
+  };
+});
 
 const script = document.createElement('script');
 script.src = 'https://www.youtube.com/iframe_api';
@@ -111,17 +113,20 @@ function loadSharedVideo() {
   
   if (!videoId) return;
   
-  // Procurar o vídeo em todas as playlists
-  for (let playlist of allPlaylists) {
-    const videoIndex = playlist.videos.findIndex(v => v.id === videoId);
-    if (videoIndex !== -1) {
-      currentPlaylist = playlist.videos;
-      currentIndex = videoIndex;
-      playlistSelected = true;
-      loadVideo(currentIndex);
-      return;
+  // Aguardar a API do YouTube estar pronta
+  youtubeApiReady.then(() => {
+    // Procurar o vídeo em todas as playlists
+    for (let playlist of allPlaylists) {
+      const videoIndex = playlist.videos.findIndex(v => v.id === videoId);
+      if (videoIndex !== -1) {
+        currentPlaylist = playlist.videos;
+        currentIndex = videoIndex;
+        playlistSelected = true;
+        loadVideo(currentIndex);
+        return;
+      }
     }
-  }
+  });
 }
 
 // Função para fechar modais
