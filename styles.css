@@ -40,7 +40,7 @@ body.dark {
   --bg: #0d0d0d;
   --text: #fff;
   --accent: #ff4fc3;
-  --surface: #1a1a1a;
+  --surface: radial-gradient(circle,rgb(41 6 66) 0%, rgb(23 3 38) 39%);
   --divider: rgba(255,255,255,0.08);
 }
 
@@ -99,8 +99,8 @@ body {
 
 /* DIREITA */
 .section--secondary {
-  /*background: var(--surface);*/
-  background: radial-gradient(circle,rgb(41 6 66) 0%, rgb(23 3 38) 39%);
+  background: var(--surface);
+
   display: flex;
   flex-direction: column;
   overflow: hidden;
