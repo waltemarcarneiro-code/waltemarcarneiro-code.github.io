@@ -99,7 +99,8 @@ body {
 
 /* DIREITA */
 .section--secondary {
-  background: var(--surface);
+  /*background: var(--surface);*/
+  background: radial-gradient(circle,rgb(41 6 66) 0%, rgb(23 3 38) 39%);
   display: flex;
   flex-direction: column;
   overflow: hidden;
