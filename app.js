@@ -67,7 +67,7 @@ function openPlaylistsModal() {
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-            <img src="covers/playlists/${playlist.cover}" alt="${playlist.name}" class="card-image" onerror="this.src='cover/cover.jpg'">
+            <img src="covers/playlists/${playlist.cover}" alt="${playlist.name}" class="card-image" onerror="this.src='covers/cover.jpg'">
             <div class="card-body">
                 <div class="card-title">${playlist.name}</div>
                 <div class="card-subtitle">${playlist.videos.length} músicas</div>
@@ -119,7 +119,7 @@ function loadPlaylistVideos() {
             <img src="covers/artists/${video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
                  alt="${video.artist}" 
                  class="thumb-mini"
-                 onerror="this.src='cover/cover.jpg'">
+                 onerror="this.src='covers/cover.jpg'">
             <div class="playlist-info">
                 <span class="m-title">${video.title}</span>
                 <span class="m-artist">${video.artist}</span>
@@ -273,7 +273,7 @@ function updateCurrentVideoDisplay() {
         <img src="covers/artists/${video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
              alt="${video.artist}" 
              class="current-thumb"
-             onerror="this.src='cover/cover.jpg'">
+             onerror="this.src='covers/cover.jpg'">
         <div class="current-details">
             <span class="c-title">${video.title}</span>
             <span class="c-artist">${video.artist}</span>
@@ -561,7 +561,7 @@ function displaySearchResults(results, query) {
                 <img src="covers/artists/${result.video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
                      alt="${result.video.artist}" 
                      class="card-image"
-                     onerror="this.src='cover/cover.jpg'">
+                     onerror="this.src='covers/cover.jpg'">
                 <div class="card-body">
                     <div class="card-title">${result.video.title}</div>
                     <div class="card-subtitle">${result.video.artist}</div>
