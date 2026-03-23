@@ -1,149 +1,195 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#ffffff">
-  <meta name="apple-mobile-web-app-status-bar-style" content="light">
-
-  <!-- OG IMAGE-->
-  <meta content="https://waltemarcarneiro-code.github.io//og-image.jpg" property="og:image" />
-  
-  <title>LovePlayer</title>
-
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SanPlayer - Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="layout">
+    <header class="app-header">
+        <div class="header-logo">
+            <button class="btn-hamburger" aria-label="Abrir menu">
+                <i class="material-icons">menu</i>
+            </button>
+            <i class="material-icons music-note">music_note</i>
+            <span>SanPlayer</span>
+        </div>
 
-  <!-- ESQUERDA -->
-  <section class="section section--primary">
-    <div class="content">
-      <h1>Vídeos</h1>
-    </div>
-  </section>
+        <div class="header-search">
+            <form action="#">
+                <input type="search" placeholder="Buscar" id="searchInput">
+            </form>
+        </div>
 
-  <!-- DIREITA -->
-  <section class="section section--secondary">
-
-    <!-- HEADER -->
-    <header class="section-header">
-      <span>LovePlayer</span>
-
-      <div class="header-actions">
-        <img src="icons/share.svg" alt="compartilhar" title="Compartilhar" id="share">
-        <img src="icons/heart.svg" alt="favoritar" title="Favoritar" id="favoriteIcon">
-        <img src="icons/playlist.svg" alt="playlists" title="Playlists" id="playlistIcon">
-        <img src="icons/search.svg" alt="buscar" title="Buscar" id="searchIcon">
-
-        <img src="icons/more.svg" id="openModal">
-      </div>
+        <div class="header-actions">
+            <button class="btn-search-mobile" aria-label="Buscar">
+                <i class="material-icons">search</i>
+            </button>
+            <button><i class="material-icons">notifications_none</i></button>
+            <img src="cover/cover.jpg" alt="Avatar" class="profile-avatar">
+        </div>
     </header>
 
-    <!-- INFO -->
-    <div class="section-info">
-      <div class="media-info">
-        <h2>Nome da Música</h2>
-        <p>Artista</p>
-      </div>
+    <div class="app-main-grid">
+        
+        <nav class="app-sidebar app-sidebar-mobile">
+            <div class="sidebar-overlay"></div>
+            <div class="sidebar-content">
+                <ul class="sidebar-nav">
+                    
+                    <li><a href="#"><i class="material-icons">home</i> Início</a></li>
+                    <li class="active"><a href="#" id="link-playlists"><i class="material-icons">library_music</i> Playlists</a></li>
+                    <li><a href="#"><i class="material-icons">favorite_border</i>Favoritos</a></li>
+                    <li><a href="#"><i class="material-icons">people</i> Artistas</a></li>
+                    <li><a href="#"><i class="material-icons">free_breakfast</i> Contribuir</a></li>
+                    <li><a href="#"><i class="material-icons">free_breakfast</i> Contribuir</a></li>
+                    
+                    
+                </ul>
+            </div>
+        </nav>
+
+        <main class="video-stage">
+            <div class="video-wrapper">
+                <iframe width="100%" height="100%" src="https://www.youtube.com/embed/GP9IB2ji02s" title="Mariah Carey - All I Want for Christmas Is You" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="border-radius: 0rem;"></iframe>
+            </div>
+        </main>
+
+        <aside class="playlist-aside">
+            <h2 class="title-pl">Playlist > Romanticas</h2>
+            <div class="playlist-items">
+                <div class="playlist-item">
+                    <div class="thumb-mini"></div>
+                    <div class="playlist-info">
+                        <span class="m-title">Título da música entra aqui neste espaço</span>
+                        <span class="m-artist">Artista</span>
+                    </div>
+                    <span class="m-duration">4:15</span>
+                </div>
+                <div class="playlist-item">
+                    <div class="thumb-mini"></div>
+                    <div class="playlist-info">
+                        <span class="m-title">Título da música entra aqui neste espaço</span>
+                        <span class="m-artist">Artista</span>
+                    </div>
+                    <span class="m-duration">4:15</span>
+                </div>
+                <div class="playlist-item">
+                    <div class="thumb-mini"></div>
+                    <div class="playlist-info">
+                        <span class="m-title">Título da música entra aqui neste espaço</span>
+                        <span class="m-artist">Artista</span>
+                    </div>
+                    <span class="m-duration">4:15</span>
+                </div>
+                <div class="playlist-item">
+                    <div class="thumb-mini"></div>
+                    <div class="playlist-info">
+                        <span class="m-title">Título da música entra aqui neste espaço</span>
+                        <span class="m-artist">Artista</span>
+                    </div>
+                    <span class="m-duration">4:15</span>
+                </div>
+                <div class="playlist-item">
+                    <div class="thumb-mini"></div>
+                    <div class="playlist-info">
+                        <span class="m-title">Título da música entra aqui neste espaço</span>
+                        <span class="m-artist">Artista</span>
+                    </div>
+                    <span class="m-duration">4:15</span>
+                </div>
+                <div class="playlist-item">
+                    <div class="thumb-mini"></div>
+                    <div class="playlist-info">
+                        <span class="m-title">Título da música entra aqui neste espaço</span>
+                        <span class="m-artist">Artista</span>
+                    </div>
+                    <span class="m-duration">4:15</span>
+                </div>
+                <div class="playlist-item">
+                    <div class="thumb-mini"></div>
+                    <div class="playlist-info">
+                        <span class="m-title">Título da música entra aqui neste espaço</span>
+                        <span class="m-artist">Artista</span>
+                    </div>
+                    <span class="m-duration">4:15</span>
+                </div>
+            </div>
+        </aside>
     </div>
 
-    <!-- CONTROLES -->
-    <footer class="section-controls">
-
-      <div class="progress">
-        <span class="time-current">0:00</span>
-        <input type="range">
-        <span class="time-duration">0:00</span>
-      </div>
-
-      <div class="controls">
-        <img src="icons/shuffle.svg">
-
-        <img src="icons/prev.svg">
+    <footer class="app-player-footer">
         
-        <button class="play">
-          <img src="icons/play.svg">
-        </button>
-        
-        <img src="icons/next.svg">
+        <div class="player-progress-area">
+            <div class="progress-track">
+                <div class="progress-fill"></div>
+                <div class="progress-handle"></div>
+            </div>
+            <div class="progress-time-labels">
+                <span>1:45</span>
+                <span>4:18</span>
+            </div>
+        </div>
 
-        <img src="icons/repeat.svg">
-      </div>
+        <div class="footer-content-wrapper">
+            
+            <div class="footer-block block-info">
+                <img src="cover/cover.jpg" alt="Capa" class="current-thumb">
+                <div class="current-details">
+                    <span class="c-title">All I Want for Christmas Is You</span>
+                    <span class="c-artist">Mariah Carey</span>
+                </div>
+                <div class="current-actions">
+                    <button alt="favoritar" title="favoritar"><i class="material-icons">favorite_border</i></button>
+                    <button alt="compartilhar" title="compartilhar"><i class="material-icons reply">reply</i></button>
+                </div>
+            </div>
 
+            <div class="footer-block block-controls">
+                <button><i class="material-icons">shuffle</i></button>
+                <button><i class="material-icons">skip_previous</i></button>
+                <button class="btn-play-pause">
+                    <i class="material-icons">pause</i>
+                </button>
+                <button><i class="material-icons">skip_next</i></button>
+                <button><i class="material-icons">repeat</i></button>
+            </div>
+
+        </div>
     </footer>
 
-  </section>
+    <!-- MODAL DE PLAYLISTS -->
+    <div id="playlistModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Playlists</h2>
+                <button class="modal-close" id="closePlaylistModal" aria-label="Fechar">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div id="playlistCardsContainer" class="cards-grid"></div>
+        </div>
+    </div>
 
-</div>
+    <!-- MODAL DE RESULTADOS DE BUSCA -->
+    <div id="searchModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="searchTitle">Resultados de busca</h2>
+                <button class="modal-close" id="closeSearchModal" aria-label="Fechar">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div id="searchResultsContainer" class="search-results"></div>
+        </div>
+    </div>
 
-<!-- MODAL -->
-<div class="modal" id="modal">
-
-  <div class="modal-header">
-    <span>Menu</span>
-    <img src="icons/close.svg" id="closeModal">
-  </div>
-
-  <div class="modal-list">
-    <div class="modal-item" id="toggleTheme"><img src="icons/theme.svg">Tema Dark/Light</div>
-    <div class="modal-item" id="showFavoritesMenu"><img src="icons/heart.svg">Meus Favoritos</div>
-    <div class="modal-item"><img src="icons/login.svg">Login</div>
-    <div class="modal-item"><img src="icons/bkp.svg">Fazer Backup</div>
-    <div class="modal-item"><img src="icons/share.svg">Compartilhe App</div>
-    <div class="modal-item"><img src="icons/arrow.svg">Política de Privacidade</div>
-    <div class="modal-item"><img src="icons/arrow.svg">Termo de Serviço</div>
-    <div class="modal-item"><img src="icons/arrow.svg">Sobre</div>
-    <div class="modal-item"><img src="icons/donate.svg">Doação</div>
-  </div>
-
-</div>
-
-<!-- Modal Bottom para Playlists -->
-<div id="playlistModal" class="playlist-modal">
-  <div class="modal-header">
-    <span>Minhas Playlists</span>
-    <img src="icons/close.svg" id="closePlaylistModal">
-  </div>
-  <div id="playlistList" class="playlist-grid"></div>
-</div>
-
-<!-- Overlay para fechar o modal -->
-<div id="playlistOverlay" class="playlist-overlay"></div>
-
-<!-- Modal Bottom para Favoritos -->
-<div id="favoritesModal" class="playlist-modal">
-  <div class="modal-header">
-    <span>Vídeos Favoritados</span>
-    <img src="icons/close.svg" id="closeFavoritesModal">
-  </div>
-  <div id="favoritesList" class="video-grid"></div>
-</div>
-
-<!-- Overlay para Favoritos -->
-<div id="favoritesOverlay" class="playlist-overlay"></div>
-
-<!-- Modal Bottom para Busca -->
-<div id="searchModal" class="playlist-modal">
-  <div class="modal-header">
-    <input type="text" id="searchInput" placeholder="Buscar vídeos..." class="search-input">
-  </div>
-  <div id="searchResults" class="video-grid"></div>
-</div>
-
-<!-- Overlay para Busca -->
-<div id="searchOverlay" class="playlist-overlay"></div>
-
-<!-- Feedback Bottom Sheet -->
-<div id="feedbackModal" class="feedback-modal">
-  <div class="feedback-content">
-    <img id="feedbackIcon" src="icons/play.svg" alt="feedback">
-    <span id="feedbackMessage">Mensagem de feedback</span>
-  </div>
-</div>
-
-<script src="app.js"></script>
+    <script src="app.js"></script>
 
 </body>
 </html>
