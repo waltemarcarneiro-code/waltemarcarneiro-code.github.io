@@ -126,13 +126,12 @@
     <footer class="app-player-footer">
         
         <div class="player-progress-area">
-            <div class="progress-track">
-                <div class="progress-fill"></div>
-                <div class="progress-handle"></div>
-            </div>
-            <div class="progress-time-labels">
-                <span>1:45</span>
-                <span>4:18</span>
+            <div class="progress">
+                <input id="progressBar" class="progress-bar" type="range" min="0" max="100" value="0">
+                <div class="progress-time-labels">
+                    <span id="timeCurrent">0:00</span>
+                    <span id="timeDuration">0:00</span>
+                </div>
             </div>
         </div>
 

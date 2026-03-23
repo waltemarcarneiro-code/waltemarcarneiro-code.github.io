@@ -16,9 +16,12 @@ const player = {
     playOrder: [],
     originalOrder: [],
     ytReady: false,
+    shouldPlayOnReady: false,
 };
 
 let ytPlayer = null;
+let ytPlayerInitialized = false;
+let updateProgressInterval = null;
 
 
 // ============================================================================
@@ -87,6 +90,7 @@ function selectPlaylist(index) {
     player.currentVideoIndex = 0;
     player.playOrder = [...Array(player.currentPlaylist.videos.length).keys()];
     player.originalOrder = [...player.playOrder];
+    player.shouldPlayOnReady = true;
     
     closePlaylistsModal();
     loadPlaylistVideos();
@@ -138,29 +142,32 @@ function loadFirstVideo() {
 // ============================================================================
 
 function loadVideo(video) {
-    if (player.ytReady && ytPlayer) {
+    // Forçar a presença do contêiner do player
+    const iframeWrapper = document.querySelector('.video-wrapper');
+    if (!iframeWrapper.querySelector('#player')) {
+        iframeWrapper.innerHTML = '<div id="player" style="width:100%; height:100%;"></div>';
+    }
+
+    if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
         ytPlayer.loadVideoById(video.id);
-    } else {
-        const iframeWrapper = document.querySelector('.video-wrapper');
-        iframeWrapper.innerHTML = `
-            <iframe 
-                width="100%" 
-                height="100%" 
-                src="https://www.youtube.com/embed/${video.id}?enablejsapi=1" 
-                title="${video.title}" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                allowfullscreen 
-                style="border-radius: 0rem;">
-            </iframe>
-        `;
+    } else if (window.YT && !ytPlayer && !ytPlayerInitialized) {
+        onYouTubeIframeAPIReady();
     }
 
     updateCurrentVideoDisplay();
     updateFavoriteButton();
+    
+    // Ao escolher vídeo/playlist explicitamente, devemos tocar
+    player.shouldPlayOnReady = true;
+    if (player.ytReady && ytPlayer) {
+        playerPlay();
+    }
 }
 
 function onYouTubeIframeAPIReady() {
+    if (ytPlayerInitialized) return;
+    ytPlayerInitialized = true;
+
     ytPlayer = new YT.Player('player', {
         height: '100%',
         width: '100%',
@@ -182,29 +189,56 @@ function onYouTubeIframeAPIReady() {
 
 function onPlayerReady(event) {
     player.ytReady = true;
-    if (player.currentPlaylist) {
+
+    if (player.currentPlaylist && player.currentPlaylist.videos.length > 0) {
         const video = player.currentPlaylist.videos[player.currentVideoIndex];
         if (video) {
-            event.target.loadVideoById(video.id);
+            ytPlayer.loadVideoById(video.id);
             updateCurrentVideoDisplay();
             updateFavoriteButton();
+            updatePlayPauseButton();
         }
     }
+
+    if (player.shouldPlayOnReady && ytPlayer) {
+        playerPlay();
+        player.shouldPlayOnReady = false;
+    }
+
+    if (updateProgressInterval) {
+        clearInterval(updateProgressInterval);
+    }
+
+    updateProgressInterval = setInterval(() => {
+        if (!ytPlayer || !player.ytReady) return;
+
+        const duration = ytPlayer.getDuration();
+        const currentTime = ytPlayer.getCurrentTime();
+
+        player.currentDuration = duration;
+        player.currentTime = currentTime;
+
+        updateProgressBar();
+    }, 250);
 }
 
 function onPlayerStateChange(event) {
     const state = event.data;
+
     // YT.State: -1 unstarted, 0 ended, 1 playing, 2 paused, 3 buffering, 5 cued
     if (state === YT.PlayerState.PLAYING) {
         player.isPlaying = true;
         player.currentDuration = ytPlayer.getDuration();
+        player.currentTime = ytPlayer.getCurrentTime();
         updatePlayPauseButton();
-    } else if (state === YT.PlayerState.PAUSED || state === YT.PlayerState.ENDED) {
+    } else if (state === YT.PlayerState.PAUSED) {
+        player.isPlaying = false;
+        player.currentTime = ytPlayer.getCurrentTime();
+        updatePlayPauseButton();
+    } else if (state === YT.PlayerState.ENDED) {
         player.isPlaying = false;
         updatePlayPauseButton();
-    }
 
-    if (state === YT.PlayerState.ENDED) {
         if (player.repeatMode === 2) {
             ytPlayer.seekTo(0);
             ytPlayer.playVideo();
@@ -266,8 +300,7 @@ function playVideoByIndex(index) {
     player.currentVideoIndex = index;
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
-    player.isPlaying = true;
-    updatePlayPauseButton();
+    playerPlay();
 }
 
 function togglePlayPause() {
@@ -290,7 +323,7 @@ function nextVideo() {
     
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
-    playerPlay();
+    // playerPlay() is chamado quando o estado muda via onPlayerReady ou loadVideoById
 }
 
 function previousVideo() {
@@ -356,13 +389,14 @@ function updateRepeatButton() {
 
 function updateProgressBar() {
     if (player.currentDuration === 0) return;
-    
     const percentage = (player.currentTime / player.currentDuration) * 100;
-    document.querySelector('.progress-fill').style.width = percentage + '%';
-    document.querySelector('.progress-handle').style.left = percentage + '%';
-    
-    document.querySelectorAll('.progress-time-labels span')[0].textContent = formatTime(player.currentTime);
-    document.querySelectorAll('.progress-time-labels span')[1].textContent = formatTime(player.currentDuration);
+    const progressBar = document.getElementById('progressBar');
+
+    if (progressBar) {
+        progressBar.value = percentage;
+    }
+    document.getElementById('timeCurrent').textContent = formatTime(player.currentTime);
+    document.getElementById('timeDuration').textContent = formatTime(player.currentDuration);
 }
 
 function formatTime(seconds) {
@@ -373,15 +407,23 @@ function formatTime(seconds) {
 }
 
 function seekProgress(e) {
-    const track = document.querySelector('.progress-track');
-    const rect = track.getBoundingClientRect();
-    const percentage = (e.clientX - rect.left) / rect.width;
-    const seekTime = percentage * player.currentDuration;
+    // O progresso agora é via range input (progressBar), então esta função pode ser mantida por compatibilidade,
+    // mas aqui é apenas uma ponte para o handler do input
+    const progressBar = document.getElementById('progressBar');
+    if (!progressBar || player.currentDuration === 0) return;
 
+    const rect = progressBar.getBoundingClientRect();
+    let percentage = ((e.clientX - rect.left) / rect.width) * 100;
+    percentage = Math.max(0, Math.min(100, percentage));
+
+    progressBar.value = percentage;
+    const seekTime = (player.currentDuration * percentage) / 100;
     player.currentTime = seekTime;
-    if (player.ytReady && ytPlayer && ytPlayer.seekTo) {
+
+    if (player.ytReady && ytPlayer) {
         ytPlayer.seekTo(seekTime, true);
     }
+
     updateProgressBar();
 }
 
@@ -648,15 +690,30 @@ function setupEventListeners() {
     btnNext.addEventListener('click', nextVideo);
     btnRepeat.addEventListener('click', toggleRepeat);
     
-    // Barra de progresso
-    document.querySelector('.progress-track').addEventListener('click', seekProgress);
-    
-    // Atualizar progresso com YouTube IFrame API
-    setInterval(() => {
-        if (player.ytReady && ytPlayer && ytPlayer.getCurrentTime) {
-            player.currentTime = ytPlayer.getCurrentTime();
-            player.currentDuration = ytPlayer.getDuration() || 0;
-            updateProgressBar();
-        }
-    }, 200);
+    // Barra de progresso real (range input)
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) {
+        progressBar.addEventListener('input', onProgressInput);
+        progressBar.addEventListener('change', onProgressChange);
+    }
 }
+
+function onProgressInput(event) {
+    const value = Number(event.target.value);
+    const duration = player.currentDuration || 0;
+    const seconds = (duration * value) / 100;
+    document.getElementById('timeCurrent').textContent = formatTime(seconds);
+}
+
+function onProgressChange(event) {
+    const value = Number(event.target.value);
+    const duration = player.currentDuration || 0;
+    const seconds = (duration * value) / 100;
+
+    player.currentTime = seconds;
+    if (player.ytReady && ytPlayer) {
+        ytPlayer.seekTo(seconds, true);
+    }
+    updateProgressBar();
+}
+
