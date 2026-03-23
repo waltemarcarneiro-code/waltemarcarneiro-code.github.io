@@ -57,7 +57,7 @@
    ========================================================================== */
 
 @font-face {
-    font-family: 'RobotoLocal';
+    font-family: 'Roboto';
     src: url('/fonts/Roboto-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
@@ -112,7 +112,7 @@
 }
 
 body {
-    font-family: 'RobotoLocal', sans-serif;
+    font-family: 'Roboto', sans-serif;
     background-color: var(--bg-main);
     color: var(--text-main);
     line-height: 1.4;
