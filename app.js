@@ -17,6 +17,7 @@ const player = {
     originalOrder: [],
     ytReady: false,
     shouldPlayOnReady: false,
+    viewingFavorites: false,
 };
 
 let ytPlayer = null;
@@ -34,7 +35,34 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFavorites();
     setupMobileSearch();
     setupSidbarMobile();
+    handleHashNavigation();
 });
+
+function handleHashNavigation() {
+    const hash = window.location.hash;
+    if (hash.includes('videoId=')) {
+        const videoId = hash.split('videoId=')[1].split('&')[0];
+        
+        // Procura pelo videoId em todas as playlists
+        player.playlistsData.forEach((playlist, playlistIndex) => {
+            playlist.videos.forEach((video, videoIndex) => {
+                if (video.id === videoId) {
+                    player.currentPlaylist = playlist;
+                    player.currentPlaylistIndex = playlistIndex;
+                    player.currentVideoIndex = videoIndex;
+                    player.viewingFavorites = false;
+                    
+                    loadPlaylistVideos();
+                    loadVideo(video);
+                    player.shouldPlayOnReady = true;
+                }
+            });
+        });
+    }
+}
+
+// Listener para alterações na URL
+window.addEventListener('hashchange', handleHashNavigation);
 
 // ============================================================================
 // CARREGAR DADOS
@@ -46,7 +74,12 @@ async function loadPlaylists() {
         const data = await response.json();
         player.playlistsData = data.playlists;
         if (player.playlistsData.length > 0) {
-            selectPlaylist(0);
+            const hash = window.location.hash;
+            if (hash.includes('videoId=')) {
+                handleHashNavigation();
+            } else {
+                selectPlaylist(0);
+            }
         }
     } catch (error) {
         console.error('Erro ao carregar playlists:', error);
@@ -91,6 +124,7 @@ function selectPlaylist(index) {
     player.playOrder = [...Array(player.currentPlaylist.videos.length).keys()];
     player.originalOrder = [...player.playOrder];
     player.shouldPlayOnReady = true;
+    player.viewingFavorites = false;
     
     closePlaylistsModal();
     loadPlaylistVideos();
@@ -109,26 +143,43 @@ function loadPlaylistVideos() {
     const titlePl = container.querySelector('.title-pl');
     titlePl.textContent = `Playlist > ${player.currentPlaylist.name}`;
     
-    // Limpar itens
+    // Mostrar skeleton loading
     itemsContainer.innerHTML = '';
-    
-    player.currentPlaylist.videos.forEach((video, index) => {
-        const item = document.createElement('div');
-        item.className = 'playlist-item';
-        item.innerHTML = `
-            <img src="covers/artists/${video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
-                 alt="${video.artist}" 
-                 class="thumb-mini"
-                 onerror="this.src='cover/cover.jpg'">
-            <div class="playlist-info">
-                <span class="m-title">${video.title}</span>
-                <span class="m-artist">${video.artist}</span>
+    for (let i = 0; i < player.currentPlaylist.videos.length; i++) {
+        const skeleton = document.createElement('div');
+        skeleton.className = 'playlist-item skeleton-loading';
+        skeleton.innerHTML = `
+            <div class="thumb-mini skeleton"></div>
+            <div class="playlist-info" style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem;">
+                <span class="skeleton" style="display: block; width: 70%; height: 1rem; border-radius: 4px;"></span>
+                <span class="skeleton" style="display: block; width: 50%; height: 0.75rem; border-radius: 4px;"></span>
             </div>
-            <span class="m-duration" id="duration-${index}">0:00</span>
+            <span class="skeleton" style="display: block; width: 40px; height: 0.75rem; margin-left: auto; border-radius: 4px;"></span>
         `;
-        item.addEventListener('click', () => playVideoByIndex(index));
-        itemsContainer.appendChild(item);
-    });
+        itemsContainer.appendChild(skeleton);
+    }
+    
+    // Carregar items reais depois de um pequeno delay
+    setTimeout(() => {
+        itemsContainer.innerHTML = '';
+        player.currentPlaylist.videos.forEach((video, index) => {
+            const item = document.createElement('div');
+            item.className = 'playlist-item';
+            item.innerHTML = `
+                <img src="covers/artists/${video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
+                     alt="${video.artist}" 
+                     class="thumb-mini"
+                     onerror="this.src='cover/cover.jpg'">
+                <div class="playlist-info">
+                    <span class="m-title">${video.title}</span>
+                    <span class="m-artist">${video.artist}</span>
+                </div>
+                <span class="m-duration" id="duration-${index}">0:00</span>
+            `;
+            item.addEventListener('click', () => playVideoByIndex(index));
+            itemsContainer.appendChild(item);
+        });
+    }, 300);
 }
 
 function loadFirstVideo() {
@@ -377,7 +428,7 @@ function updateRepeatButton() {
     } else if (player.repeatMode === 1) {
         btn.innerHTML = '<i class="material-icons">repeat</i>';
     } else {
-        btn.innerHTML = '<span style="font-size: 1.2rem; font-weight: bold;">1</span>';
+        btn.innerHTML = `<i class="material-icons" style="position: relative;">repeat_one<span style="position: absolute; font-size: 0.7rem; font-weight: bold; bottom: -2px; right: -2px; background: var(--accent-red); color: white; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">1</span></i>`;
     }
 }
 
@@ -478,6 +529,9 @@ function displayFavoritesList() {
     const container = document.querySelector('.playlist-aside');
     const itemsContainer = document.querySelector('.playlist-items');
     
+    // Marcar que estamos visualizando favoritos
+    player.viewingFavorites = true;
+    
     // Atualizar título
     const titlePl = container.querySelector('.title-pl');
     titlePl.textContent = `Favoritos > ${player.favorites.length} músicas`;
@@ -507,11 +561,20 @@ function displayFavoritesList() {
         item.addEventListener('click', () => {
             const playlistIndex = parseInt(favorite.id.split('-')[0]);
             const videoIndex = parseInt(favorite.id.split('-')[1]);
-            selectPlaylist(playlistIndex);
+            
+            // Encontra o video nos dados de playlists
+            const targetPlaylist = player.playlistsData[playlistIndex];
+            const targetVideo = targetPlaylist.videos[videoIndex];
+            
+            // Carrega o vídeo sem mudar a visualização de favoritos
+            player.currentPlaylist = targetPlaylist;
+            player.currentPlaylistIndex = playlistIndex;
             player.currentVideoIndex = videoIndex;
-            const video = player.currentPlaylist.videos[player.currentVideoIndex];
-            loadVideo(video);
+            loadVideo(targetVideo);
             playerPlay();
+            
+            // Mantém a visualização de favoritos
+            displayFavoritesList();
         });
         itemsContainer.appendChild(item);
     });
