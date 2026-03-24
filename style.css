@@ -50,6 +50,11 @@
     .playlist-items {
         padding-bottom: 4rem;
     }
+
+    .modal-content{
+        top: 1rem;
+        position: absolute;
+    }
 }
 
 /* ==========================================================================
@@ -757,8 +762,6 @@ img {
     z-index: 5000;
     align-items: center;
     justify-content: center;
-    top: 0;
-    position: absolute;
 }
 
 .modal.show {
