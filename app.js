@@ -67,7 +67,7 @@ function openPlaylistsModal() {
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-            <img src="covers/playlists/${playlist.cover}" alt="${playlist.name}" class="card-image" onerror="this.src='covers/cover.jpg'">
+            <img src="covers/playlists/${playlist.cover}" alt="${playlist.name}" class="card-image" onerror="this.src='cover/cover.jpg'">
             <div class="card-body">
                 <div class="card-title">${playlist.name}</div>
                 <div class="card-subtitle">${playlist.videos.length} músicas</div>
@@ -119,7 +119,7 @@ function loadPlaylistVideos() {
             <img src="covers/artists/${video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
                  alt="${video.artist}" 
                  class="thumb-mini"
-                 onerror="this.src='covers/cover.jpg'">
+                 onerror="this.src='cover/cover.jpg'">
             <div class="playlist-info">
                 <span class="m-title">${video.title}</span>
                 <span class="m-artist">${video.artist}</span>
@@ -219,7 +219,22 @@ function onPlayerReady(event) {
         player.currentTime = currentTime;
 
         updateProgressBar();
+        updatePlaylistDurations();
     }, 250);
+}
+
+function updatePlaylistDurations() {
+    if (!player.currentPlaylist) return;
+    
+    player.currentPlaylist.videos.forEach((video, index) => {
+        const durationElement = document.getElementById(`duration-${index}`);
+        if (durationElement && index === player.currentVideoIndex && player.ytReady && ytPlayer) {
+            const duration = ytPlayer.getDuration();
+            if (duration > 0) {
+                durationElement.textContent = formatTime(duration);
+            }
+        }
+    });
 }
 
 function onPlayerStateChange(event) {
@@ -273,7 +288,7 @@ function updateCurrentVideoDisplay() {
         <img src="covers/artists/${video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
              alt="${video.artist}" 
              class="current-thumb"
-             onerror="this.src='covers/cover.jpg'">
+             onerror="this.src='cover/cover.jpg'">
         <div class="current-details">
             <span class="c-title">${video.title}</span>
             <span class="c-artist">${video.artist}</span>
@@ -343,8 +358,6 @@ function toggleShuffle() {
     } else {
         player.playOrder = [...player.originalOrder];
     }
-    
-    updateShuffleButton();
 }
 
 function toggleRepeat() {
@@ -357,29 +370,14 @@ function updatePlayPauseButton() {
     btn.textContent = player.isPlaying ? 'pause' : 'play_arrow';
 }
 
-function updateShuffleButton() {
-    const btn = document.querySelector('.block-controls button:nth-child(1)');
-    if (player.isShuffle) {
-        btn.style.color = 'var(--accent-red)';
-    } else {
-        btn.style.color = 'inherit';
-    }
-}
-
 function updateRepeatButton() {
     const btn = document.querySelector('.block-controls button:nth-child(5)');
     if (player.repeatMode === 0) {
-        btn.style.color = 'inherit';
-        btn.textContent = '';
         btn.innerHTML = '<i class="material-icons">repeat</i>';
     } else if (player.repeatMode === 1) {
-        btn.style.color = 'var(--accent-red)';
-        btn.textContent = '';
         btn.innerHTML = '<i class="material-icons">repeat</i>';
     } else {
-        btn.style.color = 'var(--accent-red)';
-        btn.textContent = '';
-        btn.innerHTML = '<i class="material-icons">repeat_one</i>';
+        btn.innerHTML = '<span style="font-size: 1.2rem; font-weight: bold;">1</span>';
     }
 }
 
@@ -394,6 +392,7 @@ function updateProgressBar() {
 
     if (progressBar) {
         progressBar.value = percentage;
+        progressBar.style.setProperty('--progress', percentage + '%');
     }
     document.getElementById('timeCurrent').textContent = formatTime(player.currentTime);
     document.getElementById('timeDuration').textContent = formatTime(player.currentDuration);
@@ -475,6 +474,49 @@ function loadFavorites() {
     }
 }
 
+function displayFavoritesList() {
+    const container = document.querySelector('.playlist-aside');
+    const itemsContainer = document.querySelector('.playlist-items');
+    
+    // Atualizar título
+    const titlePl = container.querySelector('.title-pl');
+    titlePl.textContent = `Favoritos > ${player.favorites.length} músicas`;
+    
+    // Limpar itens
+    itemsContainer.innerHTML = '';
+    
+    if (player.favorites.length === 0) {
+        itemsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-dim);">Nenhuma música favoritada</div>';
+        return;
+    }
+    
+    player.favorites.forEach((favorite) => {
+        const item = document.createElement('div');
+        item.className = 'playlist-item';
+        item.innerHTML = `
+            <img src="covers/artists/${favorite.video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
+                 alt="${favorite.video.artist}" 
+                 class="thumb-mini"
+                 onerror="this.src='cover/cover.jpg'">
+            <div class="playlist-info">
+                <span class="m-title">${favorite.video.title}</span>
+                <span class="m-artist">${favorite.video.artist}</span>
+            </div>
+            <span class="m-duration">-</span>
+        `;
+        item.addEventListener('click', () => {
+            const playlistIndex = parseInt(favorite.id.split('-')[0]);
+            const videoIndex = parseInt(favorite.id.split('-')[1]);
+            selectPlaylist(playlistIndex);
+            player.currentVideoIndex = videoIndex;
+            const video = player.currentPlaylist.videos[player.currentVideoIndex];
+            loadVideo(video);
+            playerPlay();
+        });
+        itemsContainer.appendChild(item);
+    });
+}
+
 // ============================================================================
 // COMPARTILHAR
 // ============================================================================
@@ -482,7 +524,7 @@ function loadFavorites() {
 function shareMusic() {
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     const text = `Escutando: ${video.title} - ${video.artist} no SanPlayer`;
-    const url = `https://www.youtube.com/watch?v=${video.id}`;
+    const url = `${window.location.origin}${window.location.pathname}#videoId=${video.id}`;
     
     if (navigator.share) {
         navigator.share({
@@ -505,7 +547,22 @@ function shareMusic() {
 
 function setupMobileSearch() {
     const searchInput = document.getElementById('searchInput');
+    const headerSearch = document.querySelector('.header-search');
+    const searchForm = headerSearch.querySelector('form');
+    const btnSearchMobile = document.querySelector('.btn-search-mobile');
+    const btnSearchBack = document.querySelector('.btn-search-back');
     let searchTimeout;
+    
+    btnSearchMobile.addEventListener('click', () => {
+        headerSearch.classList.add('show-search');
+        searchInput.focus();
+    });
+    
+    btnSearchBack.addEventListener('click', () => {
+        headerSearch.classList.remove('show-search');
+        document.getElementById('searchModal').classList.remove('show');
+        searchInput.value = '';
+    });
     
     searchInput.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
@@ -519,6 +576,12 @@ function setupMobileSearch() {
         searchTimeout = setTimeout(() => {
             searchMusics(query);
         }, 300);
+    });
+    
+    searchInput.addEventListener('blur', (e) => {
+        if (window.innerWidth <= 1023 && e.target.value.trim().length === 0) {
+            headerSearch.classList.remove('show-search');
+        }
     });
 }
 
@@ -561,7 +624,7 @@ function displaySearchResults(results, query) {
                 <img src="covers/artists/${result.video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
                      alt="${result.video.artist}" 
                      class="card-image"
-                     onerror="this.src='covers/cover.jpg'">
+                     onerror="this.src='cover/cover.jpg'">
                 <div class="card-body">
                     <div class="card-title">${result.video.title}</div>
                     <div class="card-subtitle">${result.video.artist}</div>
@@ -664,6 +727,15 @@ function setupEventListeners() {
             closePlaylistsModal();
         }
     });
+    
+    // Favoritos na sidebar
+    const favoriteLink = document.querySelector('.sidebar-nav li:nth-child(3) a');
+    if (favoriteLink) {
+        favoriteLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            displayFavoritesList();
+        });
+    }
     
     // Modal de busca
     document.getElementById('closeSearchModal').addEventListener('click', () => {
