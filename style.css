@@ -88,7 +88,7 @@ html {
     --footer-accent: #ff3b3b;
 
     /* Tipografia Fluida (Min, Preferencial, Max) */
-    --font-sm: clamp(0.75rem, 0.15vw + 0.7rem, 0.85rem);
+    --font-sm: clamp(0.85rem, 0.15vw + 0.7rem, 0.85rem);
     --font-md: clamp(0.9rem, 0.2vw + 0.85rem, 1rem);
     --font-lg: clamp(1.1rem, 0.5vw + 1rem, 1.4rem);
 
@@ -377,7 +377,7 @@ img {
     -webkit-box-orient: vertical;
     overflow: hidden;
     word-break: break-word;
-    font-weight: 500;
+    font-weight: bold;
 }
 
 .playlist-info .m-artist {
