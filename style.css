@@ -297,6 +297,7 @@ img {
     text-decoration: none;
     font-size: var(--font-md);
     border-radius: 0.5rem;
+    font-weight: bold;
 }
 
 .sidebar-nav li.active a {
