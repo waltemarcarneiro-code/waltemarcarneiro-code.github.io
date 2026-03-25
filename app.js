@@ -995,7 +995,7 @@ function setupEventListeners() {
     });
     
     // Favoritos na sidebar
-    const favoriteLink = document.querySelector('.sidebar-nav li:nth-child(3) a');
+    const favoriteLink = document.getElementById('link-favoritos');
     if (favoriteLink) {
         favoriteLink.addEventListener('click', (e) => {
             e.preventDefault();
