@@ -562,7 +562,7 @@ img {
 }
 
 .current-details .c-title.marquee {
-    animation: marquee-scroll-slow 8s linear infinite;
+    animation: marquee-scroll-slow 15s linear infinite;
     text-overflow: clip;
     overflow: visible;
     min-width: 200%; /* espaço suficiente para o texto se mover completamente */
