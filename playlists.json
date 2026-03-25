@@ -91,11 +91,6 @@
           "artist": "Eurythmics"
         },
         {
-          "id": "lEovjFyXuGw",
-          "title": "My Love",
-          "artist": "Little Texas"
-        },
-        {
           "id": "5kp0dw4MuWs",
           "title": "Je Suis Malade",
           "artist": "Lara Fabian"
@@ -229,6 +224,41 @@
           "id": "9HMDUtirtJM",
           "title": "The Lady In Red",
           "artist": "Chris De Burgh"
+        },
+        {
+          "id": "gQn2xzLLSyo",
+          "title": "One More Try",
+          "artist": "George Michael"
+        },
+        {
+          "id": "x_XS5q0EUQs",
+          "title": "Another Day in Paradise",
+          "artist": "Phil Collins"
+        },
+        {
+          "id": "aAfX_i_2_ck",
+          "title": "Woman In Chains",
+          "artist": "Tears For Fears"
+        },
+        {
+          "id": "xQXW4iYnjuQ",
+          "title": "My Love",
+          "artist": "Little Texas"
+        },
+        {
+          "id": "5P4QrKuCnTU",
+          "title": "There's Never a Forever Thing",
+          "artist": "a-ha"
+        },
+        {
+          "id": "RVPLEhAi36Y",
+          "title": "Up Where We Belong",
+          "artist": "Joe Cocker"
+        },
+        {
+          "id": "XgWz55phFKQ",
+          "title": "Beautiful",
+          "artist": "Marillion"
         }
       ]
     },
