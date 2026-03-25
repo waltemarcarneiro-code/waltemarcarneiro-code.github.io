@@ -607,6 +607,7 @@ img {
     background-color: var(--footer-block-2);
     justify-content: center;
     gap: clamp(2rem, 2vw, 2rem);
+    margin: 8px 0px;
 }
 
 .btn-play-pause {
@@ -639,7 +640,7 @@ img {
     }
 
     .footer-block {
-        padding: 0.7rem 0.7rem;
+        padding: 0 0.5rem;
     }
 
     .current-thumb {
@@ -657,6 +658,10 @@ img {
         margin-left: 0.5rem;
         margin-right: -0.2rem;
         pointer-events: none;
+    }
+
+    .block-controls .material-icons {
+        font-size: 2rem;
     }
     
 }
