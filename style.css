@@ -93,8 +93,8 @@ html {
     --footer-accent: #ff3b3b;
 
     /* Tipografia Fluida (Min, Preferencial, Max) */
-    --font-sm: clamp(0.85rem, 0.15vw + 0.7rem, 0.85rem);
-    --font-md: clamp(0.9rem, 0.2vw + 0.85rem, 1rem);
+    --font-sm: clamp(0.9rem, 0.15vw + 0.7rem, 0.85rem);
+    --font-md: clamp(1rem, 0.2vw + 0.85rem, 1rem);
     --font-lg: clamp(1.1rem, 0.5vw + 1rem, 1.4rem);
 
     /* Espaçamento Fluido */
@@ -389,6 +389,7 @@ img {
     display: block;
     font-size: var(--font-sm);
     color: var(--text-dim);
+    font-weight: bold;
 }
 
 /* ==========================================================================
@@ -543,6 +544,7 @@ img {
     display: block;
     font-size: var(--font-sm);
     color: var(--text-dim);
+    font-weight: 600;
 }
 
 .current-actions {
