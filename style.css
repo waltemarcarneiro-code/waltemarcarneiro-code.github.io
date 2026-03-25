@@ -295,7 +295,7 @@ img {
     padding: 0.8rem;
     color: var(--text-dim);
     text-decoration: none;
-    font-size: var(--font-md);
+    font-size: 1.3rem;
     border-radius: 0.5rem;
     font-weight: bold;
 }
