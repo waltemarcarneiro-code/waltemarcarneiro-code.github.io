@@ -163,10 +163,11 @@ function openArtistsModal() {
     const artists = Array.from(artistsSet).sort();
     
     artists.forEach(artist => {
+        const artistSlug = artist.toLowerCase().replace(/\s+/g, '_');
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-            <img src="covers/artists/${artist.toLowerCase().replace(/\s+/g, '_')}.jpg" alt="${artist}" class="card-image" onerror="this.src='covers/cover.jpg'">
+            <img src="covers/artists/${artistSlug}.jpg" alt="${artist}" class="card-image" onerror="this.src='covers/artists/default.jpg'">
             <div class="card-body">
                 <div class="card-title">${artist}</div>
                 <div class="card-subtitle">Artista</div>
