@@ -459,14 +459,15 @@ img {
     border: none;
     cursor: pointer;
     padding: 0;
-    background: #23232b;
-    accent-color: transparent;
+    background: linear-gradient(to right, var(--footer-accent) 0%, var(--footer-accent) 50%, #23232b 50%, #23232b 100%);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
 }
 
 .progress-bar::-webkit-slider-runnable-track {
     width: 100%;
     height: 5px;
-    background: #23232b;
+    background: transparent;
     border-radius: 999px;
     border: none;
 }

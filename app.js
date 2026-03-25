@@ -30,6 +30,20 @@ let updateProgressInterval = null;
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Inicializar barra de progresso
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) {
+        progressBar.value = 0;
+        // Inicializar gradiente (totalmente vazio no início)
+        progressBar.style.background = 'linear-gradient(to right, var(--footer-accent) 0%, var(--footer-accent) 0%, #23232b 0%, #23232b 100%)';
+    }
+    
+    // Inicializar textos de tempo
+    const timeCurrent = document.getElementById('timeCurrent');
+    const timeDuration = document.getElementById('timeDuration');
+    if (timeCurrent) timeCurrent.textContent = '0:00';
+    if (timeDuration) timeDuration.textContent = '0:00';
+    
     await loadPlaylists();
     setupEventListeners();
     loadFavorites();
@@ -443,8 +457,8 @@ function updateProgressBar() {
 
     if (progressBar) {
         progressBar.value = percentage;
-        progressBar.style.setProperty('--progress', percentage + '%');
-    }
+        // Atualizar gradiente de fundo para mostrar o preenchimento
+        progressBar.style.background = `linear-gradient(to right, var(--footer-accent) 0%, var(--footer-accent) ${percentage}%, #23232b ${percentage}%, #23232b 100%)`;\n    }
     document.getElementById('timeCurrent').textContent = formatTime(player.currentTime);
     document.getElementById('timeDuration').textContent = formatTime(player.currentDuration);
 }
@@ -467,7 +481,7 @@ function seekProgress(e) {
     percentage = Math.max(0, Math.min(100, percentage));
 
     progressBar.value = percentage;
-    const seekTime = (player.currentDuration * percentage) / 100;
+    progressBar.style.background = `linear-gradient(to right, var(--footer-accent) 0%, var(--footer-accent) ${percentage}%, #23232b ${percentage}%, #23232b 100%)`;
     player.currentTime = seekTime;
 
     if (player.ytReady && ytPlayer) {
@@ -838,6 +852,8 @@ function onProgressInput(event) {
     const duration = player.currentDuration || 0;
     const seconds = (duration * value) / 100;
     document.getElementById('timeCurrent').textContent = formatTime(seconds);
+    // Atualizar gradiente enquanto arrasta
+    event.target.style.background = `linear-gradient(to right, var(--footer-accent) 0%, var(--footer-accent) ${value}%, #23232b ${value}%, #23232b 100%)`;
 }
 
 function onProgressChange(event) {
