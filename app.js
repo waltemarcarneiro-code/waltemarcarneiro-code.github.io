@@ -55,6 +55,7 @@ function handleHashNavigation() {
                     loadPlaylistVideos();
                     loadVideo(video);
                     player.shouldPlayOnReady = true;
+                    refreshPlayerUI();
                 }
             });
         });
@@ -63,6 +64,27 @@ function handleHashNavigation() {
 
 // Listener para alterações na URL
 window.addEventListener('hashchange', handleHashNavigation);
+
+// Garantir refresh ao focar na janela (reentrar no player)
+window.addEventListener('focus', () => {
+    if (player.currentPlaylist) {
+        refreshPlayerUI();
+    }
+});
+
+// Atualiza UI completa de player sem fazer novo fetch pesado
+function refreshPlayerUI() {
+    updateCurrentVideoDisplay();
+    updatePlayPauseButton();
+    updateProgressBar();
+    updateFavoriteButton();
+    updateActivePlaylistItem();
+    loadPlaylistVideos();
+    if (ytPlayer && player.ytReady) {
+        player.currentTime = ytPlayer.getCurrentTime();
+        player.currentDuration = ytPlayer.getDuration();
+    }
+}
 
 // ============================================================================
 // CARREGAR DADOS
@@ -80,6 +102,7 @@ async function loadPlaylists() {
             } else {
                 selectPlaylist(0);
             }
+            refreshPlayerUI();
         }
     } catch (error) {
         console.error('Erro ao carregar playlists:', error);
@@ -129,6 +152,7 @@ function selectPlaylist(index) {
     closePlaylistsModal();
     loadPlaylistVideos();
     loadFirstVideo();
+    refreshPlayerUI();
 }
 
 // ============================================================================
