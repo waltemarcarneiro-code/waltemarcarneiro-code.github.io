@@ -298,11 +298,13 @@ function onPlayerStateChange(event) {
         player.currentTime = ytPlayer.getCurrentTime();
         updatePlayPauseButton();
         updateProgressBar();
+        updateActivePlaylistItem();
     } else if (state === YT.PlayerState.PAUSED) {
         player.isPlaying = false;
         player.currentTime = ytPlayer.getCurrentTime();
         updatePlayPauseButton();
         updateProgressBar();
+        updateActivePlaylistItem();
     } else if (state === YT.PlayerState.ENDED) {
         player.isPlaying = false;
         updatePlayPauseButton();
@@ -361,6 +363,12 @@ function updateCurrentVideoDisplay() {
     
     document.getElementById('favButton').addEventListener('click', toggleFavorite);
     document.getElementById('shareButton').addEventListener('click', shareMusic);
+    
+    // Detectar se título precisa de marquee após renderização
+    setTimeout(() => {
+        const cTitle = document.querySelector('.current-details .c-title');
+        checkIfTitleNeedsTruncation(cTitle);
+    }, 0);
 }
 
 // ============================================================================
@@ -372,6 +380,36 @@ function playVideoByIndex(index) {
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
     playerPlay();
+    updateActivePlaylistItem();
+}
+
+function updateActivePlaylistItem() {
+    const cTitle = document.querySelector('.current-details .c-title');
+    if (!cTitle) return;
+
+    // Detectar se o texto transborda
+    checkIfTitleNeedsTruncation(cTitle);
+}
+
+function checkIfTitleNeedsTruncation(element) {
+    if (!element) return;
+    
+    // Se não estiver tocando, remove marquee
+    if (!player.isPlaying) {
+        element.classList.remove('marquee');
+        return;
+    }
+
+    // Força layout para calcular corretamente
+    const scrollWidth = element.scrollWidth;
+    const clientWidth = element.clientWidth;
+
+    // Se o texto transborda, ativa marquee
+    if (scrollWidth > clientWidth + 5) { // +5px de margem para evitar flutuações
+        element.classList.add('marquee');
+    } else {
+        element.classList.remove('marquee');
+    }
 }
 
 function togglePlayPause() {
@@ -394,6 +432,7 @@ function nextVideo() {
     
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
+    updateActivePlaylistItem();
     // playerPlay() is chamado quando o estado muda via onPlayerReady ou loadVideoById
 }
 
@@ -404,6 +443,7 @@ function previousVideo() {
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
     playerPlay();
+    updateActivePlaylistItem();
 }
 
 function toggleShuffle() {
@@ -588,6 +628,7 @@ function displayFavoritesList() {
             player.currentVideoIndex = videoIndex;
             loadVideo(targetVideo);
             playerPlay();
+            updateActivePlaylistItem();
             
             // Mantém a visualização de favoritos
             displayFavoritesList();
@@ -714,8 +755,8 @@ function displaySearchResults(results, query) {
                 player.currentVideoIndex = result.videoIndex;
                 const video = player.currentPlaylist.videos[player.currentVideoIndex];
                 loadVideo(video);
-                player.isPlaying = true;
-                updatePlayPauseButton();
+                playerPlay();
+                updateActivePlaylistItem();
                 modal.classList.remove('show');
             });
             container.appendChild(card);
@@ -847,6 +888,16 @@ function setupEventListeners() {
         progressBar.addEventListener('input', onProgressInput);
         progressBar.addEventListener('change', onProgressChange);
     }
+
+    // Detectar redimensionamento da janela para ajustar marquee
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            const cTitle = document.querySelector('.current-details .c-title');
+            checkIfTitleNeedsTruncation(cTitle);
+        }, 150);
+    });
 }
 
 function onProgressInput(event) {

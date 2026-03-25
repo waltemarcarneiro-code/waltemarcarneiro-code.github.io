@@ -373,16 +373,21 @@ img {
     aspect-ratio: 4 / 3;
 }
 
-.playlist-info .m-title {
-    
-    font-size: var(--font-md);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
+.playlist-info {
+    flex: 1;
     overflow: hidden;
-    word-break: break-word;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.playlist-info .m-title {
+    font-size: var(--font-md);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-weight: bold;
+    display: block;
 }
 
 .playlist-info .m-artist {
@@ -534,10 +539,51 @@ img {
     border-radius: 4px;
 }
 
+.current-details {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    position: relative;
+    overflow: hidden; /* garantir clip interno */
+}
+
 .current-details .c-title {
-    display: block;
+    display: inline-block;
     font-weight: bold;
     font-size: var(--font-md);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.current-details .c-title.marquee {
+    animation: marquee-scroll-slow 8s linear infinite;
+    text-overflow: clip;
+    overflow: visible;
+    min-width: 200%; /* espaço suficiente para o texto se mover completamente */
+    max-width: none;
+}
+@keyframes marquee-scroll-slow {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* garantir que a track segurança não deixa o texto vazar para elementos vizinhos */
+.current-details .c-title.marquee {
+    position: relative;
+    left: 0;
+    right: 0;
+    min-width: 100%;
+    max-width: none;
 }
 
 .current-details .c-artist {
