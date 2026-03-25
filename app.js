@@ -79,6 +79,8 @@ function refreshPlayerUI() {
     updateProgressBar();
     updateFavoriteButton();
     updateActivePlaylistItem();
+    updateShuffleButton();
+    updateRepeatButton();
     loadPlaylistVideos();
     if (ytPlayer && player.ytReady) {
         player.currentTime = ytPlayer.getCurrentTime();
@@ -558,12 +560,14 @@ function previousVideo() {
 
 function toggleShuffle() {
     player.isShuffle = !player.isShuffle;
-    
+
     if (player.isShuffle) {
         player.playOrder = [...player.playOrder].sort(() => Math.random() - 0.5);
     } else {
         player.playOrder = [...player.originalOrder];
     }
+
+    updateShuffleButton();
 }
 
 function toggleRepeat() {
@@ -584,6 +588,15 @@ function updateRepeatButton() {
         btn.innerHTML = '<i class="material-icons">repeat</i>';
     } else {
         btn.innerHTML = `<i class="material-icons" style="position: relative;">repeat_one<span style="position: absolute; font-size: 0.7rem; font-weight: bold; bottom: -2px; right: -2px; background: var(--accent-red); color: white; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">1</span></i>`;
+    }
+}
+
+function updateShuffleButton() {
+    const btn = document.querySelector('.block-controls button:nth-child(1)');
+    if (player.isShuffle) {
+        btn.innerHTML = '<i class="material-icons">shuffle_on</i>';
+    } else {
+        btn.innerHTML = '<i class="material-icons">shuffle</i>';
     }
 }
 
