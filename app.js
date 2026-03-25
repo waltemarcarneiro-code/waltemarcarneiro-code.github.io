@@ -16,53 +16,28 @@ const player = {
     playOrder: [],
     originalOrder: [],
     ytReady: false,
-    shouldPlayOnReady: false,
-    viewingFavorites: false,
 };
 
 let ytPlayer = null;
-let ytPlayerInitialized = false;
-let updateProgressInterval = null;
 
 
 // ============================================================================
 // INICIALIZAÇÃO
 // ============================================================================
 
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadPlaylists();
+document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar barra de progresso vazia
+    const progressFill = document.querySelector('.progress-fill');
+    if (progressFill) {
+        progressFill.style.width = '0%';
+    }
+
+    loadPlaylists();
     setupEventListeners();
     loadFavorites();
     setupMobileSearch();
     setupSidbarMobile();
-    handleHashNavigation();
 });
-
-function handleHashNavigation() {
-    const hash = window.location.hash;
-    if (hash.includes('videoId=')) {
-        const videoId = hash.split('videoId=')[1].split('&')[0];
-        
-        // Procura pelo videoId em todas as playlists
-        player.playlistsData.forEach((playlist, playlistIndex) => {
-            playlist.videos.forEach((video, videoIndex) => {
-                if (video.id === videoId) {
-                    player.currentPlaylist = playlist;
-                    player.currentPlaylistIndex = playlistIndex;
-                    player.currentVideoIndex = videoIndex;
-                    player.viewingFavorites = false;
-                    
-                    loadPlaylistVideos();
-                    loadVideo(video);
-                    player.shouldPlayOnReady = true;
-                }
-            });
-        });
-    }
-}
-
-// Listener para alterações na URL
-window.addEventListener('hashchange', handleHashNavigation);
 
 // ============================================================================
 // CARREGAR DADOS
@@ -74,12 +49,7 @@ async function loadPlaylists() {
         const data = await response.json();
         player.playlistsData = data.playlists;
         if (player.playlistsData.length > 0) {
-            const hash = window.location.hash;
-            if (hash.includes('videoId=')) {
-                handleHashNavigation();
-            } else {
-                selectPlaylist(0);
-            }
+            selectPlaylist(0);
         }
     } catch (error) {
         console.error('Erro ao carregar playlists:', error);
@@ -123,8 +93,6 @@ function selectPlaylist(index) {
     player.currentVideoIndex = 0;
     player.playOrder = [...Array(player.currentPlaylist.videos.length).keys()];
     player.originalOrder = [...player.playOrder];
-    player.shouldPlayOnReady = true;
-    player.viewingFavorites = false;
     
     closePlaylistsModal();
     loadPlaylistVideos();
@@ -143,43 +111,26 @@ function loadPlaylistVideos() {
     const titlePl = container.querySelector('.title-pl');
     titlePl.textContent = `Playlist > ${player.currentPlaylist.name}`;
     
-    // Mostrar skeleton loading
+    // Limpar itens
     itemsContainer.innerHTML = '';
-    for (let i = 0; i < player.currentPlaylist.videos.length; i++) {
-        const skeleton = document.createElement('div');
-        skeleton.className = 'playlist-item skeleton-loading';
-        skeleton.innerHTML = `
-            <div class="thumb-mini skeleton"></div>
-            <div class="playlist-info" style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem;">
-                <span class="skeleton" style="display: block; width: 70%; height: 1rem; border-radius: 4px;"></span>
-                <span class="skeleton" style="display: block; width: 50%; height: 0.75rem; border-radius: 4px;"></span>
-            </div>
-            <span class="skeleton" style="display: block; width: 40px; height: 0.75rem; margin-left: auto; border-radius: 4px;"></span>
-        `;
-        itemsContainer.appendChild(skeleton);
-    }
     
-    // Carregar items reais depois de um pequeno delay
-    setTimeout(() => {
-        itemsContainer.innerHTML = '';
-        player.currentPlaylist.videos.forEach((video, index) => {
-            const item = document.createElement('div');
-            item.className = 'playlist-item';
-            item.innerHTML = `
-                <img src="covers/artists/${video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
-                     alt="${video.artist}" 
-                     class="thumb-mini"
-                     onerror="this.src='covers/artists/default.jpg'">
-                <div class="playlist-info">
-                    <span class="m-title">${video.title}</span>
-                    <span class="m-artist">${video.artist}</span>
-                </div>
-                <span class="m-duration" id="duration-${index}">0:00</span>
-            `;
-            item.addEventListener('click', () => playVideoByIndex(index));
-            itemsContainer.appendChild(item);
-        });
-    }, 300);
+    player.currentPlaylist.videos.forEach((video, index) => {
+        const item = document.createElement('div');
+        item.className = 'playlist-item';
+        item.innerHTML = `
+            <img src="covers/artists/${video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
+                 alt="${video.artist}" 
+                 class="thumb-mini"
+                 onerror="this.src='cover/cover.jpg'">
+            <div class="playlist-info">
+                <span class="m-title">${video.title}</span>
+                <span class="m-artist">${video.artist}</span>
+            </div>
+            <span class="m-duration" id="duration-${index}">0:00</span>
+        `;
+        item.addEventListener('click', () => playVideoByIndex(index));
+        itemsContainer.appendChild(item);
+    });
 }
 
 function loadFirstVideo() {
@@ -193,32 +144,29 @@ function loadFirstVideo() {
 // ============================================================================
 
 function loadVideo(video) {
-    // Forçar a presença do contêiner do player
-    const iframeWrapper = document.querySelector('.video-wrapper');
-    if (!iframeWrapper.querySelector('#player')) {
-        iframeWrapper.innerHTML = '<div id="player" style="width:100%; height:100%;"></div>';
-    }
-
-    if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+    if (player.ytReady && ytPlayer) {
         ytPlayer.loadVideoById(video.id);
-    } else if (window.YT && !ytPlayer && !ytPlayerInitialized) {
-        onYouTubeIframeAPIReady();
+    } else {
+        const iframeWrapper = document.querySelector('.video-wrapper');
+        iframeWrapper.innerHTML = `
+            <iframe 
+                width="100%" 
+                height="100%" 
+                src="https://www.youtube.com/embed/${video.id}?enablejsapi=1" 
+                title="${video.title}" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowfullscreen 
+                style="border-radius: 0rem;">
+            </iframe>
+        `;
     }
 
     updateCurrentVideoDisplay();
     updateFavoriteButton();
-    
-    // Ao escolher vídeo/playlist explicitamente, devemos tocar
-    player.shouldPlayOnReady = true;
-    if (player.ytReady && ytPlayer) {
-        playerPlay();
-    }
 }
 
 function onYouTubeIframeAPIReady() {
-    if (ytPlayerInitialized) return;
-    ytPlayerInitialized = true;
-
     ytPlayer = new YT.Player('player', {
         height: '100%',
         width: '100%',
@@ -240,71 +188,29 @@ function onYouTubeIframeAPIReady() {
 
 function onPlayerReady(event) {
     player.ytReady = true;
-
-    if (player.currentPlaylist && player.currentPlaylist.videos.length > 0) {
+    if (player.currentPlaylist) {
         const video = player.currentPlaylist.videos[player.currentVideoIndex];
         if (video) {
-            ytPlayer.loadVideoById(video.id);
+            event.target.loadVideoById(video.id);
             updateCurrentVideoDisplay();
             updateFavoriteButton();
-            updatePlayPauseButton();
         }
     }
-
-    if (player.shouldPlayOnReady && ytPlayer) {
-        playerPlay();
-        player.shouldPlayOnReady = false;
-    }
-
-    if (updateProgressInterval) {
-        clearInterval(updateProgressInterval);
-    }
-
-    updateProgressInterval = setInterval(() => {
-        if (!ytPlayer || !player.ytReady) return;
-
-        const duration = ytPlayer.getDuration();
-        const currentTime = ytPlayer.getCurrentTime();
-
-        player.currentDuration = duration;
-        player.currentTime = currentTime;
-
-        updateProgressBar();
-        updatePlaylistDurations();
-    }, 250);
-}
-
-function updatePlaylistDurations() {
-    if (!player.currentPlaylist) return;
-    
-    player.currentPlaylist.videos.forEach((video, index) => {
-        const durationElement = document.getElementById(`duration-${index}`);
-        if (durationElement && index === player.currentVideoIndex && player.ytReady && ytPlayer) {
-            const duration = ytPlayer.getDuration();
-            if (duration > 0) {
-                durationElement.textContent = formatTime(duration);
-            }
-        }
-    });
 }
 
 function onPlayerStateChange(event) {
     const state = event.data;
-
     // YT.State: -1 unstarted, 0 ended, 1 playing, 2 paused, 3 buffering, 5 cued
     if (state === YT.PlayerState.PLAYING) {
         player.isPlaying = true;
         player.currentDuration = ytPlayer.getDuration();
-        player.currentTime = ytPlayer.getCurrentTime();
         updatePlayPauseButton();
-    } else if (state === YT.PlayerState.PAUSED) {
-        player.isPlaying = false;
-        player.currentTime = ytPlayer.getCurrentTime();
-        updatePlayPauseButton();
-    } else if (state === YT.PlayerState.ENDED) {
+    } else if (state === YT.PlayerState.PAUSED || state === YT.PlayerState.ENDED) {
         player.isPlaying = false;
         updatePlayPauseButton();
+    }
 
+    if (state === YT.PlayerState.ENDED) {
         if (player.repeatMode === 2) {
             ytPlayer.seekTo(0);
             ytPlayer.playVideo();
@@ -339,7 +245,7 @@ function updateCurrentVideoDisplay() {
         <img src="covers/artists/${video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
              alt="${video.artist}" 
              class="current-thumb"
-             onerror="this.src='covers/artists/default.jpg'">
+             onerror="this.src='cover/cover.jpg'">
         <div class="current-details">
             <span class="c-title">${video.title}</span>
             <span class="c-artist">${video.artist}</span>
@@ -366,7 +272,8 @@ function playVideoByIndex(index) {
     player.currentVideoIndex = index;
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
-    playerPlay();
+    player.isPlaying = true;
+    updatePlayPauseButton();
 }
 
 function togglePlayPause() {
@@ -389,7 +296,7 @@ function nextVideo() {
     
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
-    // playerPlay() is chamado quando o estado muda via onPlayerReady ou loadVideoById
+    playerPlay();
 }
 
 function previousVideo() {
@@ -409,6 +316,8 @@ function toggleShuffle() {
     } else {
         player.playOrder = [...player.originalOrder];
     }
+    
+    updateShuffleButton();
 }
 
 function toggleRepeat() {
@@ -421,14 +330,29 @@ function updatePlayPauseButton() {
     btn.textContent = player.isPlaying ? 'pause' : 'play_arrow';
 }
 
+function updateShuffleButton() {
+    const btn = document.querySelector('.block-controls button:nth-child(1)');
+    if (player.isShuffle) {
+        btn.style.color = 'var(--accent-red)';
+    } else {
+        btn.style.color = 'inherit';
+    }
+}
+
 function updateRepeatButton() {
     const btn = document.querySelector('.block-controls button:nth-child(5)');
     if (player.repeatMode === 0) {
+        btn.style.color = 'inherit';
+        btn.textContent = '';
         btn.innerHTML = '<i class="material-icons">repeat</i>';
     } else if (player.repeatMode === 1) {
+        btn.style.color = 'var(--accent-red)';
+        btn.textContent = '';
         btn.innerHTML = '<i class="material-icons">repeat</i>';
     } else {
-        btn.innerHTML = `<i class="material-icons" style="position: relative;">repeat_one<span style="position: absolute; font-size: 0.7rem; font-weight: bold; bottom: -2px; right: -2px; background: var(--accent-red); color: white; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">1</span></i>`;
+        btn.style.color = 'var(--accent-red)';
+        btn.textContent = '';
+        btn.innerHTML = '<i class="material-icons">repeat_one</i>';
     }
 }
 
@@ -437,16 +361,24 @@ function updateRepeatButton() {
 // ============================================================================
 
 function updateProgressBar() {
-    if (player.currentDuration === 0) return;
-    const percentage = (player.currentTime / player.currentDuration) * 100;
-    const progressBar = document.getElementById('progressBar');
+    const duration = player.currentDuration || 0;
+    const current = player.currentTime || 0;
 
-    if (progressBar) {
-        progressBar.value = percentage;
-        progressBar.style.setProperty('--progress', percentage + '%');
+    const percentage = duration > 0 ? (current / duration) * 100 : 0;
+    const progressFill = document.querySelector('.progress-fill');
+    if (progressFill) {
+        progressFill.style.width = `${Math.min(100, Math.max(0, percentage))}%`;
     }
-    document.getElementById('timeCurrent').textContent = formatTime(player.currentTime);
-    document.getElementById('timeDuration').textContent = formatTime(player.currentDuration);
+
+    const timeCurrentEl = document.getElementById('timeCurrent');
+    const timeDurationEl = document.getElementById('timeDuration');
+    if (timeCurrentEl) timeCurrentEl.textContent = formatTime(current);
+    if (timeDurationEl) timeDurationEl.textContent = formatTime(duration);
+
+    if (duration === 0) {
+        // evita bloquear atualização do componente quando o player ainda não retornou duração
+        return;
+    }
 }
 
 function formatTime(seconds) {
@@ -457,23 +389,15 @@ function formatTime(seconds) {
 }
 
 function seekProgress(e) {
-    // O progresso agora é via range input (progressBar), então esta função pode ser mantida por compatibilidade,
-    // mas aqui é apenas uma ponte para o handler do input
-    const progressBar = document.getElementById('progressBar');
-    if (!progressBar || player.currentDuration === 0) return;
+    const track = document.querySelector('.progress-track');
+    const rect = track.getBoundingClientRect();
+    const percentage = (e.clientX - rect.left) / rect.width;
+    const seekTime = percentage * player.currentDuration;
 
-    const rect = progressBar.getBoundingClientRect();
-    let percentage = ((e.clientX - rect.left) / rect.width) * 100;
-    percentage = Math.max(0, Math.min(100, percentage));
-
-    progressBar.value = percentage;
-    const seekTime = (player.currentDuration * percentage) / 100;
     player.currentTime = seekTime;
-
-    if (player.ytReady && ytPlayer) {
+    if (player.ytReady && ytPlayer && ytPlayer.seekTo) {
         ytPlayer.seekTo(seekTime, true);
     }
-
     updateProgressBar();
 }
 
@@ -525,61 +449,6 @@ function loadFavorites() {
     }
 }
 
-function displayFavoritesList() {
-    const container = document.querySelector('.playlist-aside');
-    const itemsContainer = document.querySelector('.playlist-items');
-    
-    // Marcar que estamos visualizando favoritos
-    player.viewingFavorites = true;
-    
-    // Atualizar título
-    const titlePl = container.querySelector('.title-pl');
-    titlePl.textContent = `Favoritos > ${player.favorites.length} músicas`;
-    
-    // Limpar itens
-    itemsContainer.innerHTML = '';
-    
-    if (player.favorites.length === 0) {
-        itemsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-dim);">Nenhuma música favoritada</div>';
-        return;
-    }
-    
-    player.favorites.forEach((favorite) => {
-        const item = document.createElement('div');
-        item.className = 'playlist-item';
-        item.innerHTML = `
-            <img src="covers/artists/${favorite.video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
-                 alt="${favorite.video.artist}" 
-                 class="thumb-mini"
-                 onerror="this.src='covers/artists/default.jpg'">
-            <div class="playlist-info">
-                <span class="m-title">${favorite.video.title}</span>
-                <span class="m-artist">${favorite.video.artist}</span>
-            </div>
-            <span class="m-duration">-</span>
-        `;
-        item.addEventListener('click', () => {
-            const playlistIndex = parseInt(favorite.id.split('-')[0]);
-            const videoIndex = parseInt(favorite.id.split('-')[1]);
-            
-            // Encontra o video nos dados de playlists
-            const targetPlaylist = player.playlistsData[playlistIndex];
-            const targetVideo = targetPlaylist.videos[videoIndex];
-            
-            // Carrega o vídeo sem mudar a visualização de favoritos
-            player.currentPlaylist = targetPlaylist;
-            player.currentPlaylistIndex = playlistIndex;
-            player.currentVideoIndex = videoIndex;
-            loadVideo(targetVideo);
-            playerPlay();
-            
-            // Mantém a visualização de favoritos
-            displayFavoritesList();
-        });
-        itemsContainer.appendChild(item);
-    });
-}
-
 // ============================================================================
 // COMPARTILHAR
 // ============================================================================
@@ -587,7 +456,7 @@ function displayFavoritesList() {
 function shareMusic() {
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     const text = `Escutando: ${video.title} - ${video.artist} no SanPlayer`;
-    const url = `${window.location.origin}${window.location.pathname}#videoId=${video.id}`;
+    const url = `https://www.youtube.com/watch?v=${video.id}`;
     
     if (navigator.share) {
         navigator.share({
@@ -610,22 +479,7 @@ function shareMusic() {
 
 function setupMobileSearch() {
     const searchInput = document.getElementById('searchInput');
-    const headerSearch = document.querySelector('.header-search');
-    const searchForm = headerSearch.querySelector('form');
-    const btnSearchMobile = document.querySelector('.btn-search-mobile');
-    const btnSearchBack = document.querySelector('.btn-search-back');
     let searchTimeout;
-    
-    btnSearchMobile.addEventListener('click', () => {
-        headerSearch.classList.add('show-search');
-        searchInput.focus();
-    });
-    
-    btnSearchBack.addEventListener('click', () => {
-        headerSearch.classList.remove('show-search');
-        document.getElementById('searchModal').classList.remove('show');
-        searchInput.value = '';
-    });
     
     searchInput.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
@@ -639,12 +493,6 @@ function setupMobileSearch() {
         searchTimeout = setTimeout(() => {
             searchMusics(query);
         }, 300);
-    });
-    
-    searchInput.addEventListener('blur', (e) => {
-        if (window.innerWidth <= 1023 && e.target.value.trim().length === 0) {
-            headerSearch.classList.remove('show-search');
-        }
     });
 }
 
@@ -687,7 +535,7 @@ function displaySearchResults(results, query) {
                 <img src="covers/artists/${result.video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
                      alt="${result.video.artist}" 
                      class="card-image"
-                     onerror="this.src='covers/artists/default.jpg'">
+                     onerror="this.src='cover/cover.jpg'">
                 <div class="card-body">
                     <div class="card-title">${result.video.title}</div>
                     <div class="card-subtitle">${result.video.artist}</div>
@@ -791,15 +639,6 @@ function setupEventListeners() {
         }
     });
     
-    // Favoritos na sidebar
-    const favoriteLink = document.querySelector('.sidebar-nav li:nth-child(3) a');
-    if (favoriteLink) {
-        favoriteLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            displayFavoritesList();
-        });
-    }
-    
     // Modal de busca
     document.getElementById('closeSearchModal').addEventListener('click', () => {
         document.getElementById('searchModal').classList.remove('show');
@@ -825,30 +664,15 @@ function setupEventListeners() {
     btnNext.addEventListener('click', nextVideo);
     btnRepeat.addEventListener('click', toggleRepeat);
     
-    // Barra de progresso real (range input)
-    const progressBar = document.getElementById('progressBar');
-    if (progressBar) {
-        progressBar.addEventListener('input', onProgressInput);
-        progressBar.addEventListener('change', onProgressChange);
-    }
+    // Barra de progresso
+    document.querySelector('.progress-track').addEventListener('click', seekProgress);
+    
+    // Atualizar progresso com YouTube IFrame API
+    setInterval(() => {
+        if (player.ytReady && ytPlayer && ytPlayer.getCurrentTime) {
+            player.currentTime = ytPlayer.getCurrentTime();
+            player.currentDuration = ytPlayer.getDuration() || 0;
+            updateProgressBar();
+        }
+    }, 200);
 }
-
-function onProgressInput(event) {
-    const value = Number(event.target.value);
-    const duration = player.currentDuration || 0;
-    const seconds = (duration * value) / 100;
-    document.getElementById('timeCurrent').textContent = formatTime(seconds);
-}
-
-function onProgressChange(event) {
-    const value = Number(event.target.value);
-    const duration = player.currentDuration || 0;
-    const seconds = (duration * value) / 100;
-
-    player.currentTime = seconds;
-    if (player.ytReady && ytPlayer) {
-        ytPlayer.seekTo(seconds, true);
-    }
-    updateProgressBar();
-}
-
