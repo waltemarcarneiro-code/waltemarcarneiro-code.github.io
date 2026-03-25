@@ -48,7 +48,7 @@
     }
 
     .playlist-items {
-        padding-bottom: clamp(2.5rem, 5vw, 3rem);
+        padding-bottom: 4rem;
     }
 
     .modal-content{
