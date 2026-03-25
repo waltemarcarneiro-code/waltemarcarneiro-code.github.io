@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SanPlayer - Dashboard</title>
-    
+    <title>SanPlayer</title>
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <header class="app-header">
@@ -39,20 +41,21 @@
     </header>
 
     <div class="app-main-grid">
-        
+
         <nav class="app-sidebar app-sidebar-mobile">
             <div class="sidebar-overlay"></div>
             <div class="sidebar-content">
                 <ul class="sidebar-nav">
-                    
+
                     <li><a href="#"><i class="material-icons">home</i> Início</a></li>
-                    <li class="active"><a href="#" id="link-playlists"><i class="material-icons">library_music</i> Playlists</a></li>
+                    <li class="active"><a href="#" id="link-playlists"><i class="material-icons">library_music</i>
+                            Playlists</a></li>
                     <li><a href="#"><i class="material-icons">favorite_border</i>Favoritos</a></li>
-                    <li><a href="#"><i class="material-icons">people</i> Artistas</a></li>
+                    <li><a href="#" id="link-artistas"><i class="material-icons">people</i> Artistas</a></li>
                     <li><a href="#"><i class="material-icons">free_breakfast</i> Contribuir</a></li>
-                   
-                    
-                    
+
+
+
                 </ul>
             </div>
         </nav>
@@ -70,7 +73,7 @@
     </div>
 
     <footer class="app-player-footer">
-        
+
         <div class="player-progress-area">
             <div class="progress">
                 <input id="progressBar" class="progress-bar" type="range" min="0" max="100" value="0">
@@ -82,7 +85,7 @@
         </div>
 
         <div class="footer-content-wrapper">
-            
+
             <div class="footer-block block-info">
                 <img src="covers/cover.jpg" alt="Capa" class="current-thumb">
                 <div class="current-details">
@@ -121,6 +124,19 @@
         </div>
     </div>
 
+    <!-- MODAL DE ARTISTAS -->
+    <div id="artistsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Artistas</h2>
+                <button class="modal-close" id="closeArtistsModal" aria-label="Fechar">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div id="artistsCardsContainer" class="cards-grid"></div>
+        </div>
+    </div>
+
     <!-- MODAL DE RESULTADOS DE BUSCA -->
     <div id="searchModal" class="modal">
         <div class="modal-content">
@@ -133,7 +149,9 @@
             <div id="searchResultsContainer" class="search-results"></div>
         </div>
     </div>
-    <script src="https://www.youtube.com/iframe_api"></script>    <script src="app.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="app.js"></script>
 
 </body>
+
 </html>

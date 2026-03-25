@@ -140,6 +140,81 @@ function closePlaylistsModal() {
     document.getElementById('playlistModal').classList.remove('show');
 }
 
+// ============================================================================
+// MODAL DE ARTISTAS
+// ============================================================================
+
+function openArtistsModal() {
+    const modal = document.getElementById('artistsModal');
+    const container = document.getElementById('artistsCardsContainer');
+    
+    container.innerHTML = '';
+    
+    // Coletar artistas únicos
+    const artistsSet = new Set();
+    player.playlistsData.forEach(playlist => {
+        playlist.videos.forEach(video => {
+            if (video.artist) {
+                artistsSet.add(video.artist);
+            }
+        });
+    });
+    
+    const artists = Array.from(artistsSet).sort();
+    
+    artists.forEach(artist => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <img src="covers/artists/${artist.toLowerCase().replace(/\s+/g, '_')}.jpg" alt="${artist}" class="card-image" onerror="this.src='covers/cover.jpg'">
+            <div class="card-body">
+                <div class="card-title">${artist}</div>
+                <div class="card-subtitle">Artista</div>
+            </div>
+        `;
+        card.addEventListener('click', () => selectArtist(artist));
+        container.appendChild(card);
+    });
+    
+    modal.classList.add('show');
+}
+
+function closeArtistsModal() {
+    document.getElementById('artistsModal').classList.remove('show');
+}
+
+function selectArtist(artist) {
+    // Filtrar vídeos do artista
+    const artistVideos = [];
+    player.playlistsData.forEach(playlist => {
+        playlist.videos.forEach(video => {
+            if (video.artist === artist) {
+                artistVideos.push({
+                    ...video,
+                    playlistName: playlist.name
+                });
+            }
+        });
+    });
+    
+    // Criar uma playlist temporária para o artista
+    player.currentPlaylist = {
+        name: artist,
+        videos: artistVideos
+    };
+    player.currentPlaylistIndex = -1; // Indica que é uma playlist temporária
+    player.currentVideoIndex = 0;
+    player.playOrder = [...Array(artistVideos.length).keys()];
+    player.originalOrder = [...player.playOrder];
+    player.shouldPlayOnReady = true;
+    player.viewingFavorites = false;
+    
+    closeArtistsModal();
+    loadPlaylistVideos();
+    loadFirstVideo();
+    refreshPlayerUI();
+}
+
 function selectPlaylist(index) {
     player.currentPlaylist = player.playlistsData[index];
     player.currentPlaylistIndex = index;
@@ -869,6 +944,20 @@ function setupEventListeners() {
     document.getElementById('playlistModal').addEventListener('click', (e) => {
         if (e.target === e.currentTarget) {
             closePlaylistsModal();
+        }
+    });
+    
+    // Modal de artistas
+    document.getElementById('link-artistas').addEventListener('click', (e) => {
+        e.preventDefault();
+        openArtistsModal();
+    });
+    
+    document.getElementById('closeArtistsModal').addEventListener('click', closeArtistsModal);
+    
+    document.getElementById('artistsModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) {
+            closeArtistsModal();
         }
     });
     
