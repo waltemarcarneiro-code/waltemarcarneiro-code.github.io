@@ -571,7 +571,16 @@ function toggleShuffle() {
 }
 
 function toggleRepeat() {
-    player.repeatMode = (player.repeatMode + 1) % 3;
+    // Primeiro clique: sempre repetir a música atual (repeat_one)
+    // Depois: repetir toda playlist (repeat)
+    // Depois: desligar
+    if (player.repeatMode === 0) {
+        player.repeatMode = 2; // repeat one
+    } else if (player.repeatMode === 2) {
+        player.repeatMode = 1; // repeat all
+    } else {
+        player.repeatMode = 0; // off
+    }
     updateRepeatButton();
 }
 
