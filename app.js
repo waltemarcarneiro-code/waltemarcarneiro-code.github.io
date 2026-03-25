@@ -114,7 +114,9 @@ async function loadPlaylists() {
 // ============================================================================
 
 function getArtistCoverUrl(artistName) {
-    return `covers/artists/${artistName.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '')}.jpg`;
+    // Preserva & e hífens para compatibilidade com arquivos já existentes
+    const normalized = artistName.toLowerCase().trim().replace(/\s+/g, '-');
+    return `covers/artists/${normalized}.jpg`;
 }
 
 // ============================================================================
