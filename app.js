@@ -29,8 +29,8 @@ let updateProgressInterval = null;
 // INICIALIZAÇÃO
 // ============================================================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadPlaylists();
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadPlaylists();
     setupEventListeners();
     loadFavorites();
     setupMobileSearch();
