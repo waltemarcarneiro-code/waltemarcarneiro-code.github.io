@@ -110,6 +110,14 @@ async function loadPlaylists() {
 }
 
 // ============================================================================
+// UTILITÁRIOS
+// ============================================================================
+
+function getArtistCoverUrl(artistName) {
+    return `covers/artists/${artistName.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '')}.jpg`;
+}
+
+// ============================================================================
 // MODAL DE PLAYLISTS
 // ============================================================================
 
@@ -161,13 +169,13 @@ function openArtistsModal() {
     });
     
     const artists = Array.from(artistsSet).sort();
-    
+
     artists.forEach(artist => {
-        const artistSlug = artist.toLowerCase().replace(/\s+/g, '_');
+        const artistCover = getArtistCoverUrl(artist);
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-            <img src="covers/artists/${artistSlug}.jpg" alt="${artist}" class="card-image" onerror="this.src='covers/artists/default.jpg'">
+            <img src="${artistCover}" alt="${artist}" class="card-image" onerror="this.src='covers/artists/default.jpg'">
             <div class="card-body">
                 <div class="card-title">${artist}</div>
                 <div class="card-subtitle">Artista</div>
@@ -266,7 +274,7 @@ function loadPlaylistVideos() {
             const item = document.createElement('div');
             item.className = 'playlist-item';
             item.innerHTML = `
-                <img src="covers/artists/${video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
+                <img src="${getArtistCoverUrl(video.artist)}" 
                      alt="${video.artist}" 
                      class="thumb-mini"
                      onerror="this.src='covers/artists/default.jpg'">
@@ -443,7 +451,7 @@ function updateCurrentVideoDisplay() {
     const blockInfo = document.querySelector('.block-info');
     
     blockInfo.innerHTML = `
-        <img src="covers/artists/${video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
+        <img src="${getArtistCoverUrl(video.artist)}" 
              alt="${video.artist}" 
              class="current-thumb"
              onerror="this.src='covers/artists/default.jpg'">
@@ -704,7 +712,7 @@ function displayFavoritesList() {
         const item = document.createElement('div');
         item.className = 'playlist-item';
         item.innerHTML = `
-            <img src="covers/artists/${favorite.video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
+            <img src="${getArtistCoverUrl(favorite.video.artist)}" 
                  alt="${favorite.video.artist}" 
                  class="thumb-mini"
                  onerror="this.src='covers/artists/default.jpg'">
@@ -841,7 +849,7 @@ function displaySearchResults(results, query) {
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
-                <img src="covers/artists/${result.video.artist.toLowerCase().replace(/\s+/g, '-')}.jpg" 
+                <img src="${getArtistCoverUrl(result.video.artist)}" 
                      alt="${result.video.artist}" 
                      class="card-image"
                      onerror="this.src='covers/artists/default.jpg'">
