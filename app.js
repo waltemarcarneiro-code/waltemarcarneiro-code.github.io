@@ -38,19 +38,9 @@ async function initApp() {
     handleHashNavigation();
 
     safeRender();
-
-    if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(() => {
-            safeRender();
-        });
-    }
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
-
-window.addEventListener('load', () => {
-    safeRender();
-});
 
 function safeRender() {
     requestAnimationFrame(() => {
@@ -497,25 +487,11 @@ function updateCurrentVideoDisplay() {
     document.getElementById('favButton').addEventListener('click', toggleFavorite);
     document.getElementById('shareButton').addEventListener('click', shareMusic);
 
-    const currentThumb = document.querySelector('.current-thumb');
-    if (currentThumb) {
-        currentThumb.addEventListener('load', () => {
-            requestAnimationFrame(() => {
-                refreshPlayerUI();
-            });
-        });
-        currentThumb.addEventListener('error', () => {
-            requestAnimationFrame(() => {
-                refreshPlayerUI();
-            });
-        });
-    }
-
     // Detectar se título precisa de marquee após renderização
-    requestAnimationFrame(() => {
+    setTimeout(() => {
         const cTitle = document.querySelector('.current-details .c-title');
         checkIfTitleNeedsTruncation(cTitle);
-    });
+    }, 0);
 }
 
 // ============================================================================
@@ -544,19 +520,21 @@ function checkIfTitleNeedsTruncation(element) {
     // Se não estiver tocando, remove marquee
     if (!player.isPlaying) {
         element.classList.remove('marquee');
+        delete element.dataset.truncationChecked;
         return;
     }
+
+    // Evita reflow desnecessário se já foi verificado
+    if (element.dataset.truncationChecked === 'true') return;
 
     // Força layout para calcular corretamente
     const scrollWidth = element.scrollWidth;
     const clientWidth = element.clientWidth;
 
     // Se o texto transborda, ativa marquee
-    if (scrollWidth > clientWidth + 5) { // +5px de margem para evitar flutuações
-        element.classList.add('marquee');
-    } else {
-        element.classList.remove('marquee');
-    }
+    const needsScroll = scrollWidth > clientWidth + 5;
+    element.classList.toggle('marquee', needsScroll);
+    element.dataset.truncationChecked = 'true';
 }
 
 function togglePlayPause() {
