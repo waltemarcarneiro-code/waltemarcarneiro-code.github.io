@@ -367,7 +367,7 @@ function onYouTubeIframeAPIReady() {
     ytPlayer = new YT.Player('player', {
         height: '100%',
         width: '100%',
-        videoId: (player.currentPlaylist && player.currentPlaylist.videos?.[player.currentVideoIndex]?.id) || 'GP9IB2ji02s',
+        videoId: (player.currentPlaylist && player.currentPlaylist.videos?.[player.currentVideoIndex]?.id) || '3ZdbHUolTi8',
         playerVars: {
             autoplay: 0,
             controls: 1,
