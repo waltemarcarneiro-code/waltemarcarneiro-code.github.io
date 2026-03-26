@@ -35,8 +35,8 @@ async function initApp() {
     loadFavorites();
     setupMobileSearch();
     setupSidbarMobile();
-    handleHashNavigation();
 
+    initPlayerUI();
     safeRender();
 }
 
@@ -46,6 +46,30 @@ function safeRender() {
     requestAnimationFrame(() => {
         refreshPlayerUI();
     });
+}
+
+// Criar UI template uma única vez
+function initPlayerUI() {
+    const blockInfo = document.querySelector('.block-info');
+    
+    blockInfo.innerHTML = `
+        <img class="current-thumb" onerror="this.src='covers/artists/default.jpg'">
+        <div class="current-details">
+            <span class="c-title"></span>
+            <span class="c-artist"></span>
+        </div>
+        <div class="current-actions">
+            <button id="favButton" aria-label="Adicionar aos favoritos">
+                <i class="material-icons" id="favIcon">favorite_border</i>
+            </button>
+            <button id="shareButton" aria-label="Compartilhar">
+                <i class="material-icons reply">reply</i>
+            </button>
+        </div>
+    `;
+    
+    document.getElementById('favButton').addEventListener('click', toggleFavorite);
+    document.getElementById('shareButton').addEventListener('click', shareMusic);
 }
 
 function handleHashNavigation() {
@@ -77,8 +101,8 @@ window.addEventListener('hashchange', handleHashNavigation);
 
 // Garantir refresh ao focar na janela (reentrar no player)
 window.addEventListener('focus', () => {
-    if (player.currentPlaylist) {
-        refreshPlayerUI();
+    if (player.currentPlaylist && player.ytReady) {
+        updateProgressBar();
     }
 });
 
@@ -463,34 +487,19 @@ function playerPause() {
 
 function updateCurrentVideoDisplay() {
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
-    const blockInfo = document.querySelector('.block-info');
     
-    blockInfo.innerHTML = `
-        <img src="${getArtistCoverUrl(video.artist)}" 
-             alt="${video.artist}" 
-             class="current-thumb"
-             onerror="this.src='covers/artists/default.jpg'">
-        <div class="current-details">
-            <span class="c-title">${video.title}</span>
-            <span class="c-artist">${video.artist}</span>
-        </div>
-        <div class="current-actions">
-            <button id="favButton" aria-label="Adicionar aos favoritos">
-                <i class="material-icons" id="favIcon">favorite_border</i>
-            </button>
-            <button id="shareButton" aria-label="Compartilhar">
-                <i class="material-icons reply">reply</i>
-            </button>
-        </div>
-    `;
+    // Atualizar apenas os dados, sem recriar DOM
+    const thumb = document.querySelector('.current-thumb');
+    const title = document.querySelector('.c-title');
+    const artist = document.querySelector('.c-artist');
     
-    document.getElementById('favButton').addEventListener('click', toggleFavorite);
-    document.getElementById('shareButton').addEventListener('click', shareMusic);
-
+    thumb.src = getArtistCoverUrl(video.artist);
+    title.textContent = video.title;
+    artist.textContent = video.artist;
+    
     // Detectar se título precisa de marquee após renderização
     setTimeout(() => {
-        const cTitle = document.querySelector('.current-details .c-title');
-        checkIfTitleNeedsTruncation(cTitle);
+        checkIfTitleNeedsTruncation(title);
     }, 0);
 }
 
