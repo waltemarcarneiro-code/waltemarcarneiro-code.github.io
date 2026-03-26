@@ -168,7 +168,7 @@ function openPlaylistsModal() {
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-            <img src="covers/playlists/${playlist.cover}" alt="${playlist.name}" class="card-image" onerror="this.src='cover/cover.jpg'">
+            <img src="covers/playlists/${playlist.cover}" alt="${playlist.name}" class="card-image" onerror="this.src='covers/playlists/playlist.jpg'">
             <div class="card-body">
                 <div class="card-title">${playlist.name}</div>
                 <div class="card-subtitle">${playlist.videos.length} músicas</div>
