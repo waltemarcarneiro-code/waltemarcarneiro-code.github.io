@@ -53,10 +53,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 window.addEventListener('load', () => {
     refreshPlayerUI();
     scheduleLayoutStabilization();
+    watchPlayerIframe();
+});
 
-    const iframe = document.querySelector('#player iframe');
+function watchPlayerIframe() {
+    const videoWrapper = document.querySelector('.video-wrapper');
 
-    const onIframeReady = () => {
+    const triggerUIRefresh = () => {
         requestAnimationFrame(() => {
             document.body.offsetHeight;
             window.dispatchEvent(new Event('resize'));
@@ -65,12 +68,24 @@ window.addEventListener('load', () => {
         });
     };
 
-    if (iframe) {
-        iframe.addEventListener('load', onIframeReady, { once: true });
-    } else {
-        onIframeReady();
+    const bindIframeLoad = () => {
+        const iframe = document.querySelector('#player iframe');
+        if (iframe) {
+            iframe.addEventListener('load', triggerUIRefresh, { once: true });
+            return true;
+        }
+        return false;
+    };
+
+    if (!bindIframeLoad() && videoWrapper) {
+        const observer = new MutationObserver((mutations, obs) => {
+            if (bindIframeLoad()) {
+                obs.disconnect();
+            }
+        });
+        observer.observe(videoWrapper, { childList: true, subtree: true });
     }
-});
+}
 
 function handleHashNavigation() {
     const hash = window.location.hash;
@@ -471,6 +486,7 @@ function onPlayerReady(event) {
         updatePlaylistDurations();
     }, 250);
 
+    window.dispatchEvent(new Event('resize'));
     scheduleLayoutStabilization();
 }
 
