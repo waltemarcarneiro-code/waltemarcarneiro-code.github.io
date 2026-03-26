@@ -366,15 +366,15 @@ function loadPlaylistVideos() {
         itemsContainer.appendChild(skeleton);
     }
     
-    // Carregar items reais depois de um pequeno delay
-    setTimeout(() => {
+    // Carregar items reais no próximo frame de pintura
+    requestAnimationFrame(() => {
         itemsContainer.innerHTML = '';
         player.currentPlaylist.videos.forEach((video, index) => {
             const item = document.createElement('div');
             item.className = 'playlist-item';
             item.innerHTML = `
-                <img src="${getArtistCoverUrl(video.artist)}" 
-                     alt="${video.artist}" 
+                <img src="${getArtistCoverUrl(video.artist)}"
+                     alt="${video.artist}"
                      class="thumb-mini"
                      onerror="this.src='covers/artists/default.jpg'">
                 <div class="playlist-info">
@@ -389,7 +389,7 @@ function loadPlaylistVideos() {
 
         attachStabilizationImgListeners(itemsContainer);
         scheduleLayoutStabilization();
-    }, 300);
+    });
 }
 
 function loadFirstVideo() {
