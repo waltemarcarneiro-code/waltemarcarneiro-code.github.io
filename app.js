@@ -37,53 +37,25 @@ async function initApp() {
     setupSidbarMobile();
     handleHashNavigation();
 
-    requestAnimationFrame(() => {
-        refreshPlayerUI();
-    });
+    safeRender();
 
     if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(() => {
-            requestAnimationFrame(() => {
-                refreshPlayerUI();
-            });
+            safeRender();
         });
     }
-
-    watchPlayerIframe();
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
 
 window.addEventListener('load', () => {
-    watchPlayerIframe();
+    safeRender();
 });
 
-function watchPlayerIframe() {
-    const videoWrapper = document.querySelector('.video-wrapper');
-
-    const triggerUIRefresh = () => {
-        requestAnimationFrame(() => {
-            refreshPlayerUI();
-        });
-    };
-
-    const bindIframeLoad = () => {
-        const iframe = document.querySelector('#player iframe');
-        if (iframe) {
-            iframe.addEventListener('load', triggerUIRefresh, { once: true });
-            return true;
-        }
-        return false;
-    };
-
-    if (!bindIframeLoad() && videoWrapper) {
-        const observer = new MutationObserver((mutations, obs) => {
-            if (bindIframeLoad()) {
-                obs.disconnect();
-            }
-        });
-        observer.observe(videoWrapper, { childList: true, subtree: true });
-    }
+function safeRender() {
+    requestAnimationFrame(() => {
+        refreshPlayerUI();
+    });
 }
 
 function handleHashNavigation() {
@@ -134,51 +106,6 @@ function refreshPlayerUI() {
         player.currentTime = ytPlayer.getCurrentTime();
         player.currentDuration = ytPlayer.getDuration();
     }
-}
-
-function forceLayoutStabilization() {
-    // força reflow/repaint para “estabilizar” layout após carregamentos de fontes, imagens e vídeo.
-    document.body.offsetHeight; // leitura forçada de layout
-    window.requestAnimationFrame(() => {
-        document.body.offsetHeight;
-    });
-    forceVideoFrameRefresh();
-}
-
-function forceVideoFrameRefresh() {
-    const videoWrapper = document.querySelector('.video-wrapper');
-    const playerIframe = document.querySelector('#player iframe');
-
-    if (videoWrapper) {
-        videoWrapper.style.willChange = 'transform';
-        videoWrapper.style.transform = 'translateZ(0)';
-        window.requestAnimationFrame(() => {
-            videoWrapper.style.transform = '';
-            videoWrapper.style.willChange = '';
-        });
-    }
-
-    if (playerIframe && ytPlayer && typeof ytPlayer.setSize === 'function') {
-        const width = videoWrapper ? videoWrapper.clientWidth : window.innerWidth;
-        const height = videoWrapper ? videoWrapper.clientHeight : window.innerHeight;
-        ytPlayer.setSize(width, height);
-    }
-}
-
-function scheduleLayoutStabilization() {
-    if (window.__layoutStabilizationTimeout) {
-        clearTimeout(window.__layoutStabilizationTimeout);
-    }
-    window.__layoutStabilizationTimeout = setTimeout(() => {
-        forceLayoutStabilization();
-    }, 100);
-}
-
-function attachStabilizationImgListeners(rootElement) {
-    if (!rootElement) return;
-    rootElement.querySelectorAll('img').forEach((img) => {
-        img.addEventListener('load', scheduleLayoutStabilization);
-    });
 }
 
 // ============================================================================
@@ -385,8 +312,7 @@ function loadPlaylistVideos() {
             itemsContainer.appendChild(item);
         });
 
-        attachStabilizationImgListeners(itemsContainer);
-        scheduleLayoutStabilization();
+        safeRender();
     });
 }
 
