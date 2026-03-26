@@ -53,6 +53,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 window.addEventListener('load', () => {
     refreshPlayerUI();
     scheduleLayoutStabilization();
+
+    const iframe = document.querySelector('#player iframe');
+
+    const onIframeReady = () => {
+        requestAnimationFrame(() => {
+            document.body.offsetHeight;
+            window.dispatchEvent(new Event('resize'));
+            refreshPlayerUI();
+            scheduleLayoutStabilization();
+        });
+    };
+
+    if (iframe) {
+        iframe.addEventListener('load', onIframeReady, { once: true });
+    } else {
+        onIframeReady();
+    }
 });
 
 function handleHashNavigation() {
