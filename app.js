@@ -286,7 +286,7 @@ function loadPlaylistVideos() {
     
     // Atualizar título
     const titlePl = container.querySelector('.title-pl');
-    titlePl.textContent = `Playlist > ${player.currentPlaylist.name}`;
+    titlePl.innerHTML = `> ${player.currentPlaylist.name}`;
     
     // Mostrar skeleton loading
     itemsContainer.innerHTML = '';
