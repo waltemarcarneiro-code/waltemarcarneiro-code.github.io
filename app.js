@@ -29,7 +29,7 @@ let updateProgressInterval = null;
 // INICIALIZAÇÃO
 // ============================================================================
 
-document.addEventListener('DOMContentLoaded', async () => {
+async function initApp() {
     await loadPlaylists();
     setupEventListeners();
     loadFavorites();
@@ -37,22 +37,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupSidbarMobile();
     handleHashNavigation();
 
-    // Estabiliza o layout imediatamente após a montagem inicial
-    refreshPlayerUI();
-    scheduleLayoutStabilization();
+    requestAnimationFrame(() => {
+        refreshPlayerUI();
+    });
 
-    // Quando fontes externas estiverem prontas, refaz cálculo de layout
     if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(() => {
-            refreshPlayerUI();
-            scheduleLayoutStabilization();
+            requestAnimationFrame(() => {
+                refreshPlayerUI();
+            });
         });
     }
-});
+
+    watchPlayerIframe();
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
 
 window.addEventListener('load', () => {
-    refreshPlayerUI();
-    scheduleLayoutStabilization();
     watchPlayerIframe();
 });
 
@@ -61,10 +63,7 @@ function watchPlayerIframe() {
 
     const triggerUIRefresh = () => {
         requestAnimationFrame(() => {
-            document.body.offsetHeight;
-            window.dispatchEvent(new Event('resize'));
             refreshPlayerUI();
-            scheduleLayoutStabilization();
         });
     };
 
@@ -135,7 +134,6 @@ function refreshPlayerUI() {
         player.currentTime = ytPlayer.getCurrentTime();
         player.currentDuration = ytPlayer.getDuration();
     }
-    scheduleLayoutStabilization();
 }
 
 function forceLayoutStabilization() {
@@ -466,9 +464,6 @@ function onPlayerReady(event) {
         player.shouldPlayOnReady = false;
     }
 
-    // forçar atualização visual imediata do iframe do YouTube no load inicial
-    scheduleLayoutStabilization();
-
     if (updateProgressInterval) {
         clearInterval(updateProgressInterval);
     }
@@ -486,8 +481,9 @@ function onPlayerReady(event) {
         updatePlaylistDurations();
     }, 250);
 
-    window.dispatchEvent(new Event('resize'));
-    scheduleLayoutStabilization();
+    requestAnimationFrame(() => {
+        refreshPlayerUI();
+    });
 }
 
 function updatePlaylistDurations() {
@@ -533,8 +529,6 @@ function onPlayerStateChange(event) {
             nextVideo();
         }
     }
-
-    scheduleLayoutStabilization();
 }
 
 function playerPlay() {
@@ -584,16 +578,23 @@ function updateCurrentVideoDisplay() {
 
     const currentThumb = document.querySelector('.current-thumb');
     if (currentThumb) {
-        currentThumb.addEventListener('load', scheduleLayoutStabilization);
-        currentThumb.addEventListener('error', scheduleLayoutStabilization);
+        currentThumb.addEventListener('load', () => {
+            requestAnimationFrame(() => {
+                refreshPlayerUI();
+            });
+        });
+        currentThumb.addEventListener('error', () => {
+            requestAnimationFrame(() => {
+                refreshPlayerUI();
+            });
+        });
     }
 
     // Detectar se título precisa de marquee após renderização
-    setTimeout(() => {
+    requestAnimationFrame(() => {
         const cTitle = document.querySelector('.current-details .c-title');
         checkIfTitleNeedsTruncation(cTitle);
-        scheduleLayoutStabilization();
-    }, 0);
+    });
 }
 
 // ============================================================================
@@ -606,7 +607,6 @@ function playVideoByIndex(index) {
     loadVideo(video);
     playerPlay();
     updateActivePlaylistItem();
-    scheduleLayoutStabilization();
 }
 
 function updateActivePlaylistItem() {
