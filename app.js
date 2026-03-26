@@ -101,7 +101,6 @@ function refreshPlayerUI() {
     updateActivePlaylistItem();
     updateShuffleButton();
     updateRepeatButton();
-    loadPlaylistVideos();
     if (ytPlayer && player.ytReady) {
         player.currentTime = ytPlayer.getCurrentTime();
         player.currentDuration = ytPlayer.getDuration();
@@ -311,8 +310,6 @@ function loadPlaylistVideos() {
             item.addEventListener('click', () => playVideoByIndex(index));
             itemsContainer.appendChild(item);
         });
-
-        safeRender();
     });
 }
 
@@ -407,9 +404,7 @@ function onPlayerReady(event) {
         updatePlaylistDurations();
     }, 250);
 
-    requestAnimationFrame(() => {
-        refreshPlayerUI();
-    });
+    safeRender();
 }
 
 function updatePlaylistDurations() {
