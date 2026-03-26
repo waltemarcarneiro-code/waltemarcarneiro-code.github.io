@@ -112,6 +112,27 @@ function forceLayoutStabilization() {
     window.requestAnimationFrame(() => {
         document.body.offsetHeight;
     });
+    forceVideoFrameRefresh();
+}
+
+function forceVideoFrameRefresh() {
+    const videoWrapper = document.querySelector('.video-wrapper');
+    const playerIframe = document.querySelector('#player iframe');
+
+    if (videoWrapper) {
+        videoWrapper.style.willChange = 'transform';
+        videoWrapper.style.transform = 'translateZ(0)';
+        window.requestAnimationFrame(() => {
+            videoWrapper.style.transform = '';
+            videoWrapper.style.willChange = '';
+        });
+    }
+
+    if (playerIframe && ytPlayer && typeof ytPlayer.setSize === 'function') {
+        const width = videoWrapper ? videoWrapper.clientWidth : window.innerWidth;
+        const height = videoWrapper ? videoWrapper.clientHeight : window.innerHeight;
+        ytPlayer.setSize(width, height);
+    }
 }
 
 function scheduleLayoutStabilization() {
@@ -413,6 +434,9 @@ function onPlayerReady(event) {
         player.shouldPlayOnReady = false;
     }
 
+    // forçar atualização visual imediata do iframe do YouTube no load inicial
+    scheduleLayoutStabilization();
+
     if (updateProgressInterval) {
         clearInterval(updateProgressInterval);
     }
@@ -549,6 +573,7 @@ function playVideoByIndex(index) {
     loadVideo(video);
     playerPlay();
     updateActivePlaylistItem();
+    scheduleLayoutStabilization();
 }
 
 function updateActivePlaylistItem() {
