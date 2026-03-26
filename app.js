@@ -344,8 +344,8 @@ function loadVideo(video) {
         iframeWrapper.innerHTML = '<div id="player" style="width:100%; height:100%;"></div>';
     }
 
-    if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
-        ytPlayer.loadVideoById(video.id);
+    if (ytPlayer && typeof ytPlayer.cueVideoById === 'function') {
+        ytPlayer.cueVideoById(video.id);
     } else if (window.YT && !ytPlayer && !ytPlayerInitialized) {
         onYouTubeIframeAPIReady();
     }
@@ -385,21 +385,6 @@ function onYouTubeIframeAPIReady() {
 
 function onPlayerReady(event) {
     player.ytReady = true;
-
-    if (player.currentPlaylist && player.currentPlaylist.videos.length > 0) {
-        const video = player.currentPlaylist.videos[player.currentVideoIndex];
-        if (video) {
-            ytPlayer.loadVideoById(video.id);
-            updateCurrentVideoDisplay();
-            updateFavoriteButton();
-            updatePlayPauseButton();
-        }
-    }
-
-    if (player.shouldPlayOnReady && ytPlayer) {
-        playerPlay();
-        player.shouldPlayOnReady = false;
-    }
 
     if (updateProgressInterval) {
         clearInterval(updateProgressInterval);
