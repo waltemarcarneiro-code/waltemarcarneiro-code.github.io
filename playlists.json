@@ -41,11 +41,6 @@
           "artist": "Collection"
         },
         {
-          "id": "Nd3AnMRgfPA",
-          "title": "Tudo por Nada",
-          "artist": "Paulo Ricardo"
-        },
-        {
           "id": "AQOlwMKpmvQ",
           "title": "Better Be Home Soon",
           "artist": "Crowded House"
@@ -286,6 +281,14 @@
           "id": "3wjn1VvzHqw",
           "title": "Transas",
           "artist": "Ritchie"
+        },
+        null,
+        null,
+        null,
+        {
+          "id": "Nd3AnMRgfPA",
+          "title": "Tudo por Nada",
+          "artist": "Paulo Ricardo"
         }
       ]
     },
