@@ -36,6 +36,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupMobileSearch();
     setupSidbarMobile();
     handleHashNavigation();
+
+    // Estabiliza o layout imediatamente após a montagem inicial
+    refreshPlayerUI();
+    scheduleLayoutStabilization();
+
+    // Quando fontes externas estiverem prontas, refaz cálculo de layout
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+            refreshPlayerUI();
+            scheduleLayoutStabilization();
+        });
+    }
+});
+
+window.addEventListener('load', () => {
+    refreshPlayerUI();
+    scheduleLayoutStabilization();
 });
 
 function handleHashNavigation() {
@@ -86,6 +103,31 @@ function refreshPlayerUI() {
         player.currentTime = ytPlayer.getCurrentTime();
         player.currentDuration = ytPlayer.getDuration();
     }
+    scheduleLayoutStabilization();
+}
+
+function forceLayoutStabilization() {
+    // força reflow/repaint para “estabilizar” layout após carregamentos de fontes, imagens e vídeo.
+    document.body.offsetHeight; // leitura forçada de layout
+    window.requestAnimationFrame(() => {
+        document.body.offsetHeight;
+    });
+}
+
+function scheduleLayoutStabilization() {
+    if (window.__layoutStabilizationTimeout) {
+        clearTimeout(window.__layoutStabilizationTimeout);
+    }
+    window.__layoutStabilizationTimeout = setTimeout(() => {
+        forceLayoutStabilization();
+    }, 100);
+}
+
+function attachStabilizationImgListeners(rootElement) {
+    if (!rootElement) return;
+    rootElement.querySelectorAll('img').forEach((img) => {
+        img.addEventListener('load', scheduleLayoutStabilization);
+    });
 }
 
 // ============================================================================
@@ -291,6 +333,9 @@ function loadPlaylistVideos() {
             item.addEventListener('click', () => playVideoByIndex(index));
             itemsContainer.appendChild(item);
         });
+
+        attachStabilizationImgListeners(itemsContainer);
+        scheduleLayoutStabilization();
     }, 300);
 }
 
@@ -384,6 +429,8 @@ function onPlayerReady(event) {
         updateProgressBar();
         updatePlaylistDurations();
     }, 250);
+
+    scheduleLayoutStabilization();
 }
 
 function updatePlaylistDurations() {
@@ -429,6 +476,8 @@ function onPlayerStateChange(event) {
             nextVideo();
         }
     }
+
+    scheduleLayoutStabilization();
 }
 
 function playerPlay() {
@@ -475,11 +524,18 @@ function updateCurrentVideoDisplay() {
     
     document.getElementById('favButton').addEventListener('click', toggleFavorite);
     document.getElementById('shareButton').addEventListener('click', shareMusic);
-    
+
+    const currentThumb = document.querySelector('.current-thumb');
+    if (currentThumb) {
+        currentThumb.addEventListener('load', scheduleLayoutStabilization);
+        currentThumb.addEventListener('error', scheduleLayoutStabilization);
+    }
+
     // Detectar se título precisa de marquee após renderização
     setTimeout(() => {
         const cTitle = document.querySelector('.current-details .c-title');
         checkIfTitleNeedsTruncation(cTitle);
+        scheduleLayoutStabilization();
     }, 0);
 }
 
