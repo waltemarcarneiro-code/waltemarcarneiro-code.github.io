@@ -488,8 +488,9 @@ img {
     overflow: hidden;
     accent-color: var(--footer-accent);
     --progress: 0%;
-    opacity: 0;
+    opacity: 1;
     transition: background-size 0.1s ease, opacity 0.2s ease;
+    cursor: pointer;
 }
 
 .progress-bar.active {
