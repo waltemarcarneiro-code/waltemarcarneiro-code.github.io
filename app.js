@@ -777,7 +777,10 @@ function displayFavoritesList() {
             player.currentPlaylistIndex = playlistIndex;
             player.currentVideoIndex = videoIndex;
             loadVideo(targetVideo);
-            playerPlay();
+            player.shouldPlayOnReady = true;
+            if (player.ytReady && ytPlayer) {
+                ytPlayer.playVideo();
+            }
             updateActivePlaylistItem();
             
             // Mantém a visualização de favoritos
@@ -905,7 +908,10 @@ function displaySearchResults(results, query) {
                 player.currentVideoIndex = result.videoIndex;
                 const video = player.currentPlaylist.videos[player.currentVideoIndex];
                 loadVideo(video);
-                playerPlay();
+                player.shouldPlayOnReady = true;
+                if (player.ytReady && ytPlayer) {
+                    ytPlayer.playVideo();
+                }
                 updateActivePlaylistItem();
                 modal.classList.remove('show');
             });
