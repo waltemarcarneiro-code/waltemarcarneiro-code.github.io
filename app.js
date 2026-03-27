@@ -346,7 +346,7 @@ function loadVideo(video) {
 
     if (ytPlayer && typeof ytPlayer.cueVideoById === 'function') {
         ytPlayer.cueVideoById(video.id);
-    } else if (window.YT && !ytPlayer && !ytPlayerInitialized) {
+    } else if (window.YT && window.YT.Player && !ytPlayer && !ytPlayerInitialized) {
         onYouTubeIframeAPIReady();
     }
 
@@ -362,6 +362,14 @@ function loadVideo(video) {
 
 function onYouTubeIframeAPIReady() {
     if (ytPlayerInitialized) return;
+    
+    // Verificar se a API do YouTube está disponível
+    if (!window.YT || !window.YT.Player) {
+        console.warn('YouTube API ainda não está carregada. Tentando novamente...');
+        setTimeout(onYouTubeIframeAPIReady, 500);
+        return;
+    }
+    
     ytPlayerInitialized = true;
 
     ytPlayer = new YT.Player('player', {
