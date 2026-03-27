@@ -706,7 +706,9 @@ function updateFavoriteButton() {
     const isFavorite = player.favorites.some(fav => fav.id === favoriteId);
     
     const icon = document.getElementById('favIcon');
-    icon.textContent = isFavorite ? 'favorite' : 'favorite_border';
+    if (icon) {
+        icon.textContent = isFavorite ? 'favorite' : 'favorite_border';
+    }
 }
 
 function saveFavorites() {
