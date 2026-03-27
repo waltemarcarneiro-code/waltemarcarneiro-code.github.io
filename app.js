@@ -259,6 +259,10 @@ function selectArtist(artist) {
     loadPlaylistVideos();
     loadFirstVideo();
     refreshPlayerUI();
+    // Chamar playVideo apenas se YouTube está pronto
+    if (player.ytReady && ytPlayer) {
+        ytPlayer.playVideo();
+    }
 }
 
 function selectPlaylist(index) {
@@ -274,6 +278,10 @@ function selectPlaylist(index) {
     loadPlaylistVideos();
     loadFirstVideo();
     refreshPlayerUI();
+    // Chamar playVideo apenas se YouTube está pronto
+    if (player.ytReady && ytPlayer) {
+        ytPlayer.playVideo();
+    }
 }
 
 // ============================================================================
@@ -459,12 +467,12 @@ function onPlayerStateChange(event) {
 }
 
 function playerPlay() {
+    // NOTA IMPORTANTE: NÃO alterar player.isPlaying aqui!
+    // O estado DEVE ser alterado APENAS por onPlayerStateChange(PLAYING)
+    // Isso garante que o botão muda APENAS quando YouTube confirma playback
     if (player.ytReady && ytPlayer) {
         ytPlayer.playVideo();
     }
-    player.isPlaying = true;
-    updatePlayPauseButton();
-    updateProgressBar();
 }
 
 function playerPause() {
@@ -750,7 +758,13 @@ function displayFavoritesList() {
         return;
     }
     
-    player.favorites.forEach((favorite) => {
+    // Criar uma playlist virtual com todos os favoritos
+    const favoritesPlaylist = {
+        name: 'Favoritos',
+        videos: player.favorites.map(fav => fav.video)
+    };
+    
+    player.favorites.forEach((favorite, index) => {
         const item = document.createElement('div');
         item.className = 'playlist-item';
         item.innerHTML = `
@@ -765,19 +779,15 @@ function displayFavoritesList() {
             <span class="m-duration">-</span>
         `;
         item.addEventListener('click', () => {
-            const playlistIndex = parseInt(favorite.id.split('-')[0]);
-            const videoIndex = parseInt(favorite.id.split('-')[1]);
+            // Usar a playlist virtual de favoritos
+            player.currentPlaylist = favoritesPlaylist;
+            player.currentPlaylistIndex = -1; // Indica playlist virtual
+            player.currentVideoIndex = index; // Índice dentro dos favoritos
+            player.viewingFavorites = true;
             
-            // Encontra o video nos dados de playlists
-            const targetPlaylist = player.playlistsData[playlistIndex];
-            const targetVideo = targetPlaylist.videos[videoIndex];
-            
-            // Carrega o vídeo sem mudar a visualização de favoritos
-            player.currentPlaylist = targetPlaylist;
-            player.currentPlaylistIndex = playlistIndex;
-            player.currentVideoIndex = videoIndex;
+            const targetVideo = favorite.video;
             loadVideo(targetVideo);
-            player.shouldPlayOnReady = true;
+            // Chamar playVideo apenas se YouTube está pronto
             if (player.ytReady && ytPlayer) {
                 ytPlayer.playVideo();
             }
@@ -908,7 +918,7 @@ function displaySearchResults(results, query) {
                 player.currentVideoIndex = result.videoIndex;
                 const video = player.currentPlaylist.videos[player.currentVideoIndex];
                 loadVideo(video);
-                player.shouldPlayOnReady = true;
+                // Chamar playVideo apenas se YouTube está pronto
                 if (player.ytReady && ytPlayer) {
                     ytPlayer.playVideo();
                 }
