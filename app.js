@@ -352,12 +352,6 @@ function loadVideo(video) {
 
     updateCurrentVideoDisplay();
     updateFavoriteButton();
-    
-    // Ao escolher vídeo/playlist explicitamente, devemos tocar
-    player.shouldPlayOnReady = true;
-    if (player.ytReady && ytPlayer) {
-        playerPlay();
-    }
 }
 
 function onYouTubeIframeAPIReady() {
@@ -451,10 +445,15 @@ function onPlayerStateChange(event) {
         updateProgressBar();
 
         if (player.repeatMode === 2) {
+            // Repetir a música atual
             ytPlayer.seekTo(0);
             ytPlayer.playVideo();
         } else {
+            // Tocar próximo vídeo automaticamente
             nextVideo();
+            if (ytPlayer && ytPlayer.playVideo) {
+                ytPlayer.playVideo();
+            }
         }
     }
 }
@@ -504,7 +503,6 @@ function playVideoByIndex(index) {
     player.currentVideoIndex = index;
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
-    playerPlay();
     updateActivePlaylistItem();
 }
 
@@ -569,7 +567,6 @@ function previousVideo() {
     player.currentVideoIndex = (player.currentVideoIndex - 1 + player.currentPlaylist.videos.length) % player.currentPlaylist.videos.length;
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
-    playerPlay();
     updateActivePlaylistItem();
 }
 
