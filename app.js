@@ -457,6 +457,14 @@ function onPlayerStateChange(event) {
         } else {
             // Tocar próximo vídeo automaticamente
             nextVideo();
+            
+            // Dar tempo para o player sair de CUED antes de chamar playVideo()
+            // Timing: YouTube ignora playVideo() se chamado imediatamente após cueVideoById()
+            setTimeout(() => {
+                if (ytPlayer && player.ytReady) {
+                    ytPlayer.playVideo();
+                }
+            }, 150);
         }
     }
 }
@@ -814,6 +822,9 @@ function displayFavoritesList() {
             player.currentVideoIndex = index; // Índice dentro dos favoritos
             player.currentFavoriteId = favorite.id; // Guardar o ID original do favorito
             player.viewingFavorites = true;
+            
+            // Sinalizar que DEVE tocar
+            player.shouldPlayOnReady = true;
             
             const targetVideo = favorite.video;
             loadVideo(targetVideo);
