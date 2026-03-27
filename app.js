@@ -18,6 +18,7 @@ const player = {
     ytReady: false,
     shouldPlayOnReady: false,
     viewingFavorites: false,
+    currentFavoriteId: null, // ID do favorito quando visualizando favoritos
 };
 
 let ytPlayer = null;
@@ -570,7 +571,19 @@ function nextVideo() {
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
     updateActivePlaylistItem();
-    // playerPlay() is chamado quando o estado muda via onPlayerReady ou loadVideoById
+    
+    // Se estiver em modo favoritos, atualizar o currentFavoriteId
+    if (player.viewingFavorites && player.currentPlaylist.name === 'Favoritos') {
+        const nextFavorite = player.favorites[player.currentVideoIndex];
+        if (nextFavorite) {
+            player.currentFavoriteId = nextFavorite.id;
+        }
+    }
+    
+    // Tocar vídeo automaticamente após carregar
+    if (player.ytReady && ytPlayer) {
+        ytPlayer.playVideo();
+    }
 }
 
 function previousVideo() {
@@ -580,6 +593,19 @@ function previousVideo() {
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
     updateActivePlaylistItem();
+    
+    // Se estiver em modo favoritos, atualizar o currentFavoriteId
+    if (player.viewingFavorites && player.currentPlaylist.name === 'Favoritos') {
+        const prevFavorite = player.favorites[player.currentVideoIndex];
+        if (prevFavorite) {
+            player.currentFavoriteId = prevFavorite.id;
+        }
+    }
+    
+    // Tocar vídeo automaticamente
+    if (player.ytReady && ytPlayer) {
+        ytPlayer.playVideo();
+    }
 }
 
 function toggleShuffle() {
@@ -697,7 +723,14 @@ function toggleFavorite() {
     if (!player.currentPlaylist) return;
     
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
-    const favoriteId = `${player.currentPlaylistIndex}-${player.currentVideoIndex}`;
+    
+    // Usar o ID correto dependendo do contexto
+    let favoriteId;
+    if (player.viewingFavorites && player.currentFavoriteId) {
+        favoriteId = player.currentFavoriteId;
+    } else {
+        favoriteId = `${player.currentPlaylistIndex}-${player.currentVideoIndex}`;
+    }
     
     const index = player.favorites.findIndex(fav => fav.id === favoriteId);
     
@@ -719,7 +752,14 @@ function updateFavoriteButton() {
     const video = player.currentPlaylist?.videos[player.currentVideoIndex];
     if (!video) return;
     
-    const favoriteId = `${player.currentPlaylistIndex}-${player.currentVideoIndex}`;
+    // Usar o ID correto dependendo do contexto
+    let favoriteId;
+    if (player.viewingFavorites && player.currentFavoriteId) {
+        favoriteId = player.currentFavoriteId;
+    } else {
+        favoriteId = `${player.currentPlaylistIndex}-${player.currentVideoIndex}`;
+    }
+    
     const isFavorite = player.favorites.some(fav => fav.id === favoriteId);
     
     const icon = document.getElementById('favIcon');
@@ -783,6 +823,7 @@ function displayFavoritesList() {
             player.currentPlaylist = favoritesPlaylist;
             player.currentPlaylistIndex = -1; // Indica playlist virtual
             player.currentVideoIndex = index; // Índice dentro dos favoritos
+            player.currentFavoriteId = favorite.id; // Guardar o ID original do favorito
             player.viewingFavorites = true;
             
             const targetVideo = favorite.video;
@@ -792,6 +833,7 @@ function displayFavoritesList() {
                 ytPlayer.playVideo();
             }
             updateActivePlaylistItem();
+            updateFavoriteButton();
             
             // Mantém a visualização de favoritos
             displayFavoritesList();
