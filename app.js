@@ -260,10 +260,6 @@ function selectArtist(artist) {
     loadPlaylistVideos();
     loadFirstVideo();
     refreshPlayerUI();
-    // Chamar playVideo apenas se YouTube está pronto
-    if (player.ytReady && ytPlayer) {
-        ytPlayer.playVideo();
-    }
 }
 
 function selectPlaylist(index) {
@@ -279,10 +275,6 @@ function selectPlaylist(index) {
     loadPlaylistVideos();
     loadFirstVideo();
     refreshPlayerUI();
-    // Chamar playVideo apenas se YouTube está pronto
-    if (player.ytReady && ytPlayer) {
-        ytPlayer.playVideo();
-    }
 }
 
 // ============================================================================
@@ -355,6 +347,11 @@ function loadVideo(video) {
 
     if (ytPlayer && typeof ytPlayer.cueVideoById === 'function') {
         ytPlayer.cueVideoById(video.id);
+        // Tocar APENAS se shouldPlayOnReady está true (usuário clicou, autoplay, etc)
+        if (player.shouldPlayOnReady && player.ytReady) {
+            ytPlayer.playVideo();
+            player.shouldPlayOnReady = false;
+        }
     } else if (window.YT && window.YT.Player && !ytPlayer && !ytPlayerInitialized) {
         onYouTubeIframeAPIReady();
     }
@@ -460,9 +457,6 @@ function onPlayerStateChange(event) {
         } else {
             // Tocar próximo vídeo automaticamente
             nextVideo();
-            if (ytPlayer && ytPlayer.playVideo) {
-                ytPlayer.playVideo();
-            }
         }
     }
 }
@@ -511,11 +505,9 @@ function updateCurrentVideoDisplay() {
 function playVideoByIndex(index) {
     player.currentVideoIndex = index;
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
-    loadVideo(video);
+    // Sinalizar que DEVE tocar
     player.shouldPlayOnReady = true;
-    if (player.ytReady && ytPlayer) {
-        ytPlayer.playVideo();
-    }
+    loadVideo(video);
     updateActivePlaylistItem();
 }
 
@@ -568,6 +560,9 @@ function nextVideo() {
         player.currentVideoIndex = (player.currentVideoIndex + 1) % player.currentPlaylist.videos.length;
     }
     
+    // IMPORTANTE: Sinalizar que o próximo vídeo DEVE tocar
+    player.shouldPlayOnReady = true;
+    
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
     updateActivePlaylistItem();
@@ -579,17 +574,16 @@ function nextVideo() {
             player.currentFavoriteId = nextFavorite.id;
         }
     }
-    
-    // Tocar vídeo automaticamente após carregar
-    if (player.ytReady && ytPlayer) {
-        ytPlayer.playVideo();
-    }
 }
 
 function previousVideo() {
     if (!player.currentPlaylist) return;
     
     player.currentVideoIndex = (player.currentVideoIndex - 1 + player.currentPlaylist.videos.length) % player.currentPlaylist.videos.length;
+    
+    // IMPORTANTE: Sinalizar que o vídeo anterior DEVE tocar
+    player.shouldPlayOnReady = true;
+    
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
     updateActivePlaylistItem();
@@ -600,11 +594,6 @@ function previousVideo() {
         if (prevFavorite) {
             player.currentFavoriteId = prevFavorite.id;
         }
-    }
-    
-    // Tocar vídeo automaticamente
-    if (player.ytReady && ytPlayer) {
-        ytPlayer.playVideo();
     }
 }
 
@@ -828,10 +817,6 @@ function displayFavoritesList() {
             
             const targetVideo = favorite.video;
             loadVideo(targetVideo);
-            // Chamar playVideo apenas se YouTube está pronto
-            if (player.ytReady && ytPlayer) {
-                ytPlayer.playVideo();
-            }
             updateActivePlaylistItem();
             updateFavoriteButton();
             
@@ -959,11 +944,8 @@ function displaySearchResults(results, query) {
                 selectPlaylist(result.playlistIndex);
                 player.currentVideoIndex = result.videoIndex;
                 const video = player.currentPlaylist.videos[player.currentVideoIndex];
+                player.shouldPlayOnReady = true;
                 loadVideo(video);
-                // Chamar playVideo apenas se YouTube está pronto
-                if (player.ytReady && ytPlayer) {
-                    ytPlayer.playVideo();
-                }
                 updateActivePlaylistItem();
                 modal.classList.remove('show');
             });
