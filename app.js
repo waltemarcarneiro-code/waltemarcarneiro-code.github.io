@@ -347,11 +347,7 @@ function loadVideo(video) {
 
     if (ytPlayer && typeof ytPlayer.cueVideoById === 'function') {
         ytPlayer.cueVideoById(video.id);
-        // Tocar APENAS se shouldPlayOnReady está true (usuário clicou, autoplay, etc)
-        if (player.shouldPlayOnReady && player.ytReady) {
-            ytPlayer.playVideo();
-            player.shouldPlayOnReady = false;
-        }
+        // playVideo() será chamado pelo handler CUED em onPlayerStateChange quando shouldPlayOnReady for true
     } else if (window.YT && window.YT.Player && !ytPlayer && !ytPlayerInitialized) {
         onYouTubeIframeAPIReady();
     }
@@ -419,10 +415,14 @@ function updatePlaylistDurations() {
     
     player.currentPlaylist.videos.forEach((video, index) => {
         const durationElement = document.getElementById(`duration-${index}`);
-        if (durationElement && index === player.currentVideoIndex && player.ytReady && ytPlayer) {
-            const duration = ytPlayer.getDuration();
-            if (duration > 0) {
-                durationElement.textContent = formatTime(duration);
+        // Apenas o vídeo atual pode ter sua duração obtida da API Iframe
+        // Outros vídeos permanecerão como '-' (limitação da API do YouTube)
+        if (durationElement && index === player.currentVideoIndex) {
+            if (player.ytReady && ytPlayer) {
+                const duration = ytPlayer.getDuration();
+                if (duration > 0) {
+                    durationElement.textContent = formatTime(duration);
+                }
             }
         }
     });
@@ -445,6 +445,13 @@ function onPlayerStateChange(event) {
         updatePlayPauseButton();
         updateProgressBar();
         updateActivePlaylistItem();
+    } else if (state === YT.PlayerState.CUED) {
+        // Player entrou em CUED após cueVideoById()
+        // Se shouldPlayOnReady for true, é o momento correto para chamar playVideo()
+        if (player.shouldPlayOnReady && ytPlayer && player.ytReady) {
+            ytPlayer.playVideo();
+            player.shouldPlayOnReady = false;
+        }
     } else if (state === YT.PlayerState.ENDED) {
         player.isPlaying = false;
         updatePlayPauseButton();
@@ -456,15 +463,10 @@ function onPlayerStateChange(event) {
             ytPlayer.playVideo();
         } else {
             // Tocar próximo vídeo automaticamente
+            // nextVideo() setará shouldPlayOnReady = true
+            // loadVideo() chamará cueVideoById()
+            // Quando player entrar em CUED, onPlayerStateChange dispará playVideo() pela flag
             nextVideo();
-            
-            // Dar tempo para o player sair de CUED antes de chamar playVideo()
-            // Timing: YouTube ignora playVideo() se chamado imediatamente após cueVideoById()
-            setTimeout(() => {
-                if (ytPlayer && player.ytReady) {
-                    ytPlayer.playVideo();
-                }
-            }, 150);
         }
     }
 }
