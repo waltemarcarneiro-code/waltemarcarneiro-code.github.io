@@ -503,6 +503,10 @@ function playVideoByIndex(index) {
     player.currentVideoIndex = index;
     const video = player.currentPlaylist.videos[player.currentVideoIndex];
     loadVideo(video);
+    player.shouldPlayOnReady = true;
+    if (player.ytReady && ytPlayer) {
+        ytPlayer.playVideo();
+    }
     updateActivePlaylistItem();
 }
 
