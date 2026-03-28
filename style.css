@@ -629,7 +629,9 @@ img {
     gap: clamp(2rem, 2vw, 2rem);
     margin: 8px 0px;
 }
-
+.shuffle-repeat{
+    color: #aaa;
+}
 .btn-play-pause {
     background-color: var(--accent-red);
     width: 50px;
