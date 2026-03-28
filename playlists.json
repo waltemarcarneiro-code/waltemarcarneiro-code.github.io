@@ -298,11 +298,6 @@
       "cover": "nacionais-romanticas.jpg",
       "videos": [
         {
-          "id": "v0p5B8adHUI",
-          "title": "Trato é Trato",
-          "artist": "Chrystian & Ralf"
-        },
-        {
           "id": "icLQT9qA3z0",
           "title": "Romance Rosa",
           "artist": "Juan Luis Guerra"
@@ -417,13 +412,100 @@
       ]
     },
     {
+      "name": "Sertanejo",
+      "slug": "sertanejo",
+      "cover": "sertanejo.jpg",
+      "videos": [
+        {
+          "id": "EJ97zrK1H08",
+          "title": "Acústico - Sou Eu",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "g4f8a0Yx9Qw",
+          "title": "Acústico - Cheiro de Shampoo",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "Q4-4Cjyt4OY",
+          "title": "Acústico - Saudade",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "Zuhjmoj_kmE",
+          "title": "Acústico - Desejo de Amar",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "UUA8hxdy0Qg",
+          "title": "Acústico - Sensível Demais",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "PTsdfAgT2Fo",
+          "title": "Acústico - Nova York",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "QTv8H5c5D1c",
+          "title": "Acústico - Oito Segundos",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "79VmwE6c1RQ",
+          "title": "Acústico - Ausência",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "9Ea76vJWdB0",
+          "title": "Acústico - Yolanda",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "LZU1n5R77p8",
+          "title": "Acústico - O Que Tiver Que Vir Virá",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "nkG4zSiK-iY",
+          "title": "Acústico - Trato é Trato",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "M9-O6WgLUaA",
+          "title": "Acústico - Chora Peito",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "weN4lsI5z84",
+          "title": "Acústico - Sem Documento",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "hD4bR7xElSw",
+          "title": "Acústico - Noite",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "H53i74C1-f0",
+          "title": "Acústico - La Copa Rota",
+          "artist": "Chrystian & Ralf"
+        },
+        {
+          "id": "59BWJKL6J9c",
+          "title": "Acústico - O Que Será De Mim",
+          "artist": "Chrystian & Ralf"
+        }
+      ]
+    },
+    {
       "name": "Deep House",
-      "slug": "costa-mee",
-      "cover": "costa-mee.jpg",
+      "slug": "deep-house",
+      "cover": "deep-house.jpg",
       "videos": [
         {
           "id": "IkbIOl8YarM",
-          "title": "Costa Mee, Eleftheria",
+          "title": "Costa Mee, Eleftheria - My Path",
           "artist": "Costa Mee"
         },
         {
@@ -528,7 +610,7 @@
         },
         {
           "id": "4XUQ59p4Fqs",
-          "title": "Party & Chill / Deep House Music / Deep Disco Records",
+          "title": "Party & Chill / Deep House Music / Deep Disco Records / Mixed By Costa Mee",
           "artist": "Costa Mee"
         },
         {
@@ -608,7 +690,7 @@
         },
         {
           "id": "LuMDClxO1z8",
-          "title": "Deep House & Chillout Vocal Mix",
+          "title": "Deep House & Chillout Vocal Mix #3 / Deep Disco Records / Mixed By Costa Mee",
           "artist": "Costa Mee"
         },
         {
@@ -643,7 +725,7 @@
         },
         {
           "id": "WZSuAWH2lQM",
-          "title": "Halloween Party Playlist | Chillin Deep Disco Records House By Costa Mee Compilation 2",
+          "title": "Halloween Party Playlist | Chillin Deep Disco Records House  By Costa Mee Compilation 2",
           "artist": "Costa Mee"
         },
         {
@@ -895,93 +977,6 @@
           "id": "fkkas11Sc2I",
           "title": "Hold On To Me",
           "artist": "Costa Mee"
-        }
-      ]
-    },
-    {
-      "name": "Sertanejo",
-      "slug": "sertanejo",
-      "cover": "sertanejo.jpg",
-      "videos": [
-        {
-          "id": "EJ97zrK1H08",
-          "title": "Acústico - Sou Eu",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "g4f8a0Yx9Qw",
-          "title": "Acústico - Cheiro de Shampoo",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "Q4-4Cjyt4OY",
-          "title": "Acústico - Saudade",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "Zuhjmoj_kmE",
-          "title": "Acústico - Desejo de Amar",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "UUA8hxdy0Qg",
-          "title": "Acústico - Sensível Demais",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "PTsdfAgT2Fo",
-          "title": "Acústico - Nova York",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "QTv8H5c5D1c",
-          "title": "Acústico - Oito Segundos",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "79VmwE6c1RQ",
-          "title": "Acústico - Ausência",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "9Ea76vJWdB0",
-          "title": "Acústico - Yolanda",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "LZU1n5R77p8",
-          "title": "Acústico - O Que Tiver Que Vir Virá",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "nkG4zSiK-iY",
-          "title": "Acústico - Trato é Trato",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "M9-O6WgLUaA",
-          "title": "Acústico - Chora Peito",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "weN4lsI5z84",
-          "title": "Acústico - Sem Documento",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "hD4bR7xElSw",
-          "title": "Acústico - Noite",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "H53i74C1-f0",
-          "title": "Acústico - La Copa Rota",
-          "artist": "Chrystian & Ralf"
-        },
-        {
-          "id": "59BWJKL6J9c",
-          "title": "Acústico - O Que Será De Mim",
-          "artist": "Chrystian & Ralf"
         }
       ]
     }
