@@ -37,6 +37,11 @@ async function initApp() {
     setupMobileSearch();
     setupSidbarMobile();
 
+    // Ajustes de layout dependentes do DOM (header/footer)
+    setLayoutVars();
+    // Atualizar quando a janela for redimensionada
+    window.addEventListener('resize', setLayoutVars);
+
     initPlayerUI();
     safeRender();
 }
@@ -47,6 +52,34 @@ function safeRender() {
     requestAnimationFrame(() => {
         refreshPlayerUI();
     });
+}
+
+
+// Sincroniza as variáveis CSS de altura do header/footer com os valores reais do DOM
+function setLayoutVars() {
+    const root = document.documentElement;
+    const footer = document.querySelector('.app-player-footer');
+    const header = document.querySelector('.app-header');
+
+    const footerHeight = footer ? Math.ceil(footer.getBoundingClientRect().height) : 0;
+    const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+
+    if (footer) root.style.setProperty('--footer-height', `${footerHeight}px`);
+    if (header) root.style.setProperty('--header-height', `${headerHeight}px`);
+
+    // Usar ResizeObserver quando disponível para reagir a mudanças dinâmicas de conteúdo
+    if (typeof ResizeObserver !== 'undefined' && footer && !footer.__observing) {
+        try {
+            const ro = new ResizeObserver(() => setLayoutVars());
+            ro.observe(footer);
+            const roHeader = new ResizeObserver(() => setLayoutVars());
+            if (header) roHeader.observe(header);
+            footer.__observing = true;
+            if (header) header.__observing = true;
+        } catch (e) {
+            // ignore
+        }
+    }
 }
 
 // Criar UI template uma única vez
