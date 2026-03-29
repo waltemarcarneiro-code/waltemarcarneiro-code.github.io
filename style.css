@@ -4,9 +4,11 @@
         flex-direction: column;
         position: fixed;
         top: var(--header-height);
+        bottom: var(--footer-height);
         left: 0;
+        right: 0;
         width: 100vw;
-        height: calc(100vh - var(--header-height) - var(--footer-height));
+        height: auto;
         overflow: hidden;
         z-index: var(--main-z-index);
     }
@@ -119,7 +121,7 @@ html {
 
     /* Alturas */
     --header-height: clamp(50px, 5vh, 80px);
-    --footer-height: clamp(80px, 15vh, 140px);
+    --footer-height: clamp(60px, 10vh, 100px);
     /* ajuste conforme altura real do footer */
     --main-z-index: 10;
 }
@@ -262,12 +264,15 @@ img {
 
 .app-main-grid {
     width: 100vw;
-    height: calc(100vh - var(--header-height) - var(--footer-height));
+    height: auto;
     box-sizing: border-box;
     position: fixed;
     top: var(--header-height);
+    bottom: var(--footer-height);
     left: 0;
+    right: 0;
     display: flex;
+    z-index: var(--main-z-index);
     overflow: hidden;
     z-index: var(--main-z-index);
 
@@ -370,6 +375,7 @@ img {
     align-items: center;
     padding: 0.5rem 0.4rem;
     border-bottom: 1px solid var(--border-rgba);
+    cursor: pointer;
 }
 
 .playlist-item .m-duration {
