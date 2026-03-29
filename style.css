@@ -144,6 +144,7 @@ body {
     color: var(--text-main);
     line-height: 1.4;
     overflow-x: hidden;
+    user-select: none;
 }
 
 ul {
