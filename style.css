@@ -281,7 +281,7 @@ img {
 @media (min-width: 1024px) {
 
     .app-sidebar {
-        flex: 0 0 clamp(200px, 15vw, 250px);
+        flex: 0 0 clamp(220px, 18vw, 260px);
         height: 100%;
         overflow-y: auto;
     }
@@ -294,7 +294,7 @@ img {
     }
 
     .playlist-aside {
-        flex: 0 0 clamp(280px, 30vw, 420px);
+        flex: 0 0 clamp(260px, 28vw, 380px);
         height: 100%;
         overflow-y: auto;
     }
@@ -302,7 +302,7 @@ img {
 
 /* Sidebar */
 .app-sidebar {
-    padding: var(--gap-fluid);
+    padding: 1rem;
     background-color: var(--bg-surface);
 }
 
@@ -313,7 +313,7 @@ img {
     padding: 0.8rem;
     color: var(--text-dim);
     text-decoration: none;
-    font-size: 1.3rem;
+    font-size: 1rem;
     border-radius: 0.5rem;
     font-weight: bold;
 }
@@ -360,7 +360,7 @@ img {
 
 /* Playlist Lateral */
 .playlist-aside {
-    padding: var(--gap-fluid);
+    padding: 1rem;
     border-left: 1px solid var(--border-rgba);
 }
 
@@ -632,6 +632,10 @@ img {
 .shuffle-repeat{
     color: #aaa;
 }
+/* Desktop: uniformizar tamanho dos controles (exceto play/pause que é maior) */
+.block-controls .material-icons {
+    font-size: 1.5rem;
+}
 .btn-play-pause {
     background-color: var(--accent-red);
     width: 50px;
@@ -796,8 +800,8 @@ img {
     .app-sidebar {
         position: fixed;
         top: 0;
-        left: -260px;
-        width: 240px;
+        left: -270px;
+        width: 270px;
         height: 100vh;
         background: var(--bg-surface);
         box-shadow: 2px 0 16px #000a;
@@ -888,7 +892,7 @@ img {
 .modal-content {
     background: var(--bg-surface);
     border-radius: 0.7rem;
-    padding: var(--padding-app);
+    padding: 0 var(--padding-app) var(--padding-app) var(--padding-app);
     max-width: 90vw;
     max-height: 85vh;
     width: 100%;
@@ -898,12 +902,17 @@ img {
 }
 
 .modal-header {
+    position: sticky;
+    top: 0;
+    background: var(--bg-surface);
+    z-index: 1;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin: 0 calc(-1 * var(--padding-app)) 1.5rem calc(-1 * var(--padding-app));
     border-bottom: 1px solid var(--border-rgba);
-    padding-bottom: 1rem;
+    padding: var(--padding-app) var(--padding-app) 1rem var(--padding-app);
+    width: calc(100% + 2 * var(--padding-app));
 }
 
 .modal-header h2 {

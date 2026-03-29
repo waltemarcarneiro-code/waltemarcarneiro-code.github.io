@@ -641,20 +641,20 @@ function updatePlayPauseButton() {
 function updateRepeatButton() {
     const btn = document.querySelector('.block-controls button:nth-child(5)');
     if (player.repeatMode === 0) {
-        btn.innerHTML = '<i class="material-icons">repeat</i>';
+        btn.innerHTML = '<i class="material-icons shuffle-repeat">repeat</i>';
     } else if (player.repeatMode === 1) {
-        btn.innerHTML = '<i class="material-icons">repeat</i>';
+        btn.innerHTML = '<i class="material-icons shuffle-repeat">repeat</i>';
     } else {
-        btn.innerHTML = `<i class="material-icons" style="position: relative;">repeat_one<span style="position: absolute; font-size: 0.7rem; font-weight: bold; bottom: -2px; right: -2px; background: var(--accent-red); color: white; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">1</span></i>`;
+        btn.innerHTML = `<i class="material-icons shuffle-repeat" style="position: relative;">repeat_one<span style="position: absolute; font-size: 0.7rem; font-weight: bold; bottom: -2px; right: -2px; background: var(--accent-red); color: white; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">1</span></i>`;
     }
 }
 
 function updateShuffleButton() {
     const btn = document.querySelector('.block-controls button:nth-child(1)');
     if (player.isShuffle) {
-        btn.innerHTML = '<i class="material-icons">shuffle_on</i>';
+        btn.innerHTML = '<i class="material-icons shuffle-repeat">shuffle_on</i>';
     } else {
-        btn.innerHTML = '<i class="material-icons">shuffle</i>';
+        btn.innerHTML = '<i class="material-icons shuffle-repeat">shuffle</i>';
     }
 }
 
