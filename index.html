@@ -7,6 +7,7 @@
     <title>SanPlayer</title>
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="shortcut icon" href="./favicon.ico" />
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -36,7 +37,7 @@
                 <i class="material-icons">search</i>
             </button>
             <button><i class="material-icons">notifications_none</i></button>
-            <img src="covers/user.jpg" alt="Avatar" class="profile-avatar">
+            <img id="userMenuButton" src="covers/user.jpg" alt="Avatar" class="profile-avatar">
         </div>
     </header>
 
@@ -150,6 +151,79 @@
                 </button>
             </div>
             <div id="searchResultsContainer" class="search-results"></div>
+        </div>
+    </div>
+
+    <!-- MODAL CRIAR PLAYLIST (bottom-sheet) -->
+    <div id="createPlaylistModal" class="modal modal-bottom-sheet">
+        <div class="modal-content bottom-sheet-content">
+            <div class="modal-header modal-header--item">
+                <h2 style="font-size:1.18rem;font-weight:700;">Criar Playlist</h2>
+                <button class="modal-close" id="closeCreatePlaylistModal" aria-label="Fechar">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="createPlaylistForm" autocomplete="off">
+                    <div class="input-group">
+                        <label for="newPlaylistName">Nome da playlist</label>
+                        <input type="text" id="newPlaylistName" required placeholder="Digite o nome da playlist">
+                    </div>
+                    <div class="create-playlist-actions">
+                        <button type="button" id="cancelCreatePlaylist" class="btn-cancel">Cancelar</button>
+                        <button type="submit" class="btn-create">Criar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MENU DO USUÁRIO -->
+    <div id="userMenuModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Minha Conta</h2>
+                <button class="modal-close" id="closeUserMenuModal" aria-label="Fechar">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul class="user-menu-list">
+                    <li><a href="#" id="userAccountBtn"><i class="material-icons">person</i><span>Minha conta</span></a></li>
+                    <li><a href="#" id="userPlaylistsBtn"><i class="material-icons">library_music</i><span>Minhas Playlists</span></a></li>
+                    <li><a href="#" id="userFavoritesBtn"><i class="material-icons">favorite</i><span>Meus favoritos</span></a></li>
+                    <li><a href="#" id="top10Btn"><i class="material-icons">star</i><span>As 10 Mais ouvidas</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MINHAS PLAYLISTS (usuário) -->
+    <div id="userPlaylistsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Minhas Playlists</h2>
+                <button class="modal-close" id="closeUserPlaylistsModal" aria-label="Fechar">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body" id="userPlaylistsContainer">
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL OPÇÕES DO ITEM (kebab) - bottom sheet -->
+    <div id="itemOptionsModal" class="modal modal-bottom-sheet">
+        <div class="modal-content bottom-sheet-content">
+            <div class="modal-header">
+                <h2 id="itemOptionsTitle">Opções</h2>
+                <button class="modal-close" id="closeItemOptionsModal" aria-label="Fechar">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body" id="itemOptionsBody">
+                <!-- Conteúdo gerado dinamicamente -->
+            </div>
         </div>
     </div>
     <script src="https://www.youtube.com/iframe_api"></script>

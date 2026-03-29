@@ -263,6 +263,251 @@ function closeArtistsModal() {
     document.getElementById('artistsModal').classList.remove('show');
 }
 
+// ----------------------
+// Gestão de Playlists do Usuário
+// ----------------------
+
+function openCreatePlaylistModal() {
+    document.getElementById('createPlaylistModal').classList.add('show');
+    document.getElementById('newPlaylistName').focus();
+}
+
+function closeCreatePlaylistModal() {
+    document.getElementById('createPlaylistModal').classList.remove('show');
+    document.getElementById('createPlaylistForm').reset();
+}
+
+function getUserPlaylists() {
+    const saved = localStorage.getItem('sanplayerUserPlaylists');
+    return saved ? JSON.parse(saved) : [];
+}
+
+function saveUserPlaylists(list) {
+    localStorage.setItem('sanplayerUserPlaylists', JSON.stringify(list));
+}
+
+function submitCreatePlaylist(e) {
+    e.preventDefault();
+    const name = document.getElementById('newPlaylistName').value.trim();
+    if (!name) return;
+    const list = getUserPlaylists();
+    const newPlaylist = { name, cover: 'playlist.jpg', videos: [] };
+    list.push(newPlaylist);
+    saveUserPlaylists(list);
+    closeCreatePlaylistModal();
+    // abrir lista de playlists do usuário
+    openUserPlaylistsModal();
+}
+
+function openUserMenuModal() {
+    document.getElementById('userMenuModal').classList.add('show');
+}
+
+function closeUserMenuModal() {
+    document.getElementById('userMenuModal').classList.remove('show');
+}
+
+function openUserPlaylistsModal() {
+    const container = document.getElementById('userPlaylistsContainer');
+    const list = getUserPlaylists();
+    container.innerHTML = '';
+    if (list.length === 0) {
+        container.innerHTML = '<div class="feedback-empty"><div class="icon">!</div><div class="msg">Nenhuma playlist criada. Use "Criar Playlist" para adicionar.</div></div>';
+        return;
+    }
+    list.forEach((pl, idx) => {
+        const row = document.createElement('div');
+        row.className = 'playlist-item-row';
+        row.tabIndex = 0;
+        // Nome
+        const name = document.createElement('span');
+        name.className = 'playlist-name';
+        name.textContent = pl.name;
+        // Badge
+        const badge = document.createElement('span');
+        badge.className = 'playlist-count-badge';
+        badge.textContent = pl.videos.length;
+        row.appendChild(name);
+        row.appendChild(badge);
+        row.addEventListener('click', () => {
+            player.currentPlaylist = JSON.parse(JSON.stringify(pl));
+            player.currentPlaylistIndex = -1;
+            player.currentVideoIndex = 0;
+            player.playOrder = [...Array(player.currentPlaylist.videos.length).keys()];
+            player.originalOrder = [...player.playOrder];
+            closeUserPlaylistsModal();
+            closeUserMenuModal();
+            loadPlaylistVideos();
+            loadFirstVideo();
+            refreshPlayerUI();
+        });
+        container.appendChild(row);
+    });
+}
+
+function closeUserPlaylistsModal() {
+    document.getElementById('userPlaylistsModal').classList.remove('show');
+}
+
+// ----------------------
+// Modal opções do item (kebab)
+// ----------------------
+
+let currentKebabIndex = null;
+
+function openItemOptionsModal(index) {
+    currentKebabIndex = index;
+    const video = player.currentPlaylist.videos[index];
+    const modal = document.getElementById('itemOptionsModal');
+    const headerEl = modal.querySelector('.modal-header');
+    
+    // Montar header com thumbnail, título e artista usando classes para responsividade
+    headerEl.innerHTML = `
+        <div class="modal-header--item">
+            <img src="${getArtistCoverUrl(video.artist)}" onerror="this.src='covers/artists/default.jpg'" class="thumb">
+            <div class="meta">
+                <div class="title">${video.title}</div>
+                <div class="artist">${video.artist}</div>
+            </div>
+            <button class="modal-close" id="closeItemOptionsModal" aria-label="Fechar">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+    `;
+    document.getElementById('closeItemOptionsModal').addEventListener('click', closeItemOptionsModal);
+
+    const body = document.getElementById('itemOptionsBody');
+    body.innerHTML = '';
+
+    // Opção 1: Adicionar a playlist
+    const addRow = document.createElement('div');
+    addRow.className = 'option-row';
+    addRow.innerHTML = `
+        <div class="option-icon">
+            <i class="material-icons">queue_music</i>
+        </div>
+        <div class="option-text">Adicionar a playlist</div>
+    `;
+    addRow.classList.add('is-clickable');
+    addRow.addEventListener('click', addToPlaylistOption);
+    body.appendChild(addRow);
+
+    // Separador visual
+    const hr = document.createElement('div');
+    hr.className = 'option-separator';
+    body.appendChild(hr);
+
+    // Opção 2: Compartilhar
+    const shareRow = document.createElement('div');
+    shareRow.className = 'option-row';
+    shareRow.innerHTML = `
+        <div class="option-icon">
+            <i class="material-icons">share</i>
+        </div>
+        <div class="option-text">Compartilhar</div>
+    `;
+    shareRow.classList.add('is-clickable');
+    shareRow.addEventListener('click', () => shareItem(currentKebabIndex));
+    body.appendChild(shareRow);
+
+    modal.classList.add('show');
+}
+
+function closeItemOptionsModal() {
+    document.getElementById('itemOptionsModal').classList.remove('show');
+}
+
+// Ao clicar em "Adicionar a playlist"
+function addToPlaylistOption() {
+    const userList = getUserPlaylists();
+    
+    if (userList.length === 0) {
+        // Mostrar toast e fechar modal
+        closeItemOptionsModal();
+        showToast('Crie uma playlist');
+        return;
+    }
+    
+    // Mostrar lista de playlists
+    const modal = document.getElementById('itemOptionsModal');
+    const body = document.getElementById('itemOptionsBody');
+    body.innerHTML = '';
+    
+    // Botão voltar
+    const backRow = document.createElement('div');
+    backRow.className = 'option-row';
+    backRow.innerHTML = `
+        <div class="option-icon">
+            <i class="material-icons">arrow_back</i>
+        </div>
+        <div class="option-text">Voltar</div>
+    `;
+    backRow.classList.add('is-clickable');
+    backRow.addEventListener('click', () => openItemOptionsModal(currentKebabIndex));
+    body.appendChild(backRow);
+    
+    const hr1 = document.createElement('div');
+    hr1.className = 'option-separator';
+    body.appendChild(hr1);
+    
+    // Listar playlists
+    userList.forEach((pl, idx) => {
+        const row = document.createElement('div');
+        row.className = 'option-row';
+        row.innerHTML = `
+            <div class="option-icon">
+                <i class="material-icons">library_music</i>
+            </div>
+            <div class="option-text">${pl.name}</div>
+        `;
+        row.classList.add('is-clickable');
+        row.addEventListener('click', () => addItemToUserPlaylist(idx));
+        body.appendChild(row);
+    });
+}
+
+function addItemToUserPlaylist(playlistIdx) {
+    const list = getUserPlaylists();
+    if (!player.currentPlaylist) return;
+    const video = player.currentPlaylist.videos[currentKebabIndex];
+    // Evitar duplicatas (simples)
+    const target = list[playlistIdx];
+    if (!target) return;
+    const exists = target.videos.some(v => v.id === video.id);
+    if (!exists) {
+        target.videos.push(video);
+        saveUserPlaylists(list);
+    }
+    closeItemOptionsModal();
+}
+
+// Toast para feedback temporário
+function showToast(message) {
+    const isMobile = window.innerWidth <= 1023;
+    const toast = document.createElement('div');
+    
+    toast.className = `toast-feedback${isMobile ? ' toast-mobile' : ''}`;
+    toast.innerHTML = `<div class="icon">!</div><div class="msg">${message}</div>`;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('toast-hide');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+function shareItem(index) {
+    const video = player.currentPlaylist.videos[index];
+    const url = `https://www.youtube.com/watch?v=${video.id}`;
+    if (navigator.share) {
+        navigator.share({ title: video.title, text: video.artist, url }).catch(()=>{});
+    } else {
+        // fallback: copiar para clipboard
+        try { navigator.clipboard.writeText(url); } catch(e) {}
+        alert('Link copiado: ' + url);
+    }
+}
+
 function selectArtist(artist) {
     // Filtrar vídeos do artista
     const artistVideos = [];
@@ -353,10 +598,24 @@ function loadPlaylistVideos() {
                     <span class="m-title">${video.title}</span>
                     <span class="m-artist">${video.artist}</span>
                 </div>
-                <span class="m-duration" id="duration-${index}">0:00</span>
+                <button class="kebab-btn" data-index="${index}" title="Opções"><i class="material-icons">more_vert</i></button>
             `;
-            item.addEventListener('click', () => playVideoByIndex(index));
+            // tocar ao clicar no item (exceto no botão kebab)
+            item.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.closest('.kebab-btn')) return; // evitar ao clicar no kebab
+                playVideoByIndex(index);
+            });
             itemsContainer.appendChild(item);
+        });
+
+        // Delegar eventos de kebab
+        itemsContainer.querySelectorAll('.kebab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.getAttribute('data-index'), 10);
+                openItemOptionsModal(idx);
+            });
         });
     });
 }
@@ -703,7 +962,7 @@ function updateProgressBar() {
 
     if (progressBar) {
         progressBar.value = Math.min(100, Math.max(0, percentage));
-        progressBar.style.backgroundSize = `${Math.min(100, Math.max(0, percentage))}% 100%`;
+        progressBar.style.setProperty('--progress-bar-fill', `${Math.min(100, Math.max(0, percentage))}% 100%`);
 
         // Mostrar preenchimento apenas enquanto a música estiver tocando
         if (player.isPlaying && duration > 0) {
@@ -1138,6 +1397,43 @@ function setupEventListeners() {
         progressBar.addEventListener('input', onProgressInput);
         progressBar.addEventListener('change', onProgressChange);
     }
+
+    // Criar playlist (sidebar)
+    const createLink = document.getElementById('link-criar-playlist');
+    if (createLink) {
+        createLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            openCreatePlaylistModal();
+        });
+    }
+
+    // Create playlist modal listeners
+    const closeCreateBtn = document.getElementById('closeCreatePlaylistModal');
+    if (closeCreateBtn) closeCreateBtn.addEventListener('click', closeCreatePlaylistModal);
+    const createForm = document.getElementById('createPlaylistForm');
+    if (createForm) createForm.addEventListener('submit', submitCreatePlaylist);
+    const cancelCreate = document.getElementById('cancelCreatePlaylist');
+    if (cancelCreate) cancelCreate.addEventListener('click', closeCreatePlaylistModal);
+
+    // User menu
+    const userBtn = document.getElementById('userMenuButton');
+    if (userBtn) userBtn.addEventListener('click', (e) => { e.stopPropagation(); openUserMenuModal(); });
+    const closeUserMenu = document.getElementById('closeUserMenuModal');
+    if (closeUserMenu) closeUserMenu.addEventListener('click', closeUserMenuModal);
+    const userPlaylistsBtn = document.getElementById('userPlaylistsBtn');
+    if (userPlaylistsBtn) userPlaylistsBtn.addEventListener('click', () => { closeUserMenuModal(); document.getElementById('userPlaylistsModal').classList.add('show'); openUserPlaylistsModal(); });
+    const closeUserPlaylists = document.getElementById('closeUserPlaylistsModal');
+    if (closeUserPlaylists) closeUserPlaylists.addEventListener('click', closeUserPlaylistsModal);
+
+    // Item options modal close
+    const closeItemOptions = document.getElementById('closeItemOptionsModal');
+    if (closeItemOptions) closeItemOptions.addEventListener('click', closeItemOptionsModal);
+
+    // Fechar modais ao clicar fora
+    ['createPlaylistModal','userMenuModal','userPlaylistsModal','itemOptionsModal'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('click', (e) => { if (e.target === e.currentTarget) el.classList.remove('show'); });
+    });
 
     // Detectar redimensionamento da janela para ajustar marquee
     let resizeTimeout;

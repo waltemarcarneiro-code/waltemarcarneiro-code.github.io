@@ -1,3 +1,388 @@
+/* Utilitário: cursor pointer para elementos clicáveis via JS */
+.is-clickable {
+    cursor: pointer !important;
+}
+
+/* Toast: animação de saída */
+.toast-hide {
+    animation: toastSlideDown 0.3s ease forwards !important;
+}
+
+/* Barra de progresso: preenchimento dinâmico via variável CSS */
+.progress-bar {
+    background-size: var(--progress-bar-fill, 0% 100%);
+}
+/* Linha de playlist do usuário (bottom-sheet, lista, etc) */
+.playlist-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.05rem 1.2rem;
+    border-bottom: 1px solid var(--border-rgba);
+    cursor: pointer;
+    font-size: 1.09rem;
+    font-weight: 500;
+    background: transparent;
+    transition: background 0.18s;
+}
+.playlist-item-row:active,
+.playlist-item-row:focus {
+    background: rgba(255,0,0,0.07);
+    outline: none;
+}
+.playlist-item-row .playlist-name {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.playlist-count-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #b71c1c;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.08rem;
+    margin-left: 1rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+/* Modal criar playlist (bottom-sheet) */
+#createPlaylistModal .modal-header--item {
+    border-bottom: none;
+    padding-bottom: 0.2rem;
+}
+#createPlaylistModal .modal-body {
+    padding: 1.2rem 1.2rem 1.5rem 1.2rem;
+}
+#createPlaylistModal .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-bottom: 1.3rem;
+}
+#createPlaylistModal label {
+    font-size: 1.04rem;
+    color: var(--text-dim);
+    font-weight: 500;
+    margin-bottom: 0.1rem;
+}
+#createPlaylistModal input[type="text"] {
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--border-rgba);
+    background: var(--bg-surface-light);
+    color: var(--text-main);
+    font-size: 1.13rem;
+    font-weight: 500;
+    outline: none;
+    transition: border 0.18s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+#createPlaylistModal input[type="text"]:focus {
+    border-color: var(--accent-red);
+}
+#createPlaylistModal .create-playlist-actions {
+    display: flex;
+    gap: 0.7rem;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+}
+#createPlaylistModal .btn-cancel,
+#createPlaylistModal .btn-create {
+    padding: 0.85rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1.08rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+}
+#createPlaylistModal .btn-cancel {
+    background: transparent;
+    color: var(--text-dim);
+}
+#createPlaylistModal .btn-cancel:active {
+    background: rgba(255,255,255,0.04);
+}
+#createPlaylistModal .btn-create {
+    background: var(--accent-red);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+#createPlaylistModal .btn-create:active {
+    background: #b71c1c;
+}
+/* Playlists do usuário: linha clicável e contador destacado */
+.user-playlist.user-playlist-clickable {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.05rem 1.2rem;
+    border-bottom: 1px solid var(--border-rgba);
+    cursor: pointer;
+    font-size: 1.09rem;
+    font-weight: 500;
+    transition: background 0.18s;
+    background: transparent;
+}
+.user-playlist.user-playlist-clickable:active {
+    background: rgba(255,0,0,0.07);
+}
+.user-playlist .playlist-name {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.playlist-count-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #b71c1c;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.08rem;
+    margin-left: 1rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+/* Lista do menu do usuário (modal de perfil) */
+.user-menu-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.2rem 0 0.2rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.user-menu-list li {
+    border-bottom: 1px solid var(--border-rgba);
+}
+.user-menu-list li:last-child {
+    border-bottom: none;
+}
+.user-menu-list a {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    font-size: 1.13rem;
+    font-weight: 500;
+    color: var(--text-main);
+    text-decoration: none;
+    padding: 1.05rem 1.2rem;
+    transition: background 0.18s, color 0.18s;
+    border-radius: 0;
+}
+.user-menu-list a:active {
+    background: rgba(255,255,255,0.04);
+}
+.user-menu-list i.material-icons {
+    font-size: 1.45rem;
+    color: var(--text-dim);
+    flex-shrink: 0;
+}
+.user-menu-list span {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* Bottom sheet para modal do kebab */
+.modal-bottom-sheet {
+    align-items: flex-end !important;
+    justify-content: center;
+    padding: 0;
+}
+.bottom-sheet-content {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    border-radius: 16px 16px 0 0 !important;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.25);
+    margin: 0;
+    animation: bottomSheetUp 0.25s cubic-bezier(.4,0,.2,1);
+    position: relative;
+    bottom: 0;
+}
+@media (max-width: 1023px) {
+    .bottom-sheet-content {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        border-radius: 16px 16px 0 0 !important;
+    }
+}
+@keyframes bottomSheetUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+/* Header do modal de opções do item (kebab) */
+/* Header do bottom-sheet: confortável, nativo, sem excessos */
+.modal-header--item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 1.1rem 1.2rem 0.7rem 1.2rem;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    background: var(--bg-surface);
+    min-height: 72px;
+    box-sizing: border-box;
+}
+.modal-header--item .thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.modal-header--item .meta {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+    min-width: 0;
+}
+.modal-header--item .title {
+    font-size: 1.08rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+.modal-header--item .artist {
+    font-size: 0.97rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.1;
+}
+.modal-header--item .modal-close {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    padding: 0;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+.modal-header--item .modal-close:active {
+    background: rgba(255,255,255,0.06);
+}
+.modal-header--item .thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.modal-header--item .meta {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+.modal-header--item .title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.modal-header--item .artist {
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.modal-header--item .modal-close {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    padding: 0;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Toast de feedback */
+.toast-feedback {
+    position: fixed;
+    left: 50%;
+    bottom: 120px;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    animation: toastSlideUp 0.3s ease;
+    width: auto;
+    box-sizing: border-box;
+}
+.toast-feedback.toast-mobile {
+    left: 0;
+    bottom: 0;
+    transform: none;
+    width: 100%;
+    border-radius: 0;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
+    padding: 1rem;
+}
+.toast-feedback .icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #b71c1c;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+.toast-feedback .msg {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+/* Separador visual para opções do modal */
+.option-separator {
+    height: 1px;
+    background: var(--border-rgba);
+    margin: 0;
+    width: 100%;
+}
 /* === MOBILE: GRID VÍDEO + PLAYLIST === */
 @media (max-width: 1023px) {
     .app-main-grid {
@@ -51,9 +436,161 @@
         padding-bottom: 4rem;
     }
 
+    /* Kebab button (menu) para itens da playlist */
+    .kebab-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-dim);
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+    }
+    .kebab-btn:hover { background: rgba(255,255,255,0.03); color: var(--text-main); }
+
+    /* Modal base (simples) */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+        background: var(--bg-surface);
+        border-radius: 8px;
+        width: 100%;
+        max-width: 640px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        overflow: hidden;
+    }
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-rgba);
+    }
+    .modal-header--item {
+        padding: 0.75rem 1rem;
+        gap: 1rem;
+    }
+    .modal-header--item .thumb {
+        width: 56px;
+        height: 56px;
+        border-radius: 8px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    .modal-header--item .meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+    }
+    .modal-header--item .meta .title {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+    .modal-header--item .meta .artist {
+        font-size: 0.95rem;
+        color: var(--text-dim);
+    }
+    .modal-body { padding: 1rem 0; }
+    .modal .modal-close { background: transparent; border: none; color: var(--text-dim); }
+
+    /* Lista simples das playlists do usuário */
+    #userPlaylistsContainer .user-playlist { padding: 0.5rem; border-bottom: 1px solid var(--border-rgba); display:flex; align-items:center; justify-content:space-between; }
+
+    /* Pequenos ajustes para botões nos modais */
+    .modal-body input[type="text"] { width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid var(--border-rgba); background: transparent; color: var(--text-main); }
+    .modal-body button { padding: 0.5rem 0.75rem; border-radius: 6px; }
+
+    /* Opções dentro do modal (kebab) */
+    .option-row {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 1.05rem 1.2rem;
+        border-bottom: 1px solid var(--border-rgba);
+        min-height: 56px;
+        font-size: 1.04rem;
+        box-sizing: border-box;
+        transition: background 0.18s;
+    }
+    .option-row:last-child {
+        border-bottom: none;
+    }
+    .option-row:active {
+        background: rgba(255,255,255,0.04);
+    }
+    .option-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #18181a;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-main);
+        flex-shrink: 0;
+        font-size: 1.35rem;
+    }
+    .option-text {
+        font-size: 1.04rem;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    /* Feedback estilizado quando não há playlists */
+    .feedback-empty {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--footer-block-2);
+        border-radius: 8px;
+    }
+    .feedback-empty .icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #b71c1c;
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+    .feedback-empty .msg { font-size: 1.05rem; font-weight: 700; }
+
+    /* Corrige posicionamento do bottom-sheet */
     .modal-content{
         top: 1rem;
         position: absolute;
+    }
+    .modal-bottom-sheet .modal-content,
+    .modal-bottom-sheet .bottom-sheet-content {
+        position: fixed !important;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: auto !important;
+        margin: 0 auto;
+        max-width: 100vw !important;
+        width: 100vw !important;
+        border-radius: 16px 16px 0 0 !important;
+        animation: bottomSheetUp 0.25s cubic-bezier(.4,0,.2,1);
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.25);
+        z-index: 3001;
     }
 }
 
@@ -885,26 +1422,43 @@ img {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 5000;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
 }
 
 .modal.show {
     display: flex;
+    animation: fadeIn 0.3s ease;
 }
 
 .modal-content {
     background: var(--bg-surface);
-    border-radius: 0.7rem;
-    padding: 0 var(--padding-app) var(--padding-app) var(--padding-app);
-    max-width: 90vw;
-    max-height: 85vh;
+    border-radius: 16px 16px 0 0;
+    max-height: 60vh;
     width: 100%;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
-    border: 1px solid var(--border-rgba);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+    animation: slideUpModal 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes fadeIn {
+    from {
+        background: rgba(0, 0, 0, 0);
+    }
+    to {
+        background: rgba(0, 0, 0, 0.5);
+    }
+}
+
+@keyframes slideUpModal {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
 }
 
 .modal-header {
@@ -915,15 +1469,46 @@ img {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 0 calc(-1 * var(--padding-app)) 1.5rem calc(-1 * var(--padding-app));
     border-bottom: 1px solid var(--border-rgba);
-    padding: var(--padding-app) var(--padding-app) 1rem var(--padding-app);
-    width: calc(100% + 2 * var(--padding-app));
+    padding: 1.2rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .modal-header h2 {
     font-size: var(--font-lg);
     margin: 0;
+}
+
+.option-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--border-rgba);
+    transition: background 0.2s;
+}
+
+.option-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.option-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #0f0f10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-main);
+    flex-shrink: 0;
+}
+
+.option-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    flex: 1;
 }
 
 .modal-close {
@@ -1015,4 +1600,59 @@ img {
     text-align: center;
     padding: 2rem;
     color: var(--text-dim);
+}
+
+/* ==========================================================================
+   8. ANIMAÇÕES TOAST
+   ========================================================================== */
+
+@keyframes toastSlideUp {
+    from {
+        transform: translateX(-50%) translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes toastSlideDown {
+    from {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(-50%) translateY(20px);
+        opacity: 0;
+    }
+}
+
+@media (max-width: 640px) {
+    .modal-content {
+        max-height: 70vh;
+        border-radius: 12px 12px 0 0;
+    }
+}
+
+/* Manter outras modals (playlists, artistas, busca) centered */
+#playlistModal,
+#artistsModal,
+#searchModal,
+#createPlaylistModal,
+#userMenuModal,
+#userPlaylistsModal {
+    align-items: center;
+}
+
+#playlistModal .modal-content,
+#artistsModal .modal-content,
+#searchModal .modal-content,
+#createPlaylistModal .modal-content,
+#userMenuModal .modal-content,
+#userPlaylistsModal .modal-content {
+    border-radius: 0.7rem;
+    max-width: 90vw;
+    animation: none;
+    padding: 0 var(--padding-app) var(--padding-app) var(--padding-app);
 }
