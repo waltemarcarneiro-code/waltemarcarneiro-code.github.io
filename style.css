@@ -35,14 +35,12 @@
     .playlist-aside {
         flex: 1 1 auto;
         width: 100vw;
-        height: calc(100vh - var(--header-height) - var(--footer-height) - 40vh);
-        max-height: calc(100vh - var(--header-height) - var(--footer-height) - 40vh);
         min-height: 0;
         overflow-y: auto;
         /*background: var(--bg-surface);*/
         border-left: none;
         border-top: 1px solid var(--border-rgba);
-        padding-bottom: 1.5rem;
+        padding: 1rem 0rem !important;
         position: relative;
         z-index: 1;
     }
@@ -121,7 +119,7 @@ html {
 
     /* Alturas */
     --header-height: clamp(50px, 5vh, 80px);
-    --footer-height: clamp(100px, 18vh, 180px);
+    --footer-height: clamp(80px, 15vh, 140px);
     /* ajuste conforme altura real do footer */
     --main-z-index: 10;
 }
@@ -144,9 +142,6 @@ body {
     color: var(--text-main);
     line-height: 1.4;
     overflow-x: hidden;
-    /* Compensação para o footer fixo não cobrir o conteúdo */
-    padding-bottom: clamp(180px, 25vh, 250px);
-    user-select: none;
 }
 
 ul {
@@ -373,8 +368,8 @@ img {
     display: flex;
     gap: 1rem;
     align-items: center;
-    margin-bottom: 0.5rem;
-    padding: 0 0.5rem;
+    padding: 0.5rem 0.4rem;
+    border-bottom: 1px solid var(--border-rgba);
 }
 
 .playlist-item .m-duration {
@@ -389,7 +384,7 @@ img {
     height: auto;
     background: #333;
     border-radius: 4px;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1 / 1;
 }
 
 .playlist-info {
@@ -471,7 +466,7 @@ img {
 .progress {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0rem; /*espaco entre progresso e contadores*/
     
 }
 
@@ -520,7 +515,7 @@ img {
 .progress-time-labels {
     display: flex;
     justify-content: space-between;
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     font-weight: bold;
     color: #b0b0c0;
     padding: 0 1rem;
@@ -544,7 +539,8 @@ img {
     flex: 1;
     display: flex;
     align-items: center;
-    padding: clamp(0.5rem, 1vw, 1.5rem) clamp(1rem, 2vw, 2.5rem)
+    
+    padding: 0px clamp(1rem, 2vw, 2.5rem) clamp(0.5rem, 1vw, 1.5rem);
 }
 
 /* Bloco 1: Informações da música */
@@ -627,7 +623,7 @@ img {
     background-color: var(--footer-block-2);
     justify-content: center;
     gap: clamp(2rem, 2vw, 2rem);
-    margin: 8px 0px;
+   
 }
 .shuffle-repeat{
     color: #aaa;
@@ -671,6 +667,7 @@ img {
 
     .current-thumb {
         width: 40px;
+        aspect-ratio: 1 / 1;
     }
 
     .btn-play-pause {
@@ -689,7 +686,9 @@ img {
     .block-controls .material-icons {
         font-size: 2rem;
     }
-    
+    .block-controls {
+        margin-top: 8px;
+    }
 }
 
 /* ===== MOBILE HEADER SEARCH ===== */
