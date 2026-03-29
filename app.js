@@ -31,6 +31,8 @@ let updateProgressInterval = null;
 // ============================================================================
 
 async function initApp() {
+    initPlayerUI(); // Inicializa UI primeiro
+
     await loadPlaylists();
     setupEventListeners();
     loadFavorites();
@@ -42,7 +44,6 @@ async function initApp() {
     // Atualizar quando a janela for redimensionada
     window.addEventListener('resize', setLayoutVars);
 
-    initPlayerUI();
     safeRender();
 }
 
@@ -663,7 +664,7 @@ function onYouTubeIframeAPIReady() {
     ytPlayer = new YT.Player('player', {
         height: '100%',
         width: '100%',
-        videoId: (player.currentPlaylist && player.currentPlaylist.videos?.[player.currentVideoIndex]?.id) || '3ZdbHUolTi8',
+        videoId: player.currentPlaylist?.videos?.[player.currentVideoIndex]?.id || '',
         playerVars: {
             autoplay: 0,
             controls: 1,
@@ -681,6 +682,18 @@ function onYouTubeIframeAPIReady() {
 
 function onPlayerReady(event) {
     player.ytReady = true;
+
+    // 🔥 REAPLICAR O VÍDEO CORRETO
+    if (player.currentPlaylist) {
+        const video = player.currentPlaylist.videos[player.currentVideoIndex];
+        if (video) {
+            ytPlayer.cueVideoById(video.id);
+            if (player.shouldPlayOnReady) {
+                ytPlayer.playVideo();
+                player.shouldPlayOnReady = false;
+            }
+        }
+    }
 
     if (updateProgressInterval) {
         clearInterval(updateProgressInterval);
