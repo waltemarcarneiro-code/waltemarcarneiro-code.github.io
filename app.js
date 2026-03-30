@@ -24,6 +24,10 @@ const player = {
 let ytPlayer = null;
 let ytPlayerInitialized = false;
 let updateProgressInterval = null;
+let progressDragging = false;
+let addingItemToPlaylist = false; // Flag para indicar se estamos adicionando um item a uma playlist
+let previousPlaylistState = null; // Guardar estado anterior de playlist
+let videoToAdd = null; // Guardar vídeo a ser adicionado
 
 
 // ============================================================================
@@ -311,6 +315,15 @@ function closeUserMenuModal() {
 function openUserPlaylistsModal() {
     const container = document.getElementById('userPlaylistsContainer');
     const list = getUserPlaylists();
+    
+    // Atualizar título dependendo do contexto
+    const headerTitle = document.querySelector('#userPlaylistsModal h2');
+    if (addingItemToPlaylist && videoToAdd) {
+        headerTitle.textContent = `Adicionar "${videoToAdd.title}" a:`;
+    } else {
+        headerTitle.textContent = 'Minhas Playlists';
+    }
+    
     container.innerHTML = '';
     if (list.length === 0) {
         container.innerHTML = '<div class="feedback-empty"><div class="icon">!</div><div class="msg">Nenhuma playlist criada. Use "Criar Playlist" para adicionar.</div></div>';
@@ -331,23 +344,45 @@ function openUserPlaylistsModal() {
         row.appendChild(name);
         row.appendChild(badge);
         row.addEventListener('click', () => {
-            player.currentPlaylist = JSON.parse(JSON.stringify(pl));
-            player.currentPlaylistIndex = -1;
-            player.currentVideoIndex = 0;
-            player.playOrder = [...Array(player.currentPlaylist.videos.length).keys()];
-            player.originalOrder = [...player.playOrder];
-            closeUserPlaylistsModal();
-            closeUserMenuModal();
-            loadPlaylistVideos();
-            loadFirstVideo();
-            refreshPlayerUI();
+            if (addingItemToPlaylist) {
+                // Modo: adicionar item à playlist selecionada
+                addItemToUserPlaylist(idx);
+            } else {
+                // Modo: visualizar/selecionar uma playlist
+                player.currentPlaylist = JSON.parse(JSON.stringify(pl));
+                player.currentPlaylistIndex = -1;
+                player.currentVideoIndex = 0;
+                player.playOrder = [...Array(player.currentPlaylist.videos.length).keys()];
+                player.originalOrder = [...player.playOrder];
+                closeUserPlaylistsModal();
+                closeUserMenuModal();
+                loadPlaylistVideos();
+                loadFirstVideo();
+                refreshPlayerUI();
+            }
         });
         container.appendChild(row);
     });
+    // ABRIR O MODAL
+    document.getElementById('userPlaylistsModal').classList.add('show');
 }
 
 function closeUserPlaylistsModal() {
     document.getElementById('userPlaylistsModal').classList.remove('show');
+    // Resetar modo de adicionar item
+    if (addingItemToPlaylist) {
+        addingItemToPlaylist = false;
+        videoToAdd = null;
+        // Restaurar estado anterior de playlist
+        if (previousPlaylistState) {
+            player.currentPlaylist = previousPlaylistState.playlist;
+            player.currentPlaylistIndex = previousPlaylistState.playlistIndex;
+            player.currentVideoIndex = previousPlaylistState.videoIndex;
+            player.viewingFavorites = previousPlaylistState.viewingFavorites;
+            player.currentFavoriteId = previousPlaylistState.currentFavoriteId;
+            previousPlaylistState = null;
+        }
+    }
 }
 
 // ----------------------
@@ -380,25 +415,57 @@ function openItemOptionsModal(index) {
     const body = document.getElementById('itemOptionsBody');
     body.innerHTML = '';
 
-    // Opção 1: Adicionar a playlist
-    const addRow = document.createElement('div');
-    addRow.className = 'option-row';
-    addRow.innerHTML = `
-        <div class="option-icon">
-            <i class="material-icons">queue_music</i>
-        </div>
-        <div class="option-text">Adicionar a playlist</div>
-    `;
-    addRow.classList.add('is-clickable');
-    addRow.addEventListener('click', addToPlaylistOption);
-    body.appendChild(addRow);
+    const userList = getUserPlaylists();
+    const isInAnyPlaylist = userList.some(pl => pl.videos.some(v => v.id === video.id));
 
-    // Separador visual
+    // Opção: Adicionar/Remover da playlist
+    const playlistRow = document.createElement('div');
+    playlistRow.className = 'option-row';
+    playlistRow.innerHTML = `
+        <div class="option-icon">
+            <i class="material-icons">${isInAnyPlaylist ? 'remove_circle' : 'add_circle'}</i>
+        </div>
+        <div class="option-text">${isInAnyPlaylist ? 'Remover da Playlist' : 'Adicionar a playlist'}</div>
+    `;
+    playlistRow.classList.add('is-clickable');
+    playlistRow.addEventListener('click', () => {
+        if (isInAnyPlaylist) {
+            // Remover de todas as playlists onde está
+            userList.forEach((pl, idx) => {
+                if (pl.videos.some(v => v.id === video.id)) {
+                    removeItemFromUserPlaylist(idx);
+                }
+            });
+        } else {
+            // Adicionar à primeira playlist, ou abrir modal se múltiplas
+            if (userList.length === 0) {
+                showToast('Crie uma playlist primeiro');
+            } else if (userList.length === 1) {
+                addItemToUserPlaylist(0);
+            } else {
+                // Abrir modal de playlists para escolher
+                addingItemToPlaylist = true;
+                videoToAdd = video; // Guardar vídeo a ser adicionado
+                previousPlaylistState = {
+                    playlist: player.currentPlaylist,
+                    playlistIndex: player.currentPlaylistIndex,
+                    videoIndex: player.currentVideoIndex,
+                    viewingFavorites: player.viewingFavorites,
+                    currentFavoriteId: player.currentFavoriteId
+                };
+                openUserPlaylistsModal();
+            }
+        }
+        closeItemOptionsModal();
+    });
+    body.appendChild(playlistRow);
+
+    // Separador
     const hr = document.createElement('div');
     hr.className = 'option-separator';
     body.appendChild(hr);
 
-    // Opção 2: Compartilhar
+    // Opção: Compartilhar
     const shareRow = document.createElement('div');
     shareRow.className = 'option-row';
     shareRow.innerHTML = `
@@ -469,8 +536,18 @@ function addToPlaylistOption() {
 
 function addItemToUserPlaylist(playlistIdx) {
     const list = getUserPlaylists();
-    if (!player.currentPlaylist) return;
-    const video = player.currentPlaylist.videos[currentKebabIndex];
+    
+    // Determinar qual vídeo adicionar
+    let video;
+    if (addingItemToPlaylist && videoToAdd) {
+        // Estamos em modo "adicionar item a playlist"
+        video = videoToAdd;
+    } else {
+        // Estamos em outro contexto (removendo, etc.)
+        if (!player.currentPlaylist) return;
+        video = player.currentPlaylist.videos[currentKebabIndex];
+    }
+    
     // Evitar duplicatas (simples)
     const target = list[playlistIdx];
     if (!target) return;
@@ -478,7 +555,39 @@ function addItemToUserPlaylist(playlistIdx) {
     if (!exists) {
         target.videos.push(video);
         saveUserPlaylists(list);
+        showToast(`Adicionado a "${target.name}"`);
+    } else {
+        showToast(`Ja esta em "${target.name}"`);
     }
+    
+    // Se estávamos em modo adicionar item a playlist
+    if (addingItemToPlaylist) {
+        addingItemToPlaylist = false;
+        videoToAdd = null;
+        closeUserPlaylistsModal();
+        // Restaurar estado anterior de playlist
+        if (previousPlaylistState) {
+            player.currentPlaylist = previousPlaylistState.playlist;
+            player.currentPlaylistIndex = previousPlaylistState.playlistIndex;
+            player.currentVideoIndex = previousPlaylistState.videoIndex;
+            player.viewingFavorites = previousPlaylistState.viewingFavorites;
+            player.currentFavoriteId = previousPlaylistState.currentFavoriteId;
+            previousPlaylistState = null;
+        }
+        closeItemOptionsModal();
+    } else {
+        closeItemOptionsModal();
+    }
+}
+
+function removeItemFromUserPlaylist(playlistIdx) {
+    const list = getUserPlaylists();
+    if (!player.currentPlaylist) return;
+    const video = player.currentPlaylist.videos[currentKebabIndex];
+    const target = list[playlistIdx];
+    if (!target) return;
+    target.videos = target.videos.filter(v => v.id !== video.id);
+    saveUserPlaylists(list);
     closeItemOptionsModal();
 }
 
@@ -499,13 +608,19 @@ function showToast(message) {
 
 function shareItem(index) {
     const video = player.currentPlaylist.videos[index];
-    const url = `https://www.youtube.com/watch?v=${video.id}`;
+    const text = `Escutando: ${video.title} - ${video.artist} no SanPlayer`;
+    const url = `${window.location.origin}${window.location.pathname}#videoId=${video.id}`;
     if (navigator.share) {
-        navigator.share({ title: video.title, text: video.artist, url }).catch(()=>{});
+        navigator.share({
+            title: 'SanPlayer',
+            text: text,
+            url: url,
+        }).catch(() => {});
     } else {
-        // fallback: copiar para clipboard
-        try { navigator.clipboard.writeText(url); } catch(e) {}
-        alert('Link copiado: ' + url);
+        // Fallback: copiar para clipboard (mesmo formato do shareMusic)
+        const shareText = `${text}\n${url}`;
+        try { navigator.clipboard.writeText(shareText); } catch (e) {}
+        alert('Música copiada para compartilhamento!');
     }
 }
 
@@ -974,7 +1089,12 @@ function updateProgressBar() {
     const progressBar = document.getElementById('progressBar');
 
     if (progressBar) {
-        progressBar.value = Math.min(100, Math.max(0, percentage));
+        // Não sobrescrever o valor enquanto o usuário está interagindo (arrastando)
+        if (!progressDragging) {
+            progressBar.value = Math.min(100, Math.max(0, percentage));
+        }
+
+        // Atualizar visual do preenchimento via variável CSS (sempre atualizar para refletir posição)
         progressBar.style.setProperty('--progress-bar-fill', `${Math.min(100, Math.max(0, percentage))}% 100%`);
 
         // Mostrar preenchimento apenas enquanto a música estiver tocando
@@ -1108,40 +1228,63 @@ function displayFavoritesList() {
         videos: player.favorites.map(fav => fav.video)
     };
     
-    player.favorites.forEach((favorite, index) => {
-        const item = document.createElement('div');
-        item.className = 'playlist-item';
-        item.innerHTML = `
-            <img src="${getArtistCoverUrl(favorite.video.artist)}" 
-                 alt="${favorite.video.artist}" 
-                 class="thumb-mini"
-                 onerror="this.src='covers/artists/default.jpg'">
-            <div class="playlist-info">
-                <span class="m-title">${favorite.video.title}</span>
-                <span class="m-artist">${favorite.video.artist}</span>
-            </div>
-            <span class="m-duration">-</span>
-        `;
-        item.addEventListener('click', () => {
-            // Usar a playlist virtual de favoritos
-            player.currentPlaylist = favoritesPlaylist;
-            player.currentPlaylistIndex = -1; // Indica playlist virtual
-            player.currentVideoIndex = index; // Índice dentro dos favoritos
-            player.currentFavoriteId = favorite.id; // Guardar o ID original do favorito
-            player.viewingFavorites = true;
+    // Renderizar usando requestAnimationFrame para consistência com loadPlaylistVideos
+    requestAnimationFrame(() => {
+        itemsContainer.innerHTML = '';
+        
+        player.favorites.forEach((favorite, index) => {
+            const item = document.createElement('div');
+            item.className = 'playlist-item';
+            item.innerHTML = `
+                <img src="${getArtistCoverUrl(favorite.video.artist)}"
+                     alt="${favorite.video.artist}"
+                     class="thumb-mini"
+                     onerror="this.src='covers/artists/default.jpg'">
+                <div class="playlist-info">
+                    <span class="m-title">${favorite.video.title}</span>
+                    <span class="m-artist">${favorite.video.artist}</span>
+                </div>
+                <button class="kebab-btn" data-index="${index}" title="Opções"><i class="material-icons">more_vert</i></button>
+            `;
             
-            // Sinalizar que DEVE tocar
-            player.shouldPlayOnReady = true;
+            // tocar ao clicar no item (exceto no botão kebab)
+            item.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.closest('.kebab-btn')) return; // evitar ao clicar no kebab
+                
+                // Usar a playlist virtual de favoritos
+                player.currentPlaylist = favoritesPlaylist;
+                player.currentPlaylistIndex = -1; // Indica playlist virtual
+                player.currentVideoIndex = index; // Índice dentro dos favoritos
+                player.currentFavoriteId = favorite.id; // Guardar o ID original do favorito
+                player.viewingFavorites = true;
+                
+                // Sinalizar que DEVE tocar
+                player.shouldPlayOnReady = true;
+                
+                const targetVideo = favorite.video;
+                loadVideo(targetVideo);
+                updateActivePlaylistItem();
+                updateFavoriteButton();
+                
+                // Mantém a visualização de favoritos
+                displayFavoritesList();
+            });
             
-            const targetVideo = favorite.video;
-            loadVideo(targetVideo);
-            updateActivePlaylistItem();
-            updateFavoriteButton();
-            
-            // Mantém a visualização de favoritos
-            displayFavoritesList();
+            itemsContainer.appendChild(item);
         });
-        itemsContainer.appendChild(item);
+        
+        // Delegar eventos de kebab
+        itemsContainer.querySelectorAll('.kebab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.getAttribute('data-index'), 10);
+                // Ajustar estado para playlist virtual antes de abrir o modal
+                player.currentPlaylist = favoritesPlaylist;
+                player.currentPlaylistIndex = -1;
+                openItemOptionsModal(idx);
+            });
+        });
     });
 }
 
@@ -1407,8 +1550,32 @@ function setupEventListeners() {
     // Barra de progresso real (range input)
     const progressBar = document.getElementById('progressBar');
     if (progressBar) {
-        progressBar.addEventListener('input', onProgressInput);
-        progressBar.addEventListener('change', onProgressChange);
+        // Input contínuo (arrastar) e change (finalizar)
+        progressBar.addEventListener('input', (e) => {
+            progressDragging = true;
+            onProgressInput(e);
+        });
+        progressBar.addEventListener('change', (e) => {
+            // Commit do seek quando usuário solta
+            progressDragging = false;
+            onProgressChange(e);
+        });
+
+        // Pointer events para captura mais robusta (mouse/touch/pen)
+        progressBar.addEventListener('pointerdown', () => { progressDragging = true; });
+        // pointerup no próprio controle
+        progressBar.addEventListener('pointerup', (e) => {
+            progressDragging = false;
+            // garantir commit
+            onProgressChange({ target: progressBar });
+        });
+        // Caso o usuário solte fora do controle
+        document.addEventListener('pointerup', () => {
+            if (progressDragging) {
+                progressDragging = false;
+                if (progressBar) onProgressChange({ target: progressBar });
+            }
+        });
     }
 
     // Criar playlist (sidebar)
@@ -1435,6 +1602,8 @@ function setupEventListeners() {
     if (closeUserMenu) closeUserMenu.addEventListener('click', closeUserMenuModal);
     const userPlaylistsBtn = document.getElementById('userPlaylistsBtn');
     if (userPlaylistsBtn) userPlaylistsBtn.addEventListener('click', () => { closeUserMenuModal(); document.getElementById('userPlaylistsModal').classList.add('show'); openUserPlaylistsModal(); });
+    const userFavoritesBtn = document.getElementById('userFavoritesBtn');
+    if (userFavoritesBtn) userFavoritesBtn.addEventListener('click', () => { closeUserMenuModal(); displayFavoritesList(); });
     const closeUserPlaylists = document.getElementById('closeUserPlaylistsModal');
     if (closeUserPlaylists) closeUserPlaylists.addEventListener('click', closeUserPlaylistsModal);
 
@@ -1443,10 +1612,17 @@ function setupEventListeners() {
     if (closeItemOptions) closeItemOptions.addEventListener('click', closeItemOptionsModal);
 
     // Fechar modais ao clicar fora
-    ['createPlaylistModal','userMenuModal','userPlaylistsModal','itemOptionsModal'].forEach(id => {
+    ['createPlaylistModal','userMenuModal','itemOptionsModal'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('click', (e) => { if (e.target === e.currentTarget) el.classList.remove('show'); });
     });
+    // userPlaylistsModal precisa chamar a função para resetar estado
+    const userPlaylistsModalEl = document.getElementById('userPlaylistsModal');
+    if (userPlaylistsModalEl) {
+        userPlaylistsModalEl.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeUserPlaylistsModal();
+        });
+    }
 
     // Detectar redimensionamento da janela para ajustar marquee
     let resizeTimeout;
@@ -1460,10 +1636,19 @@ function setupEventListeners() {
 }
 
 function onProgressInput(event) {
-    const value = Number(event.target.value);
+    const progressBar = event.target;
+    const value = Number(progressBar.value);
     const duration = player.currentDuration || 0;
     const seconds = (duration * value) / 100;
+    // Mostrar tempo atual enquanto arrasta
     document.getElementById('timeCurrent').textContent = formatTime(seconds);
+    player.currentTime = seconds;
+    // Atualizar visual imediato do preenchimento
+    progressBar.style.setProperty('--progress-bar-fill', `${Math.min(100, Math.max(0, value))}% 100%`);
+    // Se possível, seek em tempo real para maior fluidez (cauteloso)
+    if (player.ytReady && ytPlayer) {
+        try { ytPlayer.seekTo(seconds, true); } catch (e) { /* ignore */ }
+    }
 }
 
 function onProgressChange(event) {

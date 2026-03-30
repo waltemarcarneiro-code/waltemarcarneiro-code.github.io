@@ -1,57 +1,3 @@
-/* Utilitário: cursor pointer para elementos clicáveis via JS */
-.is-clickable {
-    cursor: pointer !important;
-}
-
-/* Toast: animação de saída */
-.toast-hide {
-    animation: toastSlideDown 0.3s ease forwards !important;
-}
-
-/* Barra de progresso: preenchimento dinâmico via variável CSS */
-.progress-bar {
-    background-size: var(--progress-bar-fill, 0% 100%);
-}
-/* Linha de playlist do usuário (bottom-sheet, lista, etc) */
-.playlist-item-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.05rem 1.2rem;
-    border-bottom: 1px solid var(--border-rgba);
-    cursor: pointer;
-    font-size: 1.09rem;
-    font-weight: 500;
-    background: transparent;
-    transition: background 0.18s;
-}
-.playlist-item-row:active,
-.playlist-item-row:focus {
-    background: rgba(255,0,0,0.07);
-    outline: none;
-}
-.playlist-item-row .playlist-name {
-    flex: 1;
-    min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.playlist-count-badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #b71c1c;
-    color: #fff;
-    font-weight: 700;
-    font-size: 1.08rem;
-    margin-left: 1rem;
-    flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-}
 /* Modal criar playlist (bottom-sheet) */
 #createPlaylistModal .modal-header--item {
     border-bottom: none;
@@ -1020,9 +966,10 @@ img {
     height: 3px;
     border-radius: 999px;
     background: #23232b;
-    background-image: linear-gradient(to right, var(--footer-accent) 0%, var(--footer-accent) 100%);
+    /* Usar variável de progresso para controlar o preenchimento (restaura cor vermelha) */
+    background-image: linear-gradient(to right, var(--accent-red) 0%, var(--accent-red) 100%);
     background-repeat: no-repeat;
-    background-size: 0% 100%;
+    background-size: var(--progress-bar-fill, 0% 100%);
     outline: none;
     overflow: hidden;
     accent-color: var(--footer-accent);
@@ -1639,20 +1586,82 @@ img {
 #playlistModal,
 #artistsModal,
 #searchModal,
-#createPlaylistModal,
-#userMenuModal,
-#userPlaylistsModal {
+#createPlaylistModal {
     align-items: center;
 }
 
 #playlistModal .modal-content,
 #artistsModal .modal-content,
 #searchModal .modal-content,
-#createPlaylistModal .modal-content,
-#userMenuModal .modal-content,
-#userPlaylistsModal .modal-content {
-    border-radius: 0.7rem;
+#createPlaylistModal .modal-content {
+    border-radius: 8px;
     max-width: 90vw;
-    animation: none;
-    padding: 0 var(--padding-app) var(--padding-app) var(--padding-app);
+    width: auto;
+}
+
+/* Estilos para os botões de adicionar/remover no modal de opções do item */
+.btn-add,
+.btn-remove {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-add {
+    background: var(--accent-red);
+    color: #fff;
+}
+
+.btn-add:hover {
+    background: #b71c1c;
+}
+
+.btn-remove {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border-rgba);
+}
+
+.btn-remove:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+}
+
+/* Estilo para a linha da playlist no modal */
+.playlist-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--border-rgba);
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.playlist-item-row:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.playlist-name {
+    flex: 1;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-main);
+    margin-right: 0.5rem;
+}
+
+.playlist-count-badge {
+    background: var(--accent-red);
+    color: #fff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
 }
