@@ -3,21 +3,25 @@
     border-bottom: none;
     padding-bottom: 0.2rem;
 }
+
 #createPlaylistModal .modal-body {
     padding: 1.2rem 1.2rem 1.5rem 1.2rem;
 }
+
 #createPlaylistModal .input-group {
     display: flex;
     flex-direction: column;
     gap: 0.55rem;
     margin-bottom: 1.3rem;
 }
+
 #createPlaylistModal label {
     font-size: 1.04rem;
     color: var(--text-dim);
     font-weight: 500;
     margin-bottom: 0.1rem;
 }
+
 #createPlaylistModal input[type="text"] {
     padding: 0.85rem 1rem;
     border-radius: 10px;
@@ -28,17 +32,20 @@
     font-weight: 500;
     outline: none;
     transition: border 0.18s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
+
 #createPlaylistModal input[type="text"]:focus {
     border-color: var(--accent-red);
 }
+
 #createPlaylistModal .create-playlist-actions {
     display: flex;
     gap: 0.7rem;
     justify-content: center;
     margin-top: 0.5rem;
 }
+
 #createPlaylistModal .btn-cancel,
 #createPlaylistModal .btn-create {
     padding: 0.85rem 1.5rem;
@@ -49,22 +56,27 @@
     cursor: pointer;
     transition: background 0.18s, color 0.18s;
 }
+
 #createPlaylistModal .btn-cancel {
     background: transparent;
     color: var(--text-dim);
 }
+
 #createPlaylistModal .btn-cancel:active {
-    background: rgba(255,255,255,0.04);
+    background: rgba(255, 255, 255, 0.04);
 }
+
 #createPlaylistModal .btn-create {
     background: var(--accent-red);
     color: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
 }
+
 #createPlaylistModal .btn-create:active {
     background: #b71c1c;
 }
-/* Playlists do usuário: linha clicável e contador destacado */
+
+/* Playlists do usuÃ¡rio: linha clicÃ¡vel e contador destacado */
 .user-playlist.user-playlist-clickable {
     display: flex;
     align-items: center;
@@ -77,9 +89,11 @@
     transition: background 0.18s;
     background: transparent;
 }
+
 .user-playlist.user-playlist-clickable:active {
-    background: rgba(255,0,0,0.07);
+    background: rgba(255, 0, 0, 0.07);
 }
+
 .user-playlist .playlist-name {
     flex: 1;
     min-width: 0;
@@ -87,6 +101,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .playlist-count-circle {
     display: flex;
     align-items: center;
@@ -100,9 +115,10 @@
     font-size: 1.08rem;
     margin-left: 1rem;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
 }
-/* Lista do menu do usuário (modal de perfil) */
+
+/* Lista do menu do usuÃ¡rio (modal de perfil) */
 .user-menu-list {
     list-style: none;
     margin: 0;
@@ -111,12 +127,15 @@
     flex-direction: column;
     gap: 0;
 }
+
 .user-menu-list li {
     border-bottom: 1px solid var(--border-rgba);
 }
+
 .user-menu-list li:last-child {
     border-bottom: none;
 }
+
 .user-menu-list a {
     display: flex;
     align-items: center;
@@ -129,14 +148,17 @@
     transition: background 0.18s, color 0.18s;
     border-radius: 0;
 }
+
 .user-menu-list a:active {
-    background: rgba(255,255,255,0.04);
+    background: rgba(255, 255, 255, 0.04);
 }
+
 .user-menu-list i.material-icons {
     font-size: 1.45rem;
     color: var(--text-dim);
     flex-shrink: 0;
 }
+
 .user-menu-list span {
     flex: 1;
     min-width: 0;
@@ -144,22 +166,25 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 /* Bottom sheet para modal do kebab */
 .modal-bottom-sheet {
     align-items: flex-end !important;
     justify-content: center;
     padding: 0;
 }
+
 .bottom-sheet-content {
     width: 100vw !important;
     max-width: 100vw !important;
     border-radius: 16px 16px 0 0 !important;
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.25);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
     margin: 0;
-    animation: bottomSheetUp 0.25s cubic-bezier(.4,0,.2,1);
+    animation: bottomSheetUp 0.25s cubic-bezier(.4, 0, .2, 1);
     position: relative;
     bottom: 0;
 }
+
 @media (max-width: 1023px) {
     .bottom-sheet-content {
         width: 100vw !important;
@@ -167,12 +192,19 @@
         border-radius: 16px 16px 0 0 !important;
     }
 }
+
 @keyframes bottomSheetUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
 }
-/* Header do modal de opções do item (kebab) */
-/* Header do bottom-sheet: confortável, nativo, sem excessos */
+
+/* Header do modal de opÃ§Ãµes do item (kebab) */
+/* Header do bottom-sheet: confortÃ¡vel, nativo, sem excessos */
 .modal-header--item {
     display: flex;
     align-items: center;
@@ -185,36 +217,41 @@
     min-height: 72px;
     box-sizing: border-box;
 }
+
 .modal-header--item .thumb {
-    width: 48px;
-    height: 48px;
-    border-radius: 10px;
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
     object-fit: cover;
     flex-shrink: 0;
 }
+
 .modal-header--item .meta {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 0.12rem;
+    gap: 0.15rem;
     min-width: 0;
 }
+
 .modal-header--item .title {
-    font-size: 1.08rem;
+    font-size: 1.1rem;
     font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.2;
 }
+
 .modal-header--item .artist {
-    font-size: 0.97rem;
+    font-size: 0.95rem;
     color: var(--text-dim);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.1;
 }
+
 .modal-header--item .modal-close {
     margin-left: auto;
     background: transparent;
@@ -230,50 +267,9 @@
     flex-shrink: 0;
     transition: background 0.2s;
 }
+
 .modal-header--item .modal-close:active {
-    background: rgba(255,255,255,0.06);
-}
-.modal-header--item .thumb {
-    width: 56px;
-    height: 56px;
-    border-radius: 8px;
-    object-fit: cover;
-    flex-shrink: 0;
-}
-.modal-header--item .meta {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    min-width: 0;
-}
-.modal-header--item .title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.modal-header--item .artist {
-    font-size: 0.95rem;
-    color: var(--text-dim);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.modal-header--item .modal-close {
-    margin-left: auto;
-    background: transparent;
-    border: none;
-    color: var(--text-dim);
-    padding: 0;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.06);
 }
 
 /* Toast de feedback */
@@ -290,25 +286,15 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     animation: toastSlideUp 0.3s ease;
     width: auto;
     box-sizing: border-box;
 }
 
 /* Artists modal: align to top but keep comfortable header spacing */
-#artistsModal {
-    align-items: flex-start !important;
-}
-
-#artistsModal .modal-content {
-    margin-top: 1.2rem; /* small gap from top */
-    border-radius: 16px 16px 8px 8px !important;
-    display: flex;
-    flex-direction: column;
-    max-width: 720px;
-    overflow-y: auto; /* allow scrolling with sticky header */
-}
+/* Mobile: ocupar tela inteira - sobrescrito na media query mobile */
+/* Desktop: regras continuam na seÃ§Ã£o de desktop */
 
 /* Header sizing: restore comfortable, professional dimensions */
 .modal-header {
@@ -318,7 +304,8 @@
     top: 0;
     z-index: 10;
     background: var(--bg-surface);
-    flex-shrink: 0; /* prevent header from shrinking */
+    flex-shrink: 0;
+    /* prevent header from shrinking */
 }
 
 .modal-header--item {
@@ -339,15 +326,17 @@
     font-size: 1.12rem;
     font-weight: 700;
 }
+
 .toast-feedback.toast-mobile {
     left: 0;
     bottom: 0;
     transform: none;
     width: 100%;
     border-radius: 0;
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
     padding: 1rem;
 }
+
 .toast-feedback .icon {
     width: 44px;
     height: 44px;
@@ -361,19 +350,21 @@
     font-size: 1.3rem;
     flex-shrink: 0;
 }
+
 .toast-feedback .msg {
     font-size: 1.05rem;
     font-weight: 700;
 }
 
-/* Separador visual para opções do modal */
+/* Separador visual para opÃ§Ãµes do modal */
 .option-separator {
     height: 1px;
     background: var(--border-rgba);
     margin: 0;
     width: 100%;
 }
-/* === MOBILE: GRID VÍDEO + PLAYLIST === */
+
+/* === MOBILE: GRID VÃDEO + PLAYLIST === */
 @media (max-width: 1023px) {
     .app-main-grid {
         flex-direction: column;
@@ -438,73 +429,138 @@
         justify-content: center;
         border-radius: 6px;
     }
-    .kebab-btn:hover { background: rgba(255,255,255,0.03); color: var(--text-main); }
+
+    .kebab-btn:hover {
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text-main);
+    }
 
     /* Modal base (simples) */
     .modal {
         display: none;
         position: fixed;
-        z-index: 2000;
+        z-index: 5000;
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.5);
         align-items: center;
         justify-content: center;
-        padding: 1rem;
+        padding: 0;
     }
-    .modal.show { display: flex; }
+
+    .modal.show {
+        display: flex;
+    }
+
     .modal-content {
         background: var(--bg-surface);
         border-radius: 8px;
         width: 100%;
         max-width: 640px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        height: auto;
+        max-height: 90vh;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
         overflow: hidden;
     }
-    .modal-header {
+
+    /* Playlists e Artistas modais: ocupar tela inteira no mobile */
+    #playlistModal .modal-content,
+    #artistsModal .modal-content {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        background: var(--bg-surface) !important;
+        overflow: hidden !important;
+        animation: none !important;
+    }
+
+    #playlistModal,
+    #artistsModal {
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 5000 !important;
+    }
+
+    #playlistModal .modal-header,
+    #artistsModal .modal-header {
+        position: sticky;
+        top: 0;
+        flex-shrink: 0;
+        z-index: 10;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 1rem;
+        padding: 1.2rem;
         border-bottom: 1px solid var(--border-rgba);
+        background: var(--bg-surface);
     }
-    .modal-header--item {
-        padding: 0.75rem 1rem;
-        gap: 1rem;
+
+    #playlistModal .modal-header h2,
+    #artistsModal .modal-header h2 {
+        font-size: var(--font-lg);
+        margin: 0;
+        color: var(--text-main);
     }
-    .modal-header--item .thumb {
-        width: 56px;
-        height: 56px;
-        border-radius: 8px;
-        object-fit: cover;
-        flex-shrink: 0;
+
+    #playlistModal .cards-grid,
+    #artistsModal .cards-grid {
+        /*flex: 1;*/
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1.5rem;
+        padding: 1.5rem;
+        overflow-y: auto;
+        width: 100%;
+        min-height: 0;
     }
-    .modal-header--item .meta {
-        display: flex;
-        flex-direction: column;
-        gap: 0.15rem;
+
+    /* Mobile modal header inherited from base .modal-header--item, no duplication needed */
+    .modal-body {
+        padding: 0;
     }
-    .modal-header--item .meta .title {
-        font-size: 1.1rem;
-        font-weight: 700;
-    }
-    .modal-header--item .meta .artist {
-        font-size: 0.95rem;
+
+    .modal .modal-close {
+        background: transparent;
+        border: none;
         color: var(--text-dim);
     }
-    .modal-body { padding:0; }
-    .modal .modal-close { background: transparent; border: none; color: var(--text-dim); }
 
-    /* Lista simples das playlists do usuário */
-    #userPlaylistsContainer .user-playlist { padding: 0.5rem; border-bottom: 1px solid var(--border-rgba); display:flex; align-items:center; justify-content:space-between; }
+    /* Lista simples das playlists do usuÃ¡rio */
+    #userPlaylistsContainer .user-playlist {
+        padding: 0.5rem;
+        border-bottom: 1px solid var(--border-rgba);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
 
-    /* Pequenos ajustes para botões nos modais */
-    .modal-body input[type="text"] { width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid var(--border-rgba); background: transparent; color: var(--text-main); }
-    .modal-body button { padding: 0.5rem 0.75rem; border-radius: 6px; }
+    /* Pequenos ajustes para botÃµes nos modais */
+    .modal-body input[type="text"] {
+        width: 100%;
+        padding: 0.6rem;
+        border-radius: 6px;
+        border: 1px solid var(--border-rgba);
+        background: transparent;
+        color: var(--text-main);
+    }
 
-    /* Opções dentro do modal (kebab) */
+    .modal-body button {
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+    }
+
+    /* OpÃ§Ãµes dentro do modal (kebab) */
     .option-row {
         display: flex;
         align-items: center;
@@ -516,12 +572,15 @@
         box-sizing: border-box;
         transition: background 0.18s;
     }
+
     .option-row:last-child {
         border-bottom: none;
     }
+
     .option-row:active {
-        background: rgba(255,255,255,0.04);
+        background: rgba(255, 255, 255, 0.04);
     }
+
     .option-icon {
         width: 40px;
         height: 40px;
@@ -534,13 +593,14 @@
         flex-shrink: 0;
         font-size: 1.35rem;
     }
+
     .option-text {
         font-size: 1.04rem;
         font-weight: 600;
         line-height: 1.2;
     }
 
-    /* Feedback estilizado quando não há playlists */
+    /* Feedback estilizado quando nÃ£o hÃ¡ playlists */
     .feedback-empty {
         display: flex;
         align-items: center;
@@ -549,6 +609,7 @@
         background: var(--footer-block-2);
         border-radius: 8px;
     }
+
     .feedback-empty .icon {
         width: 44px;
         height: 44px;
@@ -560,13 +621,13 @@
         justify-content: center;
         font-weight: 700;
     }
-    .feedback-empty .msg { font-size: 1.05rem; font-weight: 700; }
+
+    .feedback-empty .msg {
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
 
     /* Corrige posicionamento do bottom-sheet */
-    .modal-content{
-        top: 1rem;
-        position: absolute;
-    }
     .modal-bottom-sheet .modal-content,
     .modal-bottom-sheet .bottom-sheet-content {
         position: fixed !important;
@@ -578,37 +639,40 @@
         max-width: 100vw !important;
         width: 100vw !important;
         border-radius: 16px 16px 0 0 !important;
-        animation: bottomSheetUp 0.25s cubic-bezier(.4,0,.2,1);
-        box-shadow: 0 -4px 24px rgba(0,0,0,0.25);
+        animation: bottomSheetUp 0.25s cubic-bezier(.4, 0, .2, 1);
+        box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
         z-index: 3001;
     }
 }
 
 /* ==========================================================================
-   1. CONFIGURAÇÕES DE FONTE E VARIÁVEIS
+   1. CONFIGURAÃ‡Ã•ES DE FONTE E VARIÃVEIS
    ========================================================================== */
 
 @font-face {
     font-family: 'Roboto';
-    src: url('/fonts/Roboto-Regular.ttf') format('truetype');
+    src: url('./fonts/Roboto-Regular.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
 }
+
 @font-face {
     font-family: 'Red Hat Display';
-    src: url('/fonts/RedHatDisplay-Medium.ttf') format('truetype');
+    src: url('./fonts/RedHatDisplay-Medium.ttf') format('truetype');
     font-weight: 500;
     font-style: normal;
 }
+
 @font-face {
     font-family: 'Red Hat Display';
-    src: url('/fonts/RedHatDisplay-SemiBold.ttf') format('truetype');
+    src: url('./fonts/RedHatDisplay-SemiBold.ttf') format('truetype');
     font-weight: 600;
     font-style: normal;
 }
+
 @font-face {
     font-family: 'Red Hat Display';
-    src: url('/fonts/RedHatDisplay-Bold.ttf') format('truetype');
+    src: url('./fonts/RedHatDisplay-Bold.ttf') format('truetype');
     font-weight: 700;
     font-style: normal;
 }
@@ -642,16 +706,29 @@ html {
     --font-md: clamp(1rem, 0.2vw + 0.85rem, 1rem);
     --font-lg: clamp(1.1rem, 0.5vw + 1rem, 1.4rem);
 
-    /* Espaçamento Fluido */
+    /* EspaÃ§amento Fluido */
     --gap-fluid: clamp(0.5rem, 1.5vw, 1.5rem);
     --padding-app: clamp(1rem, 2vw, 2.5rem);
 
     /* Alturas */
     --header-height: clamp(50px, 5vh, 80px);
     --footer-height: clamp(60px, 10vh, 100px);
-    /* ajuste conforme altura real do footer */
+
+    /* Z-Index Layer System */
+    --z-main-content: 10;
+    --z-header: 100;
+    --z-footer: 999;
+    --z-modal-backdrop: 2000;
+    --z-modal-content: 2001;
+    --z-sidebar: 3000;
+    --z-sidebar-overlay: 3000;
+    --z-modal-toast: 3001;
+    --z-overlay-max: 5000;
+
+    /* Backward compatibility */
     --main-z-index: 10;
 }
+
 
 /* ==========================================================================
    2. RESET E ESTILOS GERAIS
@@ -681,7 +758,7 @@ ul {
 button {
     cursor: pointer;
     border: none;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     justify-content: center;
     display: flex;
     align-items: center;
@@ -702,7 +779,7 @@ img {
 }
 
 /* ==========================================================================
-   3. HEADER (Navegação Superior)
+   3. HEADER (NavegaÃ§Ã£o Superior)
    ========================================================================== */
 
 .app-header {
@@ -787,7 +864,7 @@ img {
 }
 
 /* ==========================================================================
-   4. LAYOUT PRINCIPAL (Sidebar, Vídeo, Playlist)
+   4. LAYOUT PRINCIPAL (Sidebar, VÃ­deo, Playlist)
    ========================================================================== */
 
 .app-main-grid {
@@ -848,11 +925,11 @@ img {
 
 .sidebar-nav li.active a {
     /*background-color: rgba(255, 255, 255, 0.05);*/
-    
+
     font-weight: bold;
 }
 
-/* Área do Vídeo */
+/* Ãrea do VÃ­deo */
 .video-stage {
     padding: var(--gap-fluid);
     display: flex;
@@ -863,7 +940,8 @@ img {
 
 .video-wrapper {
     width: 100%;
-    aspect-ratio: 1 / 1; /*aspect mobile*/
+    aspect-ratio: 1 / 1;
+    /*aspect mobile*/
     background-color: #111;
     border-radius: 0.7rem;
     position: relative;
@@ -958,12 +1036,15 @@ img {
     background: linear-gradient(90deg, #23232b 0%, #2d2d35 50%, #23232b 100%);
     background-size: 200% 100%;
     animation: skeleton-loading 1.5s infinite;
+    display: block;
+    border-radius: 4px;
 }
 
 @keyframes skeleton-loading {
     0% {
         background-position: 200% 0;
     }
+
     100% {
         background-position: -200% 0;
     }
@@ -976,8 +1057,35 @@ img {
     border-radius: 4px;
 }
 
+.playlist-info-skeleton {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.skeleton-title {
+    width: 70%;
+    height: 1rem;
+    border-radius: 4px;
+}
+
+.skeleton-artist {
+    width: 50%;
+    height: 0.75rem;
+    border-radius: 4px;
+}
+
+.skeleton-duration {
+    width: 40px;
+    height: 0.75rem;
+    margin-left: auto;
+    border-radius: 4px;
+}
+
 /* ==========================================================================
-   5. RODAPÉ FIXO (Player)
+   5. RODAPÃ‰ FIXO (Player)
    ========================================================================== */
 
 .app-player-footer {
@@ -1000,8 +1108,9 @@ img {
 .progress {
     display: flex;
     flex-direction: column;
-    gap: 0rem; /*espaco entre progresso e contadores*/
-    
+    gap: 0rem;
+    /*espaco entre progresso e contadores*/
+
 }
 
 .progress-bar {
@@ -1010,7 +1119,7 @@ img {
     height: 3px;
     border-radius: 999px;
     background: #23232b;
-    /* Usar variável de progresso para controlar o preenchimento (restaura cor vermelha) */
+    /* Usar variÃ¡vel de progresso para controlar o preenchimento (restaura cor vermelha) */
     background-image: linear-gradient(to right, var(--accent-red) 0%, var(--accent-red) 100%);
     background-repeat: no-repeat;
     background-size: var(--progress-bar-fill, 0% 100%);
@@ -1074,11 +1183,11 @@ img {
     flex: 1;
     display: flex;
     align-items: center;
-    
+
     padding: 0px clamp(1rem, 2vw, 2.5rem) clamp(0.5rem, 1vw, 1.5rem);
 }
 
-/* Bloco 1: Informações da música */
+/* Bloco 1: InformaÃ§Ãµes da mÃºsica */
 .block-info {
 
     gap: 1.2rem;
@@ -1097,7 +1206,8 @@ img {
     flex-direction: column;
     gap: 0.25rem;
     position: relative;
-    overflow: hidden; /* garantir clip interno */
+    overflow: hidden;
+    /* garantir clip interno */
 }
 
 .current-details .c-title {
@@ -1116,19 +1226,22 @@ img {
     animation: marquee-scroll-slow 15s linear infinite;
     text-overflow: clip;
     overflow: visible;
-    min-width: 200%; /* espaço suficiente para o texto se mover completamente */
+    min-width: 200%;
+    /* espaÃ§o suficiente para o texto se mover completamente */
     max-width: none;
 }
+
 @keyframes marquee-scroll-slow {
     0% {
         transform: translateX(100%);
     }
+
     100% {
         transform: translateX(-100%);
     }
 }
 
-/* garantir que a track segurança não deixa o texto vazar para elementos vizinhos */
+/* garantir que a track seguranÃ§a nÃ£o deixa o texto vazar para elementos vizinhos */
 .current-details .c-title.marquee {
     position: relative;
     left: 0;
@@ -1149,24 +1262,55 @@ img {
     display: flex;
     gap: 1rem;
 }
-.reply{
-        transform: scaleX(-1);
-         
-    }
+
+.reply {
+    transform: scaleX(-1);
+
+}
+
 /* Bloco 2: Controles de Playback */
 .block-controls {
     background-color: var(--footer-block-2);
     justify-content: center;
     gap: clamp(2rem, 2vw, 2rem);
-   
 }
-.shuffle-repeat{
+
+.shuffle-repeat {
     color: #aaa;
 }
-/* Desktop: uniformizar tamanho dos controles (exceto play/pause que é maior) */
+
+/* Indicador para repeat one mode */
+.block-controls button.repeat-one-active>i::after {
+    content: '1';
+    position: absolute;
+    font-size: 0.65rem;
+    font-weight: bold;
+    bottom: -3px;
+    right: -3px;
+    background: var(--accent-red);
+    color: white;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.block-controls button.repeat-one-active {
+    position: relative;
+}
+
+.block-controls button.repeat-one-active>i {
+    position: relative;
+}
+
+/* Desktop: uniformizar tamanho dos controles (exceto play/pause que Ã© maior) */
 .block-controls .material-icons {
     font-size: 1.5rem;
 }
+
 .btn-play-pause {
     background-color: var(--accent-red);
     width: 50px;
@@ -1221,6 +1365,7 @@ img {
     .block-controls .material-icons {
         font-size: 2rem;
     }
+
     .block-controls {
         margin-top: 8px;
     }
@@ -1391,10 +1536,12 @@ img {
         display: none !important;
     }
 }
+
 .music-note {
     color: var(--accent-red);
     font-size: 1.8rem;
 }
+
 .title-pl {
     font-size: var(--font-lg);
     margin-bottom: 1.4rem;
@@ -1427,8 +1574,9 @@ img {
 .modal-content {
     background: var(--bg-surface);
     border-radius: 16px 16px 0 0;
-    max-height: 60vh;
     width: 100%;
+    min-width: 100vw;
+    height: auto;
     overflow-y: auto;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
     animation: slideUpModal 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -1438,6 +1586,7 @@ img {
     from {
         background: rgba(0, 0, 0, 0);
     }
+
     to {
         background: rgba(0, 0, 0, 0.5);
     }
@@ -1447,6 +1596,7 @@ img {
     from {
         transform: translateY(100%);
     }
+
     to {
         transform: translateY(0);
     }
@@ -1544,7 +1694,7 @@ img {
 
 .card {
     border-radius: 0.5rem;
-    overflow: hidden;
+
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
     background: var(--bg-surface-light);
@@ -1604,7 +1754,7 @@ img {
 }
 
 /* ==========================================================================
-   8. ANIMAÇÕES TOAST
+   8. ANIMAÃ‡Ã•ES TOAST
    ========================================================================== */
 
 @keyframes toastSlideUp {
@@ -1612,6 +1762,7 @@ img {
         transform: translateX(-50%) translateY(20px);
         opacity: 0;
     }
+
     to {
         transform: translateX(-50%) translateY(0);
         opacity: 1;
@@ -1623,6 +1774,7 @@ img {
         transform: translateX(-50%) translateY(0);
         opacity: 1;
     }
+
     to {
         transform: translateX(-50%) translateY(20px);
         opacity: 0;
@@ -1642,7 +1794,7 @@ img {
 }
 
 
-/* Estilos para os botões de adicionar/remover no modal de opções do item */
+/* Estilos para os botÃµes de adicionar/remover no modal de opÃ§Ãµes do item */
 .btn-add,
 .btn-remove {
     padding: 0.5rem 1rem;
@@ -1716,8 +1868,10 @@ img {
 /* Desktop: tornar modais fullscreen (exceto mobile) */
 @media (min-width: 641px) {
     .modal {
-        align-items: stretch; /* ocupar toda a altura */
-        padding: 0; /* remover padding para full bleed */
+        align-items: stretch;
+        /* ocupar toda a altura */
+        padding: 0;
+        /* remover padding para full bleed */
         justify-content: center;
     }
 
@@ -1726,14 +1880,15 @@ img {
         width: 100%;
         height: 100vh;
         max-height: 100vh;
-        border-radius: 0; /* bordas retas em fullscreen */
+        border-radius: 0;
+        /* bordas retas em fullscreen */
         box-shadow: none;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
     }
 
-    /* Ajustes de espaçamento interno para header/body quando em fullscreen */
+    /* Ajustes de espaÃ§amento interno para header/body quando em fullscreen */
     .modal-header {
         padding: 1.5rem 1.5rem;
         position: sticky;
@@ -1747,30 +1902,38 @@ img {
         overflow-y: auto;
     }
 
-    /* Não forçar fullscreen nos bottom-sheets (kebab, create) */
+    /* NÃ£o forÃ§ar fullscreen nos bottom-sheets (kebab, create) */
     .modal.modal-bottom-sheet .modal-content,
     .modal.modal-bottom-sheet .bottom-sheet-content {
         max-height: 60vh;
         height: auto;
         border-radius: 16px 16px 0 0;
-        box-shadow: 0 -4px 24px rgba(0,0,0,0.25);
+        box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
     }
 }
 
-/* Playlists e Artistas: ocupar 100% da tela em desktop */
+/* Playlists e Artistas: ocupar 100% da tela em mobile, tamanho apropriado em desktop */
 @media (min-width: 641px) {
+
     #playlistModal,
     #artistsModal {
-        align-items: stretch !important;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 5000 !important;
     }
 
-    #playlistModal .modal-content,
-    #artistsModal .modal-content {
-        width: 100vw !important;
-        height: 100vh !important;
-        max-width: 100% !important;
-        max-height: 100% !important;
-        border-radius: 0 !important;
+    #playlistModal .modal-header,
+    #artistsModal .modal-header {
+        position: sticky;
+        top: 0;
+        flex-shrink: 0;
+        z-index: 10;
+        border-radius: 16px 16px 0 0;
+    }
+
+    #artistsModal {
+        align-items: center;
     }
 
     #artistsModal .modal-content {
@@ -1779,8 +1942,8 @@ img {
 
     .cards-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 1.5rem;
-        padding: 1.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 2rem;
+        padding: 2rem;
     }
 }

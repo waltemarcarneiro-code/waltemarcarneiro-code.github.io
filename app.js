@@ -72,15 +72,12 @@ function setLayoutVars() {
     if (footer) root.style.setProperty('--footer-height', `${footerHeight}px`);
     if (header) root.style.setProperty('--header-height', `${headerHeight}px`);
 
-    // Usar ResizeObserver quando disponível para reagir a mudanças dinâmicas de conteúdo
+    // Usar ResizeObserver apenas para footer (header não muda de altura dinamicamente)
     if (typeof ResizeObserver !== 'undefined' && footer && !footer.__observing) {
         try {
             const ro = new ResizeObserver(() => setLayoutVars());
             ro.observe(footer);
-            const roHeader = new ResizeObserver(() => setLayoutVars());
-            if (header) roHeader.observe(header);
             footer.__observing = true;
-            if (header) header.__observing = true;
         } catch (e) {
             // ignore
         }
@@ -398,19 +395,33 @@ function openItemOptionsModal(index) {
     const headerEl = modal.querySelector('.modal-header');
     
     // Montar header com thumbnail, título e artista usando classes para responsividade
-    headerEl.innerHTML = `
-        <div class="modal-header--item">
-            <img src="${getArtistCoverUrl(video.artist)}" onerror="this.src='covers/artists/default.jpg'" class="thumb">
-            <div class="meta">
-                <div class="title">${video.title}</div>
-                <div class="artist">${video.artist}</div>
-            </div>
-            <button class="modal-close" id="closeItemOptionsModal" aria-label="Fechar">
-                <i class="material-icons">close</i>
-            </button>
-        </div>
+    headerEl.innerHTML = '';
+    const headerContent = document.createElement('div');
+    headerContent.className = 'modal-header--item';
+    
+    const img = document.createElement('img');
+    img.src = getArtistCoverUrl(video.artist);
+    img.onerror = () => { img.src = 'covers/artists/default.jpg'; };
+    img.className = 'thumb';
+    
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.innerHTML = `
+        <div class="title">${video.title}</div>
+        <div class="artist">${video.artist}</div>
     `;
-    document.getElementById('closeItemOptionsModal').addEventListener('click', closeItemOptionsModal);
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'modal-close';
+    closeBtn.id = 'closeItemOptionsModal';
+    closeBtn.setAttribute('aria-label', 'Fechar');
+    closeBtn.innerHTML = '<i class="material-icons">close</i>';
+    closeBtn.addEventListener('click', closeItemOptionsModal);
+    
+    headerContent.appendChild(img);
+    headerContent.appendChild(meta);
+    headerContent.appendChild(closeBtn);
+    headerEl.appendChild(headerContent);
 
     const body = document.getElementById('itemOptionsBody');
     body.innerHTML = '';
@@ -690,11 +701,11 @@ function loadPlaylistVideos() {
         skeleton.className = 'playlist-item skeleton-loading';
         skeleton.innerHTML = `
             <div class="thumb-mini skeleton"></div>
-            <div class="playlist-info" style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem;">
-                <span class="skeleton" style="display: block; width: 70%; height: 1rem; border-radius: 4px;"></span>
-                <span class="skeleton" style="display: block; width: 50%; height: 0.75rem; border-radius: 4px;"></span>
+            <div class="playlist-info-skeleton">
+                <span class="skeleton skeleton-title"></span>
+                <span class="skeleton skeleton-artist"></span>
             </div>
-            <span class="skeleton" style="display: block; width: 40px; height: 0.75rem; margin-left: auto; border-radius: 4px;"></span>
+            <span class="skeleton skeleton-duration"></span>
         `;
         itemsContainer.appendChild(skeleton);
     }
@@ -1060,21 +1071,38 @@ function updatePlayPauseButton() {
 
 function updateRepeatButton() {
     const btn = document.querySelector('.block-controls button:nth-child(5)');
+    const icon = btn.querySelector('i.material-icons') || document.createElement('i');
+    icon.className = 'material-icons shuffle-repeat';
+    
     if (player.repeatMode === 0) {
-        btn.innerHTML = '<i class="material-icons shuffle-repeat">repeat</i>';
+        icon.textContent = 'repeat';
+        btn.classList.remove('repeat-one-active');
     } else if (player.repeatMode === 1) {
-        btn.innerHTML = '<i class="material-icons shuffle-repeat">repeat</i>';
+        icon.textContent = 'repeat';
+        btn.classList.remove('repeat-one-active');
     } else {
-        btn.innerHTML = `<i class="material-icons shuffle-repeat" style="position: relative;">repeat_one<span style="position: absolute; font-size: 0.7rem; font-weight: bold; bottom: -2px; right: -2px; background: var(--accent-red); color: white; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1;">1</span></i>`;
+        icon.textContent = 'repeat_one';
+        btn.classList.add('repeat-one-active');
+    }
+    
+    if (!btn.querySelector('i.material-icons')) {
+        btn.appendChild(icon);
     }
 }
 
 function updateShuffleButton() {
     const btn = document.querySelector('.block-controls button:nth-child(1)');
+    const icon = btn.querySelector('i.material-icons') || document.createElement('i');
+    icon.className = 'material-icons shuffle-repeat';
+    
     if (player.isShuffle) {
-        btn.innerHTML = '<i class="material-icons shuffle-repeat">shuffle_on</i>';
+        icon.textContent = 'shuffle_on';
     } else {
-        btn.innerHTML = '<i class="material-icons shuffle-repeat">shuffle</i>';
+        icon.textContent = 'shuffle';
+    }
+    
+    if (!btn.querySelector('i.material-icons')) {
+        btn.appendChild(icon);
     }
 }
 
