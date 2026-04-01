@@ -2096,13 +2096,3 @@ function onProgressChange(event) {
     }
     updateProgressBar();
 }
-
-function mudarCorBarraStatus(corHex) {
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (metaThemeColor) {
-        metaThemeColor.setAttribute('content', corHex);
-    }
-}
-
-// Exemplo de uso: mudar para o preto do YouTube que você pediu
-mudarCorBarraStatus('#0f0f0f');
