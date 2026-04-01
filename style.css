@@ -1,3 +1,110 @@
+
+/* ==========================================================================
+   1. CONFIGURAÃ‡Ã•ES DE FONTE E VARIÃVEIS
+   ========================================================================== */
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('./fonts/Roboto-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Red Hat Display';
+    src: url('./fonts/RedHatDisplay-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Red Hat Display';
+    src: url('./fonts/RedHatDisplay-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Red Hat Display';
+    src: url('./fonts/RedHatDisplay-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+html {
+    color-scheme: dark;
+}
+
+:root {
+    /* Paleta de Cores */
+    --bg-main: #000000;
+    --bg-surface: #121212;
+    --bg-surface-light: #1e1e1e;
+    --accent-red: #ff0000;
+    --text-main: #ffffff;
+    --text-dim: #aaaaaa;
+    --border-rgba: rgba(255, 255, 255, 0.1);
+
+    /* Cores de Teste dos Blocos (Remova depois) */
+    --footer-block-1: #18181c;
+    /* tom escuro uniforme */
+    --footer-block-2: #121217;
+    /* ainda mais escuro */
+    --footer-block-3: #23232b;
+    /* para detalhes ou hover */
+    --footer-border: #23232b;
+    --footer-accent: #ff3b3b;
+
+    /* Tipografia Fluida (Min, Preferencial, Max) */
+    --font-md: clamp(1.2rem, 0.2vw + 0.85rem, 1rem);
+    --font-sm: clamp(1rem, 0.15vw + 0.7rem, 0.85rem);
+    --font-lg: clamp(1.1rem, 0.5vw + 1rem, 1.4rem);
+
+    /* EspaÃ§amento Fluido */
+    --gap-fluid: clamp(0.5rem, 1.5vw, 1.5rem);
+    --padding-app: clamp(1rem, 2vw, 2.5rem);
+
+    /* Alturas */
+    --header-height: clamp(50px, 5vh, 80px);
+    --footer-height: clamp(60px, 10vh, 100px);
+
+    /* Z-Index Layer System */
+    --z-main-content: 10;
+    --z-header: 100;
+    --z-footer: 999;
+    --z-modal-backdrop: 2000;
+    --z-modal-content: 2001;
+    --z-sidebar: 3000;
+    --z-sidebar-overlay: 3000;
+    --z-modal-toast: 3001;
+    --z-overlay-max: 5000;
+
+    /* Backward compatibility */
+    --main-z-index: 10;
+}
+
+
+/* ==========================================================================
+   2. RESET E ESTILOS GERAIS
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Red Hat Display', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.4;
+    overflow-x: hidden;
+    user-select: none;
+}
+
 /* Modal criar playlist (bottom-sheet) */
 #createPlaylistModal .modal-header--item {
     border-bottom: none;
@@ -678,111 +785,6 @@
     }
 }
 
-/* ==========================================================================
-   1. CONFIGURAÃ‡Ã•ES DE FONTE E VARIÃVEIS
-   ========================================================================== */
-
-@font-face {
-    font-family: 'Roboto';
-    src: url('./fonts/Roboto-Regular.ttf') format('truetype');
-    font-weight: 400;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'Red Hat Display';
-    src: url('./fonts/RedHatDisplay-Medium.ttf') format('truetype');
-    font-weight: 500;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'Red Hat Display';
-    src: url('./fonts/RedHatDisplay-SemiBold.ttf') format('truetype');
-    font-weight: 600;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'Red Hat Display';
-    src: url('./fonts/RedHatDisplay-Bold.ttf') format('truetype');
-    font-weight: 700;
-    font-style: normal;
-}
-
-html {
-    color-scheme: dark;
-}
-
-:root {
-    /* Paleta de Cores */
-    --bg-main: #000000;
-    --bg-surface: #121212;
-    --bg-surface-light: #1e1e1e;
-    --accent-red: #ff0000;
-    --text-main: #ffffff;
-    --text-dim: #aaaaaa;
-    --border-rgba: rgba(255, 255, 255, 0.1);
-
-    /* Cores de Teste dos Blocos (Remova depois) */
-    --footer-block-1: #18181c;
-    /* tom escuro uniforme */
-    --footer-block-2: #121217;
-    /* ainda mais escuro */
-    --footer-block-3: #23232b;
-    /* para detalhes ou hover */
-    --footer-border: #23232b;
-    --footer-accent: #ff3b3b;
-
-    /* Tipografia Fluida (Min, Preferencial, Max) */
-    --font-md: clamp(1.2rem, 0.2vw + 0.85rem, 1rem);
-    --font-sm: clamp(1rem, 0.15vw + 0.7rem, 0.85rem);
-    --font-lg: clamp(1.1rem, 0.5vw + 1rem, 1.4rem);
-
-    /* EspaÃ§amento Fluido */
-    --gap-fluid: clamp(0.5rem, 1.5vw, 1.5rem);
-    --padding-app: clamp(1rem, 2vw, 2.5rem);
-
-    /* Alturas */
-    --header-height: clamp(50px, 5vh, 80px);
-    --footer-height: clamp(60px, 10vh, 100px);
-
-    /* Z-Index Layer System */
-    --z-main-content: 10;
-    --z-header: 100;
-    --z-footer: 999;
-    --z-modal-backdrop: 2000;
-    --z-modal-content: 2001;
-    --z-sidebar: 3000;
-    --z-sidebar-overlay: 3000;
-    --z-modal-toast: 3001;
-    --z-overlay-max: 5000;
-
-    /* Backward compatibility */
-    --main-z-index: 10;
-}
-
-
-/* ==========================================================================
-   2. RESET E ESTILOS GERAIS
-   ========================================================================== */
-
-*,
-*::before,
-*::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Red Hat Display', sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    line-height: 1.4;
-    overflow-x: hidden;
-    user-select: none;
-}
 
 ul {
     list-style: none;
