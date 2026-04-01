@@ -31,8 +31,174 @@ let videoToAdd = null; // Guardar vídeo a ser adicionado
 
 
 // ============================================================================
-// INICIALIZAÇÃO
+// FUNÇÕES DE RENDER REUTILIZÁVEIS
 // ============================================================================
+
+/**
+ * Renderiza um card para playlist, artista ou música
+ * @param {Object} data - {src, title, subtitle}
+ * @returns {HTMLElement}
+ */
+function renderCard(data) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    
+    const img = document.createElement('img');
+    img.src = data.src;
+    img.alt = data.title;
+    img.className = 'card-image';
+    img.addEventListener('error', () => { img.src = 'covers/artists/default.jpg'; });
+    
+    const body = document.createElement('div');
+    body.className = 'card-body';
+    
+    const titleEl = document.createElement('div');
+    titleEl.className = 'card-title';
+    titleEl.textContent = data.title;
+    
+    const subtitleEl = document.createElement('div');
+    subtitleEl.className = 'card-subtitle';
+    subtitleEl.textContent = data.subtitle;
+    
+    body.appendChild(titleEl);
+    body.appendChild(subtitleEl);
+    card.appendChild(img);
+    card.appendChild(body);
+    
+    return card;
+}
+
+/**
+ * Renderiza item de playlist
+ * @param {Object} video - {id, title, artist}
+ * @param {Number} index - índice na lista
+ * @returns {HTMLElement}
+ */
+function renderPlaylistItem(video, index) {
+    const item = document.createElement('div');
+    item.className = 'playlist-item';
+    
+    const img = document.createElement('img');
+    img.src = getArtistCoverUrl(video.artist);
+    img.alt = video.artist;
+    img.className = 'thumb-mini';
+    img.addEventListener('error', () => { img.src = 'covers/artists/default.jpg'; });
+    
+    const info = document.createElement('div');
+    info.className = 'playlist-info';
+    
+    const titleEl = document.createElement('span');
+    titleEl.className = 'm-title';
+    titleEl.textContent = video.title;
+    
+    const artistEl = document.createElement('span');
+    artistEl.className = 'm-artist';
+    artistEl.textContent = video.artist;
+    
+    info.appendChild(titleEl);
+    info.appendChild(artistEl);
+    
+    const kebabBtn = document.createElement('button');
+    kebabBtn.className = 'kebab-btn';
+    kebabBtn.setAttribute('data-index', index);
+    kebabBtn.setAttribute('title', 'Opções');
+    const kebabIcon = document.createElement('i');
+    kebabIcon.className = 'material-icons';
+    kebabIcon.textContent = 'more_vert';
+    kebabBtn.appendChild(kebabIcon);
+    
+    item.appendChild(img);
+    item.appendChild(info);
+    item.appendChild(kebabBtn);
+    
+    return item;
+}
+
+/**
+ * Renderiza header do modal com thumbnail + título + artista + botão fechar
+ * @param {Object} video - {title, artist}
+ * @param {Function} onClose - callback para fechar
+ * @returns {HTMLElement}
+ */
+function renderModalHeader(video, onClose) {
+    const header = document.createElement('div');
+    header.className = 'modal-header--item';
+    
+    const img = document.createElement('img');
+    img.src = getArtistCoverUrl(video.artist);
+    img.alt = video.artist;
+    img.className = 'thumb';
+    img.addEventListener('error', () => { img.src = 'covers/artists/default.jpg'; });
+    
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    
+    const titleEl = document.createElement('div');
+    titleEl.className = 'title';
+    titleEl.textContent = video.title;
+    
+    const artistEl = document.createElement('div');
+    artistEl.className = 'artist';
+    artistEl.textContent = video.artist;
+    
+    meta.appendChild(titleEl);
+    meta.appendChild(artistEl);
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'modal-close';
+    closeBtn.setAttribute('aria-label', 'Fechar');
+    const closeIcon = document.createElement('i');
+    closeIcon.className = 'material-icons';
+    closeIcon.textContent = 'close';
+    closeBtn.appendChild(closeIcon);
+    closeBtn.addEventListener('click', onClose);
+    
+    header.appendChild(img);
+    header.appendChild(meta);
+    header.appendChild(closeBtn);
+    
+    return header;
+}
+
+/**
+ * Renderiza linha de opção do modal (kebab)
+ * @param {Object} data - {icon, text, onClick}
+ * @returns {HTMLElement}
+ */
+function renderOptionRow(data) {
+    const row = document.createElement('div');
+    row.className = 'option-row is-clickable';
+    
+    const icon = document.createElement('div');
+    icon.className = 'option-icon';
+    const i = document.createElement('i');
+    i.className = 'material-icons';
+    i.textContent = data.icon;
+    icon.appendChild(i);
+    
+    const text = document.createElement('div');
+    text.className = 'option-text';
+    text.textContent = data.text;
+    
+    row.appendChild(icon);
+    row.appendChild(text);
+    
+    if (data.onClick) {
+        row.addEventListener('click', data.onClick);
+    }
+    
+    return row;
+}
+
+/**
+ * Renderiza separador visual
+ * @returns {HTMLElement}
+ */
+function renderSeparator() {
+    const sep = document.createElement('div');
+    sep.className = 'option-separator';
+    return sep;
+}
 
 async function initApp() {
     initPlayerUI(); // Inicializa UI primeiro
@@ -47,6 +213,13 @@ async function initApp() {
     setLayoutVars();
     // Atualizar quando a janela for redimensionada
     window.addEventListener('resize', setLayoutVars);
+
+    // Setup do teclado mobile
+    updateKeyboardOffset();
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', updateKeyboardOffset);
+        window.visualViewport.addEventListener('scroll', updateKeyboardOffset);
+    }
 
     safeRender();
 }
@@ -84,25 +257,70 @@ function setLayoutVars() {
     }
 }
 
+// Atualiza offset do teclado mobile usando visualViewport
+function updateKeyboardOffset() {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const offset = window.innerHeight - (vv.height + vv.offsetTop);
+    document.documentElement.style.setProperty(
+        '--keyboard-offset',
+        `${Math.max(0, offset)}px`
+    );
+}
+
 // Criar UI template uma única vez
 function initPlayerUI() {
     const blockInfo = document.querySelector('.block-info');
     
-    blockInfo.innerHTML = `
-        <img class="current-thumb" onerror="this.src='covers/artists/default.jpg'">
-        <div class="current-details">
-            <span class="c-title"></span>
-            <span class="c-artist"></span>
-        </div>
-        <div class="current-actions">
-            <button id="favButton" aria-label="Adicionar aos favoritos">
-                <i class="material-icons" id="favIcon">favorite_border</i>
-            </button>
-            <button id="shareButton" aria-label="Compartilhar">
-                <i class="material-icons reply">reply</i>
-            </button>
-        </div>
-    `;
+    // Limpar apenas se necessário (primeira vez)
+    blockInfo.innerHTML = '';
+    
+    const img = document.createElement('img');
+    img.className = 'current-thumb';
+    img.src = 'covers/artists/default.jpg';
+    img.addEventListener('error', () => { img.src = 'covers/artists/default.jpg'; });
+    
+    const currentDetails = document.createElement('div');
+    currentDetails.className = 'current-details';
+    
+    const titleEl = document.createElement('span');
+    titleEl.className = 'c-title';
+    titleEl.textContent = '';
+    
+    const artistEl = document.createElement('span');
+    artistEl.className = 'c-artist';
+    artistEl.textContent = '';
+    
+    currentDetails.appendChild(titleEl);
+    currentDetails.appendChild(artistEl);
+    
+    const currentActions = document.createElement('div');
+    currentActions.className = 'current-actions';
+    
+    const favButton = document.createElement('button');
+    favButton.id = 'favButton';
+    favButton.setAttribute('aria-label', 'Adicionar aos favoritos');
+    const favIcon = document.createElement('i');
+    favIcon.className = 'material-icons';
+    favIcon.id = 'favIcon';
+    favIcon.textContent = 'favorite_border';
+    favButton.appendChild(favIcon);
+    
+    const shareButton = document.createElement('button');
+    shareButton.id = 'shareButton';
+    shareButton.setAttribute('aria-label', 'Compartilhar');
+    const shareIcon = document.createElement('i');
+    shareIcon.className = 'material-icons reply';
+    shareIcon.textContent = 'reply';
+    shareButton.appendChild(shareIcon);
+    
+    currentActions.appendChild(favButton);
+    currentActions.appendChild(shareButton);
+    
+    blockInfo.appendChild(img);
+    blockInfo.appendChild(currentDetails);
+    blockInfo.appendChild(currentActions);
     
     document.getElementById('favButton').addEventListener('click', toggleFavorite);
     document.getElementById('shareButton').addEventListener('click', shareMusic);
@@ -198,22 +416,21 @@ function openPlaylistsModal() {
     const modal = document.getElementById('playlistModal');
     const container = document.getElementById('playlistCardsContainer');
     
-    container.innerHTML = '';
+    // Usar DocumentFragment para melhor performance
+    const fragment = document.createDocumentFragment();
     
     player.playlistsData.forEach((playlist, index) => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-            <img src="covers/playlists/${playlist.cover}" alt="${playlist.name}" class="card-image" onerror="this.src='covers/playlists/playlist.jpg'">
-            <div class="card-body">
-                <div class="card-title">${playlist.name}</div>
-                <div class="card-subtitle">${playlist.videos.length} músicas</div>
-            </div>
-        `;
+        const card = renderCard({
+            src: `covers/playlists/${playlist.cover}`,
+            title: playlist.name,
+            subtitle: `${playlist.videos.length} músicas`
+        });
         card.addEventListener('click', () => selectPlaylist(index));
-        container.appendChild(card);
+        fragment.appendChild(card);
     });
     
+    container.innerHTML = '';
+    container.appendChild(fragment);
     modal.classList.add('show');
 }
 
@@ -229,8 +446,6 @@ function openArtistsModal() {
     const modal = document.getElementById('artistsModal');
     const container = document.getElementById('artistsCardsContainer');
     
-    container.innerHTML = '';
-    
     // Coletar artistas únicos
     const artistsSet = new Set();
     player.playlistsData.forEach(playlist => {
@@ -242,22 +457,23 @@ function openArtistsModal() {
     });
     
     const artists = Array.from(artistsSet).sort();
+    
+    // Usar DocumentFragment para melhor performance
+    const fragment = document.createDocumentFragment();
 
     artists.forEach(artist => {
         const artistCover = getArtistCoverUrl(artist);
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-            <img src="${artistCover}" alt="${artist}" class="card-image" onerror="this.src='covers/artists/default.jpg'">
-            <div class="card-body">
-                <div class="card-title">${artist}</div>
-                <div class="card-subtitle">Artista</div>
-            </div>
-        `;
+        const card = renderCard({
+            src: artistCover,
+            title: artist,
+            subtitle: 'Artista'
+        });
         card.addEventListener('click', () => selectArtist(artist));
-        container.appendChild(card);
+        fragment.appendChild(card);
     });
     
+    container.innerHTML = '';
+    container.appendChild(fragment);
     modal.classList.add('show');
 }
 
@@ -313,6 +529,13 @@ function openUserPlaylistsModal() {
     const container = document.getElementById('userPlaylistsContainer');
     const list = getUserPlaylists();
     
+    // Se está em modo de adicionar item e não tem playlist, abrir modal de criar
+    if (addingItemToPlaylist && list.length === 0) {
+        closeUserPlaylistsModal();
+        openCreatePlaylistModal();
+        return;
+    }
+    
     // Atualizar título dependendo do contexto
     const headerTitle = document.querySelector('#userPlaylistsModal h2');
     if (addingItemToPlaylist && videoToAdd) {
@@ -323,45 +546,204 @@ function openUserPlaylistsModal() {
     
     container.innerHTML = '';
     if (list.length === 0) {
-        container.innerHTML = '<div class="feedback-empty"><div class="icon">!</div><div class="msg">Nenhuma playlist criada. Use "Criar Playlist" para adicionar.</div></div>';
+        // Sem playlist e em modo normal (não está adicionando)
+        showFeedbackModal('Nenhuma playlist criada. Use "Criar Playlist" para adicionar.');
+        document.getElementById('userPlaylistsModal').classList.remove('show');
         return;
     }
+    
+    // Usar DocumentFragment para melhor performance
+    const fragment = document.createDocumentFragment();
+    
     list.forEach((pl, idx) => {
-        const row = document.createElement('div');
-        row.className = 'playlist-item-row';
-        row.tabIndex = 0;
-        // Nome
-        const name = document.createElement('span');
-        name.className = 'playlist-name';
-        name.textContent = pl.name;
-        // Badge
-        const badge = document.createElement('span');
-        badge.className = 'playlist-count-badge';
-        badge.textContent = pl.videos.length;
-        row.appendChild(name);
-        row.appendChild(badge);
-        row.addEventListener('click', () => {
-            if (addingItemToPlaylist) {
-                // Modo: adicionar item à playlist selecionada
-                addItemToUserPlaylist(idx);
-            } else {
-                // Modo: visualizar/selecionar uma playlist
-                player.currentPlaylist = JSON.parse(JSON.stringify(pl));
-                player.currentPlaylistIndex = -1;
-                player.currentVideoIndex = 0;
-                player.playOrder = [...Array(player.currentPlaylist.videos.length).keys()];
-                player.originalOrder = [...player.playOrder];
-                closeUserPlaylistsModal();
-                closeUserMenuModal();
-                loadPlaylistVideos();
-                loadFirstVideo();
-                refreshPlayerUI();
-            }
-        });
-        container.appendChild(row);
+        const row = renderUserPlaylistRow(pl, idx, addingItemToPlaylist);
+        fragment.appendChild(row);
     });
+    
+    container.appendChild(fragment);
     // ABRIR O MODAL
     document.getElementById('userPlaylistsModal').classList.add('show');
+}
+
+/**
+ * Abre modal para editar nome da playlist
+ * @param {Number} idx - índice da playlist
+ * @param {String} currentName - nome atual
+ */
+function openEditPlaylistModal(idx, currentName) {
+    const modal = document.getElementById('editPlaylistModal');
+    const inputEl = document.getElementById('editPlaylistNameInput');
+    const saveBtn = document.getElementById('editPlaylistSaveBtn');
+    const cancelBtn = document.getElementById('editPlaylistCancelBtn');
+    
+    // Preencher com nome atual
+    inputEl.value = currentName;
+    inputEl.focus();
+    inputEl.select();
+    
+    // Limpar listeners anteriores
+    const newSaveBtn = saveBtn.cloneNode(true);
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+    
+    // Adicionar novo listener para salvar
+    newSaveBtn.addEventListener('click', () => {
+        const newName = inputEl.value.trim();
+        if (newName && newName !== currentName) {
+            const list = getUserPlaylists();
+            list[idx].name = newName;
+            saveUserPlaylists(list);
+            showFeedbackModal(`Playlist renomeada para "${newName}"`);
+        }
+        modal.classList.remove('show');
+        // Reabrir modal de playlists
+        setTimeout(() => openUserPlaylistsModal(), 300);
+    });
+    
+    // Fechar ao cancelar
+    newCancelBtn.addEventListener('click', () => {
+        modal.classList.remove('show');
+        setTimeout(() => openUserPlaylistsModal(), 300);
+    });
+    
+    // Enter para salvar
+    inputEl.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            newSaveBtn.click();
+        }
+    });
+    
+    // Escape para cancelar
+    inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            newCancelBtn.click();
+        }
+    });
+    
+    modal.classList.add('show');
+}
+
+/**
+ * Deleta uma playlist do usuário
+ * @param {Number} idx - índice da playlist
+ */
+function deleteUserPlaylist(idx) {
+    const list = getUserPlaylists();
+    const playlistName = list[idx].name;
+    
+    if (confirm(`Tem certeza que deseja remover a playlist "${playlistName}"? Esta ação não pode ser desfeita.`)) {
+        list.splice(idx, 1);
+        saveUserPlaylists(list);
+        showFeedbackModal(`Playlist "${playlistName}" removida`);
+        // Reabrir modal de playlists
+        setTimeout(() => openUserPlaylistsModal(), 300);
+    }
+}
+
+/**
+ * Renderiza linha de playlist do usuário com botões de ações
+ * @param {Object} pl - {name, videos, cover}
+ * @param {Number} idx - índice na lista
+ * @param {Boolean} isAddingMode - se está em modo de adicionar item
+ * @returns {HTMLElement}
+ */
+function renderUserPlaylistRow(pl, idx, isAddingMode) {
+    const row = document.createElement('div');
+    row.className = 'playlist-item-row';
+    row.style.display = 'flex';
+    row.style.alignItems = 'center';
+    row.style.justifyContent = 'space-between';
+    row.style.gap = '0.5rem';
+    
+    // Nome + Badge
+    const contentWrapper = document.createElement('div');
+    contentWrapper.style.display = 'flex';
+    contentWrapper.style.alignItems = 'center';
+    contentWrapper.style.gap = '1rem';
+    contentWrapper.style.flex = '1';
+    contentWrapper.style.minWidth = '0';
+    
+    const name = document.createElement('span');
+    name.className = 'playlist-name';
+    name.textContent = pl.name;
+    name.style.flex = '1';
+    
+    const badge = document.createElement('span');
+    badge.className = 'playlist-count-badge';
+    badge.textContent = pl.videos.length;
+    
+    contentWrapper.appendChild(name);
+    contentWrapper.appendChild(badge);
+    
+    // Wrapper para ações (quando NÃO está em modo de adicionar item)
+    if (!isAddingMode) {
+        const actionsWrapper = document.createElement('div');
+        actionsWrapper.style.display = 'flex';
+        actionsWrapper.style.gap = '0.5rem';
+        actionsWrapper.style.flexShrink = '0';
+        
+        // Botão Editar
+        const editBtn = document.createElement('button');
+        editBtn.className = 'icon-btn icon-btn-edit';
+        editBtn.setAttribute('aria-label', 'Editar playlist');
+        editBtn.setAttribute('title', 'Editar');
+        const editIcon = document.createElement('i');
+        editIcon.className = 'material-icons';
+        editIcon.textContent = 'edit';
+        editBtn.appendChild(editIcon);
+        editBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openEditPlaylistModal(idx, pl.name);
+        });
+        
+        // Botão Remover
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'icon-btn icon-btn-delete';
+        deleteBtn.setAttribute('aria-label', 'Remover playlist');
+        deleteBtn.setAttribute('title', 'Remover');
+        const deleteIcon = document.createElement('i');
+        deleteIcon.className = 'material-icons';
+        deleteIcon.textContent = 'delete';
+        deleteBtn.appendChild(deleteIcon);
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteUserPlaylist(idx);
+        });
+        
+        actionsWrapper.appendChild(editBtn);
+        actionsWrapper.appendChild(deleteBtn);
+        
+        row.appendChild(contentWrapper);
+        row.appendChild(actionsWrapper);
+    } else {
+        row.appendChild(contentWrapper);
+    }
+    
+    // Evento click para selecionar (apenas quando não está em modo ações)
+    row.addEventListener('click', () => {
+        if (isAddingMode) {
+            addItemToUserPlaylist(idx);
+        } else {
+            // Carregar a playlist
+            const list = getUserPlaylists();
+            const selectedPl = list[idx];
+            player.currentPlaylist = JSON.parse(JSON.stringify(selectedPl));
+            player.currentPlaylistIndex = -1;
+            player.currentVideoIndex = 0;
+            player.playOrder = [...Array(player.currentPlaylist.videos.length).keys()];
+            player.originalOrder = [...player.playOrder];
+            closeUserPlaylistsModal();
+            closeUserMenuModal();
+            loadPlaylistVideos();
+            if (player.currentPlaylist.videos.length > 0) {
+                loadFirstVideo();
+            }
+            refreshPlayerUI();
+        }
+    });
+    
+    return row;
 }
 
 function closeUserPlaylistsModal() {
@@ -394,34 +776,12 @@ function openItemOptionsModal(index) {
     const modal = document.getElementById('itemOptionsModal');
     const headerEl = modal.querySelector('.modal-header');
     
-    // Montar header com thumbnail, título e artista usando classes para responsividade
+    // Limpar header anterior
     headerEl.innerHTML = '';
-    const headerContent = document.createElement('div');
-    headerContent.className = 'modal-header--item';
     
-    const img = document.createElement('img');
-    img.src = getArtistCoverUrl(video.artist);
-    img.onerror = () => { img.src = 'covers/artists/default.jpg'; };
-    img.className = 'thumb';
-    
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    meta.innerHTML = `
-        <div class="title">${video.title}</div>
-        <div class="artist">${video.artist}</div>
-    `;
-    
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'modal-close';
-    closeBtn.id = 'closeItemOptionsModal';
-    closeBtn.setAttribute('aria-label', 'Fechar');
-    closeBtn.innerHTML = '<i class="material-icons">close</i>';
-    closeBtn.addEventListener('click', closeItemOptionsModal);
-    
-    headerContent.appendChild(img);
-    headerContent.appendChild(meta);
-    headerContent.appendChild(closeBtn);
-    headerEl.appendChild(headerContent);
+    // Renderizar novo header
+    const header = renderModalHeader(video, closeItemOptionsModal);
+    headerEl.appendChild(header);
 
     const body = document.getElementById('itemOptionsBody');
     body.innerHTML = '';
@@ -429,66 +789,56 @@ function openItemOptionsModal(index) {
     const userList = getUserPlaylists();
     const isInAnyPlaylist = userList.some(pl => pl.videos.some(v => v.id === video.id));
 
-    // Opção: Adicionar/Remover da playlist
-    const playlistRow = document.createElement('div');
-    playlistRow.className = 'option-row';
-    playlistRow.innerHTML = `
-        <div class="option-icon">
-            <i class="material-icons">${isInAnyPlaylist ? 'remove_circle' : 'add_circle'}</i>
-        </div>
-        <div class="option-text">${isInAnyPlaylist ? 'Remover da Playlist' : 'Adicionar a playlist'}</div>
-    `;
-    playlistRow.classList.add('is-clickable');
-    playlistRow.addEventListener('click', () => {
-        if (isInAnyPlaylist) {
-            // Remover de todas as playlists onde está
-            userList.forEach((pl, idx) => {
-                if (pl.videos.some(v => v.id === video.id)) {
-                    removeItemFromUserPlaylist(idx);
-                }
-            });
-        } else {
-            // Adicionar à primeira playlist, ou abrir modal se múltiplas
-            if (userList.length === 0) {
-                showToast('Crie uma playlist primeiro');
-            } else if (userList.length === 1) {
-                addItemToUserPlaylist(0);
-            } else {
-                // Abrir modal de playlists para escolher
-                addingItemToPlaylist = true;
-                videoToAdd = video; // Guardar vídeo a ser adicionado
-                previousPlaylistState = {
-                    playlist: player.currentPlaylist,
-                    playlistIndex: player.currentPlaylistIndex,
-                    videoIndex: player.currentVideoIndex,
-                    viewingFavorites: player.viewingFavorites,
-                    currentFavoriteId: player.currentFavoriteId
-                };
-                openUserPlaylistsModal();
-            }
-        }
-        closeItemOptionsModal();
-    });
-    body.appendChild(playlistRow);
+    // Usar DocumentFragment para melhor performance
+    const fragment = document.createDocumentFragment();
 
-    // Separador
-    const hr = document.createElement('div');
-    hr.className = 'option-separator';
-    body.appendChild(hr);
+    // Opção: Adicionar/Remover da playlist
+    const playlistRow = renderOptionRow({
+        icon: isInAnyPlaylist ? 'remove_circle' : 'add_circle',
+        text: isInAnyPlaylist ? 'Remover da Playlist' : 'Adicionar a playlist',
+        onClick: () => {
+            if (isInAnyPlaylist) {
+                // Remover de todas as playlists onde está
+                userList.forEach((pl, idx) => {
+                    if (pl.videos.some(v => v.id === video.id)) {
+                        removeItemFromUserPlaylist(idx);
+                    }
+                });
+            } else {
+                // Adicionar à primeira playlist, ou abrir modal se múltiplas
+                if (userList.length === 0) {
+                    showToast('Crie uma playlist primeiro');
+                } else if (userList.length === 1) {
+                    addItemToUserPlaylist(0);
+                } else {
+                    // Abrir modal de playlists para escolher
+                    addingItemToPlaylist = true;
+                    videoToAdd = video;
+                    previousPlaylistState = {
+                        playlist: player.currentPlaylist,
+                        playlistIndex: player.currentPlaylistIndex,
+                        videoIndex: player.currentVideoIndex,
+                        viewingFavorites: player.viewingFavorites,
+                        currentFavoriteId: player.currentFavoriteId
+                    };
+                    openUserPlaylistsModal();
+                }
+            }
+            closeItemOptionsModal();
+        }
+    });
+    fragment.appendChild(playlistRow);
+    fragment.appendChild(renderSeparator());
 
     // Opção: Compartilhar
-    const shareRow = document.createElement('div');
-    shareRow.className = 'option-row';
-    shareRow.innerHTML = `
-        <div class="option-icon">
-            <i class="material-icons">share</i>
-        </div>
-        <div class="option-text">Compartilhar</div>
-    `;
-    shareRow.classList.add('is-clickable');
-    shareRow.addEventListener('click', () => shareItem(currentKebabIndex));
-    body.appendChild(shareRow);
+    const shareRow = renderOptionRow({
+        icon: 'share',
+        text: 'Compartilhar',
+        onClick: () => shareItem(currentKebabIndex)
+    });
+    fragment.appendChild(shareRow);
 
+    body.appendChild(fragment);
     modal.classList.add('show');
 }
 
@@ -515,12 +865,17 @@ function addToPlaylistOption() {
     // Botão voltar
     const backRow = document.createElement('div');
     backRow.className = 'option-row';
-    backRow.innerHTML = `
-        <div class="option-icon">
-            <i class="material-icons">arrow_back</i>
-        </div>
-        <div class="option-text">Voltar</div>
-    `;
+    const backIconDiv = document.createElement('div');
+    backIconDiv.className = 'option-icon';
+    const backIcon = document.createElement('i');
+    backIcon.className = 'material-icons';
+    backIcon.textContent = 'arrow_back';
+    backIconDiv.appendChild(backIcon);
+    const backTextDiv = document.createElement('div');
+    backTextDiv.className = 'option-text';
+    backTextDiv.textContent = 'Voltar';
+    backRow.appendChild(backIconDiv);
+    backRow.appendChild(backTextDiv);
     backRow.classList.add('is-clickable');
     backRow.addEventListener('click', () => openItemOptionsModal(currentKebabIndex));
     body.appendChild(backRow);
@@ -533,12 +888,17 @@ function addToPlaylistOption() {
     userList.forEach((pl, idx) => {
         const row = document.createElement('div');
         row.className = 'option-row';
-        row.innerHTML = `
-            <div class="option-icon">
-                <i class="material-icons">library_music</i>
-            </div>
-            <div class="option-text">${pl.name}</div>
-        `;
+        const rowIconDiv = document.createElement('div');
+        rowIconDiv.className = 'option-icon';
+        const rowIcon = document.createElement('i');
+        rowIcon.className = 'material-icons';
+        rowIcon.textContent = 'library_music';
+        rowIconDiv.appendChild(rowIcon);
+        const rowTextDiv = document.createElement('div');
+        rowTextDiv.className = 'option-text';
+        rowTextDiv.textContent = pl.name;
+        row.appendChild(rowIconDiv);
+        row.appendChild(rowTextDiv);
         row.classList.add('is-clickable');
         row.addEventListener('click', () => addItemToUserPlaylist(idx));
         body.appendChild(row);
@@ -602,19 +962,36 @@ function removeItemFromUserPlaylist(playlistIdx) {
     closeItemOptionsModal();
 }
 
-// Toast para feedback temporário
-function showToast(message) {
-    const isMobile = window.innerWidth <= 1023;
-    const toast = document.createElement('div');
+// Feedback Modal Bottom-Sheet
+function showFeedbackModal(message, duration = 3000) {
+    const modal = document.getElementById('feedbackModal');
+    const content = document.getElementById('feedbackContent');
     
-    toast.className = `toast-feedback${isMobile ? ' toast-mobile' : ''}`;
-    toast.innerHTML = `<div class="icon">!</div><div class="msg">${message}</div>`;
-    document.body.appendChild(toast);
+    // Renderizar conteúdo do feedback
+    const icon = document.createElement('div');
+    icon.className = 'feedback-icon';
+    icon.textContent = '✓';
     
+    const messageEl = document.createElement('div');
+    messageEl.className = 'feedback-message';
+    messageEl.textContent = message;
+    
+    content.innerHTML = '';
+    content.appendChild(icon);
+    content.appendChild(messageEl);
+    
+    // Mostrar modal
+    modal.classList.add('show');
+    
+    // Fechar automaticamente após duração
     setTimeout(() => {
-        toast.classList.add('toast-hide');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+        modal.classList.remove('show');
+    }, duration);
+}
+
+// Alias para compatibilidade (showToast vira showFeedbackModal)
+function showToast(message) {
+    showFeedbackModal(message);
 }
 
 function shareItem(index) {
@@ -692,49 +1069,60 @@ function loadPlaylistVideos() {
     
     // Atualizar título
     const titlePl = container.querySelector('.title-pl');
-    titlePl.innerHTML = `> ${player.currentPlaylist.name}`;
+    titlePl.textContent = `> ${player.currentPlaylist.name}`;
     
     // Mostrar skeleton loading
     itemsContainer.innerHTML = '';
     for (let i = 0; i < player.currentPlaylist.videos.length; i++) {
         const skeleton = document.createElement('div');
         skeleton.className = 'playlist-item skeleton-loading';
-        skeleton.innerHTML = `
-            <div class="thumb-mini skeleton"></div>
-            <div class="playlist-info-skeleton">
-                <span class="skeleton skeleton-title"></span>
-                <span class="skeleton skeleton-artist"></span>
-            </div>
-            <span class="skeleton skeleton-duration"></span>
-        `;
+        
+        const thumbMini = document.createElement('div');
+        thumbMini.className = 'thumb-mini skeleton';
+        
+        const playlistInfoSkeleton = document.createElement('div');
+        playlistInfoSkeleton.className = 'playlist-info-skeleton';
+        
+        const skeletonTitle = document.createElement('span');
+        skeletonTitle.className = 'skeleton skeleton-title';
+        
+        const skeletonArtist = document.createElement('span');
+        skeletonArtist.className = 'skeleton skeleton-artist';
+        
+        const skeletonDuration = document.createElement('span');
+        skeletonDuration.className = 'skeleton skeleton-duration';
+        
+        playlistInfoSkeleton.appendChild(skeletonTitle);
+        playlistInfoSkeleton.appendChild(skeletonArtist);
+        
+        skeleton.appendChild(thumbMini);
+        skeleton.appendChild(playlistInfoSkeleton);
+        skeleton.appendChild(skeletonDuration);
+        
         itemsContainer.appendChild(skeleton);
     }
     
     // Carregar items reais no próximo frame de pintura
     requestAnimationFrame(() => {
         itemsContainer.innerHTML = '';
+        
+        // Usar DocumentFragment para melhor performance com listas grandes
+        const fragment = document.createDocumentFragment();
+        
         player.currentPlaylist.videos.forEach((video, index) => {
-            const item = document.createElement('div');
-            item.className = 'playlist-item';
-            item.innerHTML = `
-                <img src="${getArtistCoverUrl(video.artist)}"
-                     alt="${video.artist}"
-                     class="thumb-mini"
-                     onerror="this.src='covers/artists/default.jpg'">
-                <div class="playlist-info">
-                    <span class="m-title">${video.title}</span>
-                    <span class="m-artist">${video.artist}</span>
-                </div>
-                <button class="kebab-btn" data-index="${index}" title="Opções"><i class="material-icons">more_vert</i></button>
-            `;
+            const item = renderPlaylistItem(video, index);
+            
             // tocar ao clicar no item (exceto no botão kebab)
             item.addEventListener('click', (e) => {
                 const target = e.target;
-                if (target.closest('.kebab-btn')) return; // evitar ao clicar no kebab
+                if (target.closest('.kebab-btn')) return;
                 playVideoByIndex(index);
             });
-            itemsContainer.appendChild(item);
+            
+            fragment.appendChild(item);
         });
+
+        itemsContainer.appendChild(fragment);
 
         // Delegar eventos de kebab
         itemsContainer.querySelectorAll('.kebab-btn').forEach(btn => {
@@ -758,11 +1146,7 @@ function loadFirstVideo() {
 // ============================================================================
 
 function loadVideo(video) {
-    // Forçar a presença do contêiner do player
-    const iframeWrapper = document.querySelector('.video-wrapper');
-    if (!iframeWrapper.querySelector('#player')) {
-        iframeWrapper.innerHTML = '<div id="player" style="width:100%; height:100%;"></div>';
-    }
+    // Player container já existe no HTML, não precisa recriá-lo
 
     if (ytPlayer && typeof ytPlayer.cueVideoById === 'function') {
         ytPlayer.cueVideoById(video.id);
@@ -1246,7 +1630,10 @@ function displayFavoritesList() {
     itemsContainer.innerHTML = '';
     
     if (player.favorites.length === 0) {
-        itemsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-dim);">Nenhuma música favoritada</div>';
+        const emptyEl = document.createElement('div');
+        emptyEl.className = 'empty-state';
+        emptyEl.textContent = 'Nenhuma música favoritada';
+        itemsContainer.appendChild(emptyEl);
         return;
     }
     
@@ -1260,31 +1647,22 @@ function displayFavoritesList() {
     requestAnimationFrame(() => {
         itemsContainer.innerHTML = '';
         
+        // Usar DocumentFragment para melhor performance
+        const fragment = document.createDocumentFragment();
+        
         player.favorites.forEach((favorite, index) => {
-            const item = document.createElement('div');
-            item.className = 'playlist-item';
-            item.innerHTML = `
-                <img src="${getArtistCoverUrl(favorite.video.artist)}"
-                     alt="${favorite.video.artist}"
-                     class="thumb-mini"
-                     onerror="this.src='covers/artists/default.jpg'">
-                <div class="playlist-info">
-                    <span class="m-title">${favorite.video.title}</span>
-                    <span class="m-artist">${favorite.video.artist}</span>
-                </div>
-                <button class="kebab-btn" data-index="${index}" title="Opções"><i class="material-icons">more_vert</i></button>
-            `;
+            const item = renderPlaylistItem(favorite.video, index);
             
             // tocar ao clicar no item (exceto no botão kebab)
             item.addEventListener('click', (e) => {
                 const target = e.target;
-                if (target.closest('.kebab-btn')) return; // evitar ao clicar no kebab
+                if (target.closest('.kebab-btn')) return;
                 
                 // Usar a playlist virtual de favoritos
                 player.currentPlaylist = favoritesPlaylist;
-                player.currentPlaylistIndex = -1; // Indica playlist virtual
-                player.currentVideoIndex = index; // Índice dentro dos favoritos
-                player.currentFavoriteId = favorite.id; // Guardar o ID original do favorito
+                player.currentPlaylistIndex = -1;
+                player.currentVideoIndex = index;
+                player.currentFavoriteId = favorite.id;
                 player.viewingFavorites = true;
                 
                 // Sinalizar que DEVE tocar
@@ -1299,8 +1677,10 @@ function displayFavoritesList() {
                 displayFavoritesList();
             });
             
-            itemsContainer.appendChild(item);
+            fragment.appendChild(item);
         });
+
+        itemsContainer.appendChild(fragment);
         
         // Delegar eventos de kebab
         itemsContainer.querySelectorAll('.kebab-btn').forEach(btn => {
@@ -1413,22 +1793,38 @@ function displaySearchResults(results, query) {
     document.getElementById('searchTitle').textContent = `Resultados para "${query}"`;
     
     if (results.length === 0) {
-        container.innerHTML = '<div class="no-results">Nenhuma música encontrada</div>';
+        container.innerHTML = '';
+        const noResultsDiv = document.createElement('div');
+        noResultsDiv.className = 'no-results';
+        noResultsDiv.textContent = 'Nenhuma música encontrada';
+        container.appendChild(noResultsDiv);
     } else {
         container.innerHTML = '';
         results.forEach((result) => {
             const card = document.createElement('div');
             card.className = 'card';
-            card.innerHTML = `
-                <img src="${getArtistCoverUrl(result.video.artist)}" 
-                     alt="${result.video.artist}" 
-                     class="card-image"
-                     onerror="this.src='covers/artists/default.jpg'">
-                <div class="card-body">
-                    <div class="card-title">${result.video.title}</div>
-                    <div class="card-subtitle">${result.video.artist}</div>
-                </div>
-            `;
+            
+            const img = document.createElement('img');
+            img.src = getArtistCoverUrl(result.video.artist);
+            img.alt = result.video.artist;
+            img.className = 'card-image';
+            img.addEventListener('error', () => { img.src = 'covers/artists/default.jpg'; });
+            
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body';
+            
+            const cardTitle = document.createElement('div');
+            cardTitle.className = 'card-title';
+            cardTitle.textContent = result.video.title;
+            
+            const cardSubtitle = document.createElement('div');
+            cardSubtitle.className = 'card-subtitle';
+            cardSubtitle.textContent = result.video.artist;
+            
+            cardBody.appendChild(cardTitle);
+            cardBody.appendChild(cardSubtitle);
+            card.appendChild(img);
+            card.appendChild(cardBody);
             card.addEventListener('click', () => {
                 selectPlaylist(result.playlistIndex);
                 player.currentVideoIndex = result.videoIndex;
@@ -1640,10 +2036,20 @@ function setupEventListeners() {
     if (closeItemOptions) closeItemOptions.addEventListener('click', closeItemOptionsModal);
 
     // Fechar modais ao clicar fora
-    ['createPlaylistModal','userMenuModal','itemOptionsModal'].forEach(id => {
+    ['createPlaylistModal','userMenuModal','itemOptionsModal','feedbackModal','editPlaylistModal'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('click', (e) => { if (e.target === e.currentTarget) el.classList.remove('show'); });
     });
+    
+    // Botão fechar modal de edição
+    const closeEditPlaylistBtn = document.getElementById('editPlaylistCloseBtn');
+    if (closeEditPlaylistBtn) {
+        closeEditPlaylistBtn.addEventListener('click', () => {
+            document.getElementById('editPlaylistModal').classList.remove('show');
+            setTimeout(() => openUserPlaylistsModal(), 300);
+        });
+    }
+    
     // userPlaylistsModal precisa chamar a função para resetar estado
     const userPlaylistsModalEl = document.getElementById('userPlaylistsModal');
     if (userPlaylistsModalEl) {

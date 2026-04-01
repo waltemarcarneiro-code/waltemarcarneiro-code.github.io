@@ -169,15 +169,15 @@
 
 /* Bottom sheet para modal do kebab */
 .modal-bottom-sheet {
-    align-items: flex-end !important;
+    align-items: flex-end;
     justify-content: center;
     padding: 0;
 }
 
 .bottom-sheet-content {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    border-radius: 16px 16px 0 0 !important;
+    width: 100vw;
+    max-width: 100vw;
+    border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
     margin: 0;
     animation: bottomSheetUp 0.25s cubic-bezier(.4, 0, .2, 1);
@@ -185,11 +185,11 @@
     bottom: 0;
 }
 
-@media (max-width: 1023px) {
+    @media (max-width: 1023px) {
     .bottom-sheet-content {
-        width: 100vw !important;
-        max-width: 100vw !important;
-        border-radius: 16px 16px 0 0 !important;
+        width: 100vw;
+        max-width: 100vw;
+        border-radius: 16px 16px 0 0;
     }
 }
 
@@ -291,6 +291,14 @@
     width: auto;
     box-sizing: border-box;
 }
+.feedback-empty {
+	display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--footer-block-2);
+    border-radius: 8px;
+}
 
 /* Artists modal: align to top but keep comfortable header spacing */
 /* Mobile: ocupar tela inteira - sobrescrito na media query mobile */
@@ -308,28 +316,9 @@
     /* prevent header from shrinking */
 }
 
-.modal-header--item {
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
-    padding: 0.9rem 1.2rem;
-    min-height: 72px;
-}
-
-.modal-header--item .thumb {
-    width: 64px;
-    height: 64px;
-    border-radius: 10px;
-}
-
-.modal-header--item .title {
-    font-size: 1.12rem;
-    font-weight: 700;
-}
-
 .toast-feedback.toast-mobile {
     left: 0;
-    bottom: 0;
+    bottom: var(--keyboard-offset, 0px);
     transform: none;
     width: 100%;
     border-radius: 0;
@@ -356,7 +345,41 @@
     font-weight: 700;
 }
 
-/* Separador visual para opÃ§Ãµes do modal */
+/* Feedback Modal Bottom-Sheet */
+#feedbackModal .modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    min-height: 150px;
+}
+
+.feedback-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--accent-red);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.feedback-message {
+    font-size: 1.15rem;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.4;
+    color: var(--text-main);
+    max-width: 90%;
+}
+
+/* Separador visual para opções do modal */
 .option-separator {
     height: 1px;
     background: var(--border-rgba);
@@ -408,7 +431,7 @@
         /*background: var(--bg-surface);*/
         border-left: none;
         border-top: 1px solid var(--border-rgba);
-        padding: 1rem 0rem !important;
+        padding: 1rem 0rem;
         position: relative;
         z-index: 1;
     }
@@ -433,6 +456,35 @@
     .kebab-btn:hover {
         background: rgba(255, 255, 255, 0.03);
         color: var(--text-main);
+    }
+
+    /* Icon buttons (editar, remover, etc) */
+    .icon-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-dim);
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        cursor: pointer;
+        padding: 0;
+        transition: background 0.18s, color 0.18s;
+    }
+
+    .icon-btn:active {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text-main);
+    }
+
+    .icon-btn-edit {
+        color: var(--accent-red);
+    }
+
+    .icon-btn-delete {
+        color: #ff6b6b;
     }
 
     /* Modal base (simples) */
@@ -468,28 +520,28 @@
     /* Playlists e Artistas modais: ocupar tela inteira no mobile */
     #playlistModal .modal-content,
     #artistsModal .modal-content {
-        width: 100vw !important;
-        height: 100vh !important;
-        max-width: 100% !important;
-        max-height: 100% !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-        display: flex !important;
-        flex-direction: column !important;
-        background: var(--bg-surface) !important;
-        overflow: hidden !important;
-        animation: none !important;
+        width: 100vw;
+        height: 100vh;
+        max-width: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-surface);
+        overflow: hidden;
+        animation: none;
     }
 
     #playlistModal,
     #artistsModal {
-        align-items: stretch !important;
-        justify-content: flex-start !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        top: 0 !important;
-        left: 0 !important;
-        z-index: 5000 !important;
+        align-items: stretch;
+        justify-content: flex-start;
+        padding: 0;
+        margin: 0;
+        top: 0;
+        left: 0;
+        z-index: 5000;
     }
 
     #playlistModal .modal-header,
@@ -600,45 +652,26 @@
         line-height: 1.2;
     }
 
-    /* Feedback estilizado quando nÃ£o hÃ¡ playlists */
-    .feedback-empty {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        background: var(--footer-block-2);
-        border-radius: 8px;
-    }
-
-    .feedback-empty .icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background: #b71c1c;
-        color: white;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-    }
-
-    .feedback-empty .msg {
+    /* Estado vazio simples */
+    .empty-state {
+        padding: 2rem;
+        text-align: center;
+        color: var(--text-dim);
         font-size: 1.05rem;
-        font-weight: 700;
     }
 
     /* Corrige posicionamento do bottom-sheet */
     .modal-bottom-sheet .modal-content,
     .modal-bottom-sheet .bottom-sheet-content {
-        position: fixed !important;
+        position: fixed;
         left: 0;
         right: 0;
-        bottom: 0;
-        top: auto !important;
+        bottom: var(--keyboard-offset, 0px);
+        top: auto;
         margin: 0 auto;
-        max-width: 100vw !important;
-        width: 100vw !important;
-        border-radius: 16px 16px 0 0 !important;
+        max-width: 100vw;
+        width: 100vw;
+        border-radius: 16px 16px 0 0;
         animation: bottomSheetUp 0.25s cubic-bezier(.4, 0, .2, 1);
         box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
         z-index: 3001;
@@ -949,6 +982,11 @@ img {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
+.player-embed {
+    width: 100%;
+    height: 100%;
+}
+
 .video-wrapper img {
     width: 100%;
     height: 100%;
@@ -1090,7 +1128,7 @@ img {
 
 .app-player-footer {
     position: fixed;
-    bottom: 0;
+    bottom: var(--keyboard-offset, 0px);
     left: 0;
     width: 100%;
     background: linear-gradient(180deg, var(--footer-block-2) 80%, var(--footer-block-1) 100%);
@@ -1457,13 +1495,13 @@ img {
 
 @media (min-width: 1024px) {
     .btn-hamburger {
-        display: none !important;
+        display: none;
     }
 }
 
 @media (max-width: 1023px) {
     .btn-hamburger {
-        display: flex !important;
+        display: flex;
         background: none;
         border: none;
         color: var(--text-dim);
@@ -1486,7 +1524,7 @@ img {
         box-shadow: 2px 0 16px #000a;
         z-index: 3001;
         transition: left 0.25s;
-        display: block !important;
+        display: block;
     }
 
     .app-sidebar.show {
@@ -1528,12 +1566,12 @@ img {
         width: auto;
         height: auto;
         box-shadow: none;
-        display: block !important;
-        left: 0 !important;
+        display: block;
+        left: 0;
     }
 
     .sidebar-overlay {
-        display: none !important;
+        display: none;
     }
 }
 
@@ -1868,8 +1906,7 @@ img {
 /* Desktop: tornar modais fullscreen (exceto mobile) */
 @media (min-width: 641px) {
     .modal {
-        align-items: stretch;
-        /* ocupar toda a altura */
+        
         padding: 0;
         /* remover padding para full bleed */
         justify-content: center;
@@ -1920,7 +1957,7 @@ img {
         align-items: center;
         justify-content: center;
         padding: 1rem;
-        z-index: 5000 !important;
+        z-index: 5000;
     }
 
     #playlistModal .modal-header,
@@ -1937,7 +1974,7 @@ img {
     }
 
     #artistsModal .modal-content {
-        margin-top: 0 !important;
+        margin-top: 0;
     }
 
     .cards-grid {

@@ -67,7 +67,7 @@
 
         <main class="video-stage">
             <div class="video-wrapper">
-                <div id="player" style="width:100%; height:100%;"></div>
+                <div id="player" class="player-embed"></div>
             </div>
         </main>
 
@@ -227,6 +227,38 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL FEEDBACK (bottom-sheet) -->
+    <div id="feedbackModal" class="modal modal-bottom-sheet">
+        <div class="modal-content bottom-sheet-content">
+            <div class="modal-body" id="feedbackContent"></div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR PLAYLIST (bottom-sheet) -->
+    <div id="editPlaylistModal" class="modal modal-bottom-sheet">
+        <div class="modal-content bottom-sheet-content">
+            <div class="modal-header modal-header--item">
+                <h2 style="font-size:1.18rem;font-weight:700;">Editar Playlist</h2>
+                <button class="modal-close" id="editPlaylistCloseBtn" aria-label="Fechar">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editPlaylistForm" autocomplete="off">
+                    <div class="input-group">
+                        <label for="editPlaylistNameInput">Nome da playlist</label>
+                        <input type="text" id="editPlaylistNameInput" required placeholder="Digite o novo nome">
+                    </div>
+                    <div class="create-playlist-actions">
+                        <button type="button" id="editPlaylistCancelBtn" class="btn-cancel">Cancelar</button>
+                        <button type="button" id="editPlaylistSaveBtn" class="btn-create">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.youtube.com/iframe_api"></script>
     <script src="app.js"></script>
 
