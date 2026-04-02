@@ -94,10 +94,7 @@
 }
 
 html {
-    /*color-scheme: dark;*/
-    background: #0f0f0f;
-    /* Suporte para áreas seguras (iPhone e Android novos) */
-    padding-bottom: env(safe-area-inset-bottom);
+    color-scheme: dark;
 }
 
 body {
@@ -523,6 +520,7 @@ body {
         align-items: center;
         justify-content: center;
         padding: 0;
+        position: relative;
     }
 
     .video-wrapper {
@@ -1233,14 +1231,17 @@ img {
 
 /* Bloco 1: InformaÃ§Ãµes da mÃºsica */
 .block-info {
-
+    display: flex;
+    align-items: center;
     gap: 1.2rem;
+    min-width: 0;
 }
 
 .current-thumb {
     width: clamp(50px, 6vw, 65px);
     aspect-ratio: 4 / 3;
     border-radius: 4px;
+    flex-shrink: 0;
 }
 
 .current-details {
@@ -1255,43 +1256,33 @@ img {
 }
 
 .current-details .c-title {
-    display: inline-block;
+    display: block;
     font-weight: bold;
     font-size: var(--font-md);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%;
     margin: 0;
     padding: 0;
+    width: 100%;
+    min-width: 0;
 }
 
 .current-details .c-title.marquee {
     animation: marquee-scroll-slow 15s linear infinite;
     text-overflow: clip;
-    overflow: visible;
-    min-width: 200%;
-    /* espaÃ§o suficiente para o texto se mover completamente */
-    max-width: none;
+    overflow: hidden;
+    width: max-content;
 }
 
 @keyframes marquee-scroll-slow {
     0% {
-        transform: translateX(100%);
+        transform: translateX(0%);
     }
 
     100% {
         transform: translateX(-100%);
     }
-}
-
-/* garantir que a track seguranÃ§a nÃ£o deixa o texto vazar para elementos vizinhos */
-.current-details .c-title.marquee {
-    position: relative;
-    left: 0;
-    right: 0;
-    min-width: 100%;
-    max-width: none;
 }
 
 .current-details .c-artist {
@@ -1305,6 +1296,7 @@ img {
     margin-left: auto;
     display: flex;
     gap: 1rem;
+    flex-shrink: 0;
 }
 
 .reply {
@@ -1386,8 +1378,6 @@ img {
 
     .footer-block {
         padding: 0 0.5rem;
-        /*san*/
-        padding-bottom: env(safe-area-inset-bottom);
     }
 
     .current-thumb {
@@ -1991,4 +1981,20 @@ img {
         gap: 2rem;
         padding: 2rem;
     }
+}
+
+/*OVERLAY LOCK SAN*/
+    .overlay-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10; /* Garante que fique acima do vídeo/conteúdo */
+    background: rgba(0, 0, 0, 0.2);
+    /* Opcional: para centralizar conteúdo dentro da camada sobreposta */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /*pointer-events: none;*/
 }

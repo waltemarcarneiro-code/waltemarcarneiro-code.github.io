@@ -3,13 +3,14 @@
 // ============================================================================
 
 const player = {
-    playlistsData: [],
+    playlistsIndex: [],             // Metadata from index.json only
+    playlistsData: [],              // Legacy, now used for cache reference
     currentPlaylist: null,
     currentPlaylistIndex: null,
     currentVideoIndex: 0,
     isPlaying: false,
     isShuffle: false,
-    repeatMode: 0, // 0: no repeat, 1: repeat all, 2: repeat one
+    repeatMode: 0,                  // 0: no repeat, 1: repeat all, 2: repeat one
     favorites: [],
     currentDuration: 0,
     currentTime: 0,
@@ -18,17 +19,155 @@ const player = {
     ytReady: false,
     shouldPlayOnReady: false,
     viewingFavorites: false,
-    currentFavoriteId: null, // ID do favorito quando visualizando favoritos
+    currentFavoriteId: null,        // ID do favorito quando visualizando favoritos
+    isLoadingPlaylist: false,       // Flag para indicar carregamento
 };
+
+// ============================================================================
+// CACHE E ESTADO DE REQUISIÇÕES
+// ============================================================================
+
+const playlistCache = new Map();    // Map<url, playlistData>
+let playlistLoadController = null;  // AbortController para requisições de playlist
+let allPlaylistsLoadController = null; // AbortController para carregar todos os playlists
 
 let ytPlayer = null;
 let ytPlayerInitialized = false;
 let updateProgressInterval = null;
 let progressDragging = false;
-let addingItemToPlaylist = false; // Flag para indicar se estamos adicionando um item a uma playlist
-let previousPlaylistState = null; // Guardar estado anterior de playlist
-let videoToAdd = null; // Guardar vídeo a ser adicionado
+let addingItemToPlaylist = false;   // Flag para indicar se estamos adicionando um item a uma playlist
+let previousPlaylistState = null;   // Guardar estado anterior de playlist
+let videoToAdd = null;              // Guardar vídeo a ser adicionado
 
+
+// ============================================================================
+// CAMADA DE DADOS - LAZY LOADING COM CACHE
+// ============================================================================
+
+/**
+ * Carrega o índice de playlists (metadados)
+ * @returns {Promise<Array>}
+ */
+async function loadPlaylistsIndex() {
+    try {
+        const response = await fetch('./data/playlists/index.json');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const index = await response.json();
+        player.playlistsIndex = Array.isArray(index) ? index : [];
+        return player.playlistsIndex;
+    } catch (error) {
+        console.error('Erro ao carregar índice de playlists:', error);
+        return [];
+    }
+}
+
+/**
+ * Carrega uma playlist individual usando sua URL
+ * @param {String} url - URL da playlist (do index.json)
+ * @returns {Promise<Object|null>}
+ */
+async function loadPlaylistByUrl(url) {
+    if (!url) return null;
+
+    // Verificar cache
+    if (playlistCache.has(url)) {
+        return playlistCache.get(url);
+    }
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        
+        // Extrair playlist da estrutura wrapper
+        // Estrutura esperada: { playlists: [{ name, coverage, videos }] }
+        const playlist = (data.playlists && data.playlists[0]) ? data.playlists[0] : data;
+        
+        // Armazenar em cache
+        playlistCache.set(url, playlist);
+        return playlist;
+    } catch (error) {
+        console.error(`Erro ao carregar playlist (${url}):`, error);
+        return null;
+    }
+}
+
+/**
+ * Carrega todas as playlists (para funcionalidades que precisam de todos os dados)
+ * Usa cache quando possível
+ * @returns {Promise<Array>}
+ */
+async function loadAllPlaylists() {
+    if (player.playlistsIndex.length === 0) {
+        await loadPlaylistsIndex();
+    }
+
+    const playlists = [];
+    
+    for (const playlistMeta of player.playlistsIndex) {
+        if (!playlistMeta.url) continue;
+        
+        const playlist = await loadPlaylistByUrl(playlistMeta.url);
+        if (playlist) {
+            playlists.push(playlist);
+        }
+    }
+
+    return playlists;
+}
+
+/**
+ * Busca uma playlist por ID no index
+ * @param {String} playlistId - ID da playlist
+ * @returns {Object|null}
+ */
+function findPlaylistMetaById(playlistId) {
+    return player.playlistsIndex.find(pl => pl.id === playlistId) || null;
+}
+
+/**
+ * Busca um vídeo por ID em todas as playlists carregadas (cache + index)
+ * @param {String} videoId - ID do vídeo
+ * @returns {Promise<Object>} {playlist, video, playlistIndex}
+ */
+async function findVideoById(videoId) {
+    // Primeiro, verificar playlists já em cache
+    for (const [url, playlist] of playlistCache) {
+        if (playlist.videos) {
+            for (let i = 0; i < playlist.videos.length; i++) {
+                if (playlist.videos[i].id === videoId) {
+                    const playlistMeta = player.playlistsIndex.find(p => p.url === url);
+                    return {
+                        playlist: playlist,
+                        video: playlist.videos[i],
+                        playlistIndex: player.playlistsIndex.indexOf(playlistMeta),
+                        videoIndex: i
+                    };
+                }
+            }
+        }
+    }
+
+    // Se não estiver em cache, carregar todas as playlists
+    const allPlaylists = await loadAllPlaylists();
+    for (let playlistIndex = 0; playlistIndex < allPlaylists.length; playlistIndex++) {
+        const playlist = allPlaylists[playlistIndex];
+        if (playlist.videos) {
+            for (let i = 0; i < playlist.videos.length; i++) {
+                if (playlist.videos[i].id === videoId) {
+                    return {
+                        playlist: playlist,
+                        video: playlist.videos[i],
+                        playlistIndex: playlistIndex,
+                        videoIndex: i
+                    };
+                }
+            }
+        }
+    }
+
+    return null;
+}
 
 // ============================================================================
 // FUNÇÕES DE RENDER REUTILIZÁVEIS
@@ -326,27 +465,28 @@ function initPlayerUI() {
     document.getElementById('shareButton').addEventListener('click', shareMusic);
 }
 
-function handleHashNavigation() {
+async function handleHashNavigation() {
     const hash = window.location.hash;
     if (hash.includes('videoId=')) {
         const videoId = hash.split('videoId=')[1].split('&')[0];
         
-        // Procura pelo videoId em todas as playlists
-        player.playlistsData.forEach((playlist, playlistIndex) => {
-            playlist.videos.forEach((video, videoIndex) => {
-                if (video.id === videoId) {
-                    player.currentPlaylist = playlist;
-                    player.currentPlaylistIndex = playlistIndex;
-                    player.currentVideoIndex = videoIndex;
-                    player.viewingFavorites = false;
-                    
-                    loadPlaylistVideos();
-                    loadVideo(video);
-                    player.shouldPlayOnReady = true;
-                    refreshPlayerUI();
-                }
-            });
-        });
+        try {
+            // Buscar vídeo em cache e playlists
+            const result = await findVideoById(videoId);
+            if (result) {
+                player.currentPlaylist = result.playlist;
+                player.currentPlaylistIndex = result.playlistIndex;
+                player.currentVideoIndex = result.videoIndex;
+                player.viewingFavorites = false;
+                
+                loadPlaylistVideos();
+                loadVideo(result.video);
+                player.shouldPlayOnReady = true;
+                refreshPlayerUI();
+            }
+        } catch (error) {
+            console.error('Erro ao navegar para vídeo:', error);
+        }
     }
 }
 
@@ -376,25 +516,64 @@ function refreshPlayerUI() {
 }
 
 // ============================================================================
-// CARREGAR DADOS
+// CARREGAR DADOS (LAZY LOADING)
 // ============================================================================
 
 async function loadPlaylists() {
     try {
-        const response = await fetch('playlists.json');
-        const data = await response.json();
-        player.playlistsData = data.playlists;
-        if (player.playlistsData.length > 0) {
-            const hash = window.location.hash;
-            if (hash.includes('videoId=')) {
-                handleHashNavigation();
-            } else {
-                selectPlaylist(0);
-            }
-            refreshPlayerUI();
+        // 1. Carregar índice de playlists
+        await loadPlaylistsIndex();
+
+        if (player.playlistsIndex.length === 0) {
+            console.warn('Nenhuma playlist encontrada no índice');
+            return;
         }
+
+        // 2. Verificar hash navigation (precisa de playlist específica ou procura)
+        const hash = window.location.hash;
+        if (hash.includes('videoId=')) {
+            handleHashNavigation();
+        } else {
+            // 3. Carregar primeira playlist como padrão
+            await selectPlaylistByIndex(0);
+        }
+
+        refreshPlayerUI();
     } catch (error) {
         console.error('Erro ao carregar playlists:', error);
+    }
+}
+
+/**
+ * Seleciona uma playlist pelo índice e a carrega
+ * @param {Number} index - índice no playlistsIndex
+ */
+async function selectPlaylistByIndex(index) {
+    if (index < 0 || index >= player.playlistsIndex.length) return;
+
+    const playlistMeta = player.playlistsIndex[index];
+    if (!playlistMeta.url) return;
+
+    player.isLoadingPlaylist = true;
+    try {
+        const playlist = await loadPlaylistByUrl(playlistMeta.url);
+        if (playlist) {
+            player.currentPlaylist = playlist;
+            player.currentPlaylistIndex = index;
+            player.currentVideoIndex = 0;
+            player.playOrder = [...Array(playlist.videos.length).keys()];
+            player.originalOrder = [...player.playOrder];
+            player.shouldPlayOnReady = true;
+            player.viewingFavorites = false;
+
+            closePlaylistsModal();
+            loadPlaylistVideos();
+            loadFirstVideo();
+        }
+    } catch (error) {
+        console.error('Erro ao selecionar playlist:', error);
+    } finally {
+        player.isLoadingPlaylist = false;
     }
 }
 
@@ -412,6 +591,10 @@ function getArtistCoverUrl(artistName) {
 // MODAL DE PLAYLISTS
 // ============================================================================
 
+// ============================================================================
+// MODAL DE PLAYLISTS
+// ============================================================================
+
 function openPlaylistsModal() {
     const modal = document.getElementById('playlistModal');
     const container = document.getElementById('playlistCardsContainer');
@@ -419,13 +602,22 @@ function openPlaylistsModal() {
     // Usar DocumentFragment para melhor performance
     const fragment = document.createDocumentFragment();
     
-    player.playlistsData.forEach((playlist, index) => {
+    player.playlistsIndex.forEach((playlistMeta, index) => {
+        // Tentar obter count do cache, se disponível
+        let videoCount = '';
+        if (playlistCache.has(playlistMeta.url)) {
+            const playlist = playlistCache.get(playlistMeta.url);
+            videoCount = `${playlist.videos?.length || 0} músicas`;
+        } else {
+            videoCount = 'Carregando...';
+        }
+
         const card = renderCard({
-            src: `covers/playlists/${playlist.cover}`,
-            title: playlist.name,
-            subtitle: `${playlist.videos.length} músicas`
+            src: `covers/playlists/${playlistMeta.cover}`,
+            title: playlistMeta.title || playlistMeta.name,
+            subtitle: videoCount
         });
-        card.addEventListener('click', () => selectPlaylist(index));
+        card.addEventListener('click', () => selectPlaylistByIndex(index));
         fragment.appendChild(card);
     });
     
@@ -442,38 +634,50 @@ function closePlaylistsModal() {
 // MODAL DE ARTISTAS
 // ============================================================================
 
-function openArtistsModal() {
+async function openArtistsModal() {
     const modal = document.getElementById('artistsModal');
     const container = document.getElementById('artistsCardsContainer');
     
-    // Coletar artistas únicos
-    const artistsSet = new Set();
-    player.playlistsData.forEach(playlist => {
-        playlist.videos.forEach(video => {
-            if (video.artist) {
-                artistsSet.add(video.artist);
-            }
-        });
-    });
-    
-    const artists = Array.from(artistsSet).sort();
-    
-    // Usar DocumentFragment para melhor performance
-    const fragment = document.createDocumentFragment();
+    // Mostrar loading enquanto busca artistas
+    container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-dim);">Carregando artistas...</div>';
 
-    artists.forEach(artist => {
-        const artistCover = getArtistCoverUrl(artist);
-        const card = renderCard({
-            src: artistCover,
-            title: artist,
-            subtitle: 'Artista'
+    try {
+        // Carregar todas as playlists (necessário para listar todos os artistas)
+        const allPlaylists = await loadAllPlaylists();
+
+        // Coletar artistas únicos
+        const artistsSet = new Set();
+        allPlaylists.forEach(playlist => {
+            playlist.videos?.forEach(video => {
+                if (video.artist) {
+                    artistsSet.add(video.artist);
+                }
+            });
         });
-        card.addEventListener('click', () => selectArtist(artist));
-        fragment.appendChild(card);
-    });
-    
-    container.innerHTML = '';
-    container.appendChild(fragment);
+
+        const artists = Array.from(artistsSet).sort();
+
+        // Usar DocumentFragment para melhor performance
+        const fragment = document.createDocumentFragment();
+
+        artists.forEach(artist => {
+            const artistCover = getArtistCoverUrl(artist);
+            const card = renderCard({
+                src: artistCover,
+                title: artist,
+                subtitle: 'Artista'
+            });
+            card.addEventListener('click', () => selectArtist(artist));
+            fragment.appendChild(card);
+        });
+
+        container.innerHTML = '';
+        container.appendChild(fragment);
+    } catch (error) {
+        console.error('Erro ao carregar artistas:', error);
+        container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-dim);">Erro ao carregar artistas</div>';
+    }
+
     modal.classList.add('show');
 }
 
@@ -1012,51 +1216,48 @@ function shareItem(index) {
     }
 }
 
-function selectArtist(artist) {
-    // Filtrar vídeos do artista
-    const artistVideos = [];
-    player.playlistsData.forEach(playlist => {
-        playlist.videos.forEach(video => {
-            if (video.artist === artist) {
-                artistVideos.push({
-                    ...video,
-                    playlistName: playlist.name
-                });
-            }
+async function selectArtist(artist) {
+    try {
+        // Carregar todas as playlists para filtrar por artista
+        const allPlaylists = await loadAllPlaylists();
+
+        // Filtrar vídeos do artista
+        const artistVideos = [];
+        allPlaylists.forEach(playlist => {
+            playlist.videos?.forEach(video => {
+                if (video.artist === artist) {
+                    artistVideos.push({
+                        ...video,
+                        playlistName: playlist.name
+                    });
+                }
+            });
         });
-    });
-    
-    // Criar uma playlist temporária para o artista
-    player.currentPlaylist = {
-        name: artist,
-        videos: artistVideos
-    };
-    player.currentPlaylistIndex = -1; // Indica que é uma playlist temporária
-    player.currentVideoIndex = 0;
-    player.playOrder = [...Array(artistVideos.length).keys()];
-    player.originalOrder = [...player.playOrder];
-    player.shouldPlayOnReady = true;
-    player.viewingFavorites = false;
-    
-    closeArtistsModal();
-    loadPlaylistVideos();
-    loadFirstVideo();
-    refreshPlayerUI();
+
+        // Criar uma playlist temporária para o artista
+        player.currentPlaylist = {
+            name: artist,
+            videos: artistVideos
+        };
+        player.currentPlaylistIndex = -1; // Indica que é uma playlist temporária
+        player.currentVideoIndex = 0;
+        player.playOrder = [...Array(artistVideos.length).keys()];
+        player.originalOrder = [...player.playOrder];
+        player.shouldPlayOnReady = true;
+        player.viewingFavorites = false;
+
+        closeArtistsModal();
+        loadPlaylistVideos();
+        loadFirstVideo();
+        refreshPlayerUI();
+    } catch (error) {
+        console.error('Erro ao selecionar artista:', error);
+    }
 }
 
-function selectPlaylist(index) {
-    player.currentPlaylist = player.playlistsData[index];
-    player.currentPlaylistIndex = index;
-    player.currentVideoIndex = 0;
-    player.playOrder = [...Array(player.currentPlaylist.videos.length).keys()];
-    player.originalOrder = [...player.playOrder];
-    player.shouldPlayOnReady = true;
-    player.viewingFavorites = false;
-    
-    closePlaylistsModal();
-    loadPlaylistVideos();
-    loadFirstVideo();
-    refreshPlayerUI();
+// Alias para compatibilidade com código existente
+async function selectPlaylist(index) {
+    return selectPlaylistByIndex(index);
 }
 
 // ============================================================================
@@ -1764,26 +1965,34 @@ function setupMobileSearch() {
     });
 }
 
-function searchMusics(query) {
-    const results = [];
-    const lowerQuery = query.toLowerCase();
-    
-    player.playlistsData.forEach((playlist, playlistIndex) => {
-        playlist.videos.forEach((video, videoIndex) => {
-            if (
-                video.title.toLowerCase().includes(lowerQuery) ||
-                video.artist.toLowerCase().includes(lowerQuery)
-            ) {
-                results.push({
-                    video: video,
-                    playlistIndex: playlistIndex,
-                    videoIndex: videoIndex,
-                });
-            }
+async function searchMusics(query) {
+    try {
+        const results = [];
+        const lowerQuery = query.toLowerCase();
+
+        // Carregar todas as playlists para busca
+        const allPlaylists = await loadAllPlaylists();
+
+        allPlaylists.forEach((playlist, playlistIndex) => {
+            playlist.videos?.forEach((video, videoIndex) => {
+                if (
+                    video.title.toLowerCase().includes(lowerQuery) ||
+                    video.artist.toLowerCase().includes(lowerQuery)
+                ) {
+                    results.push({
+                        video: video,
+                        playlistIndex: playlistIndex,
+                        videoIndex: videoIndex,
+                    });
+                }
+            });
         });
-    });
-    
-    displaySearchResults(results, query);
+
+        displaySearchResults(results, query);
+    } catch (error) {
+        console.error('Erro ao buscar músicas:', error);
+        displaySearchResults([], query);
+    }
 }
 
 function displaySearchResults(results, query) {
@@ -1825,8 +2034,8 @@ function displaySearchResults(results, query) {
             cardBody.appendChild(cardSubtitle);
             card.appendChild(img);
             card.appendChild(cardBody);
-            card.addEventListener('click', () => {
-                selectPlaylist(result.playlistIndex);
+            card.addEventListener('click', async () => {
+                await selectPlaylist(result.playlistIndex);
                 player.currentVideoIndex = result.videoIndex;
                 const video = player.currentPlaylist.videos[player.currentVideoIndex];
                 player.shouldPlayOnReady = true;
