@@ -47,5 +47,12 @@
     "name": "Costa Mee",
     "cover": "costa-mee.jpg",
     "url": "./data/playlists/costa-mee.json"
+  },
+  {
+    "id": "brega",
+    "title": "Brega",
+    "name": "Brega",
+    "cover": "Brega.jpg",
+    "url": "./data/playlists/brega.json"
   }
 ]
