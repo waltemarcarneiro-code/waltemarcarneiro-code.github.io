@@ -353,12 +353,17 @@ async function initApp() {
     // Atualizar quando a janela for redimensionada
     window.addEventListener('resize', setLayoutVars);
 
-    // Setup do teclado mobile
-    updateKeyboardOffset();
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', updateKeyboardOffset);
-        window.visualViewport.addEventListener('scroll', updateKeyboardOffset);
-    }
+    // Setup do teclado mobile com delay seguro para inicialização
+    // Garante que o visualViewport tenha dados precisos
+    document.documentElement.style.setProperty('--keyboard-offset', '0px');
+    
+    setTimeout(() => {
+        updateKeyboardOffset();
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', updateKeyboardOffset);
+            window.visualViewport.addEventListener('scroll', updateKeyboardOffset);
+        }
+    }, 100);
 
     safeRender();
 }
@@ -401,10 +406,17 @@ function updateKeyboardOffset() {
     const vv = window.visualViewport;
     if (!vv) return;
 
+    // Calcula o offset do teclado
     const offset = window.innerHeight - (vv.height + vv.offsetTop);
+    
+    // Valida se o offset é razoável (não pode ser maior que 50% da tela)
+    // Para evitar valores absurdos na inicialização
+    const maxReasonableOffset = window.innerHeight * 0.5;
+    const validOffset = Math.max(0, Math.min(offset, maxReasonableOffset));
+    
     document.documentElement.style.setProperty(
         '--keyboard-offset',
-        `${Math.max(0, offset)}px`
+        `${validOffset}px`
     );
 }
 
@@ -855,23 +867,14 @@ function deleteUserPlaylist(idx) {
 function renderUserPlaylistRow(pl, idx, isAddingMode) {
     const row = document.createElement('div');
     row.className = 'playlist-item-row';
-    row.style.display = 'flex';
-    row.style.alignItems = 'center';
-    row.style.justifyContent = 'space-between';
-    row.style.gap = '0.5rem';
     
     // Nome + Badge
     const contentWrapper = document.createElement('div');
-    contentWrapper.style.display = 'flex';
-    contentWrapper.style.alignItems = 'center';
-    contentWrapper.style.gap = '1rem';
-    contentWrapper.style.flex = '1';
-    contentWrapper.style.minWidth = '0';
+    contentWrapper.className = 'playlist-content-wrapper';
     
     const name = document.createElement('span');
     name.className = 'playlist-name';
     name.textContent = pl.name;
-    name.style.flex = '1';
     
     const badge = document.createElement('span');
     badge.className = 'playlist-count-badge';
@@ -883,9 +886,7 @@ function renderUserPlaylistRow(pl, idx, isAddingMode) {
     // Wrapper para ações (quando NÃO está em modo de adicionar item)
     if (!isAddingMode) {
         const actionsWrapper = document.createElement('div');
-        actionsWrapper.style.display = 'flex';
-        actionsWrapper.style.gap = '0.5rem';
-        actionsWrapper.style.flexShrink = '0';
+        actionsWrapper.className = 'playlist-actions-wrapper';
         
         // Botão Editar
         const editBtn = document.createElement('button');
@@ -1928,22 +1929,25 @@ function shareMusic() {
 function setupMobileSearch() {
     const searchInput = document.getElementById('searchInput');
     const headerSearch = document.querySelector('.header-search');
-    const searchForm = headerSearch.querySelector('form');
     const btnSearchMobile = document.querySelector('.btn-search-mobile');
-    const btnSearchBack = document.querySelector('.btn-search-back');
     let searchTimeout;
     
-    btnSearchMobile.addEventListener('click', () => {
-        headerSearch.classList.add('show-search');
-        searchInput.focus();
+    // Mobile: mostrar barra ao clicar no ícone de busca
+    if (btnSearchMobile) {
+        btnSearchMobile.addEventListener('click', () => {
+            headerSearch.classList.add('show-search');
+            searchInput.focus();
+        });
+    }
+    
+    // Fechar barra ao limpar o input no mobile
+    searchInput.addEventListener('blur', (e) => {
+        if (window.innerWidth <= 1023 && e.target.value.trim().length === 0) {
+            headerSearch.classList.remove('show-search');
+        }
     });
     
-    btnSearchBack.addEventListener('click', () => {
-        headerSearch.classList.remove('show-search');
-        document.getElementById('searchModal').classList.remove('show');
-        searchInput.value = '';
-    });
-    
+    // Busca em tempo real: digitar qualquer coisa mostra resultados
     searchInput.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
         const query = e.target.value.trim();

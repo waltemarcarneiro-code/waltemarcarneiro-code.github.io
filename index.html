@@ -52,9 +52,6 @@
 
         <div class="header-search">
             <form action="#">
-                <button type="button" class="btn-search-back" aria-label="Voltar">
-                    <i class="material-icons">arrow_back</i>
-                </button>
                 <input type="search" placeholder="Pesquise músicas, artis..." id="searchInput">
                 <i class="material-icons search-icon">search</i>
             </form>
@@ -76,17 +73,15 @@
             <div class="sidebar-content">
                 <ul class="sidebar-nav">
 
-                    <li><a href="/"><i class="material-icons">home</i> Início</a></li>
-                    <li class="active"><a href="#" id="link-playlists"><i class="material-icons">library_music</i>
+                    <li><a href="index.html"><i class="material-icons">home</i> Início</a></li>
+                    <li><a href="#" id="link-playlists"><i class="material-icons">library_music</i>
                             Playlists</a></li>
-                    <li class="active"><a href="#" id="link-criar-playlist"><i class="material-icons">library_music</i>
+                    <li><a href="#" id="link-criar-playlist"><i class="material-icons">library_music</i>
                             Criar Playlist</a></li>
                     <li><a href="#" id="link-artistas"><i class="material-icons">people</i>Artistas</a></li>
                     <li><a href="#" id="link-favoritos"><i class="material-icons">favorite</i>Favoritos</a></li>
 
                     <li><a href="#"><i class="material-icons">free_breakfast</i> Contribuir</a></li>
-
-
 
                 </ul>
             </div>
@@ -97,7 +92,7 @@
                 <div id="player" class="player-embed"></div>
                 <div class="overlay-layer"></div>
             </div>
-            
+
         </main>
 
         <aside class="playlist-aside">
@@ -200,8 +195,8 @@
                         <input type="text" id="newPlaylistName" required placeholder="Digite o nome da playlist">
                     </div>
                     <div class="create-playlist-actions">
-                        <button type="button" id="cancelCreatePlaylist" class="btn-cancel">Cancelar</button>
-                        <button type="submit" class="btn-create">Criar</button>
+                        <button type="button" id="cancelCreatePlaylist" class="btn-secondary">Cancelar</button>
+                        <button type="submit" class="btn-primary">Criar</button>
                     </div>
                 </form>
             </div>
