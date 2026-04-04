@@ -46,6 +46,10 @@ let pwaInstallTimeout = null;       // Timer para mostrar o prompt depois de 30s
 // Keyboard offset throttle
 let keyboardOffsetTimeout = null;   // Throttle para updateKeyboardOffset
 
+// Theme Color Control (Android Navbar - PWA Excellence)
+const THEME_COLOR = '#0f0f0f';
+let metaThemeColor = null;
+
 
 // ============================================================================
 // CAMADA DE DADOS - LAZY LOADING COM CACHE
@@ -382,6 +386,9 @@ async function initApp() {
     
     // Inicializar listeners de PWA install
     initPWAInstall();
+    
+    // ✨ EXCELÊNCIA PWA: Sincronizar tema de Android
+    initThemeColor();
 
     safeRender();
 }
@@ -607,6 +614,65 @@ function triggerPWAInstall() {
         closePWAInstallPrompt();
     });
 }
+
+// ============================================================================
+// THEME COLOR CONTROL - Android Navbar Excellence
+// ============================================================================
+
+function initThemeColor() {
+    // Obter a tag meta de theme-color
+    metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    
+    if (!metaThemeColor) {
+        console.warn('[App] Meta tag theme-color não encontrada');
+        return;
+    }
+    
+    // Aplicar tema na inicialização
+    setThemeColor(THEME_COLOR);
+    
+    // Aplicar quando app entra em foco (voltando do background)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            // App voltou do background
+            setTimeout(() => {
+                setThemeColor(THEME_COLOR);
+            }, 10);
+        }
+    });
+    
+    // Verificar se está em modo standalone (PWA instalado)
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        console.log('[App] Executando em modo PWA standalone');
+        setThemeColor(THEME_COLOR);
+    }
+    
+    // Listener para mudanças de display mode (em caso de instalação/desinstalação)
+    window.matchMedia('(display-mode: standalone)').addListener((e) => {
+        if (e.matches) {
+            console.log('[App] PWA agora em modo standalone');
+            setThemeColor(THEME_COLOR);
+        }
+    });
+    
+    console.log('[App] Theme color initialized:', THEME_COLOR);
+}
+
+function setThemeColor(color) {
+    if (!metaThemeColor) return;
+    
+    const currentColor = metaThemeColor.getAttribute('content');
+    
+    // Só atualizar se diferente (evita reflow desnecessário)
+    if (currentColor !== color) {
+        metaThemeColor.setAttribute('content', color);
+        console.log('[App] Theme color atualizada para:', color);
+    }
+}
+
+// ============================================================================
+// UI Template Initialization
+// ============================================================================
 
 // Criar UI template uma única vez
 function initPlayerUI() {

@@ -63,6 +63,7 @@ self.addEventListener('activate', (event) => {
 
 // ============================================================================
 // ESTRATÉGIA: CACHE FIRST, FALLBACK PARA NETWORK
+// COM TRATAMENTO ESPECIAL PARA MANIFEST
 // ============================================================================
 
 self.addEventListener('fetch', (event) => {
@@ -73,6 +74,28 @@ self.addEventListener('fetch', (event) => {
 
     // Ignorar requisições do YouTube (conteúdo externo)
     if (event.request.url.includes('youtube.com') || event.request.url.includes('googleapis.com')) {
+        return;
+    }
+
+    // ✨ TRATAMENTO ESPECIAL: Manifest sempre atualizado (Network First)
+    if (event.request.url.includes('manifest.json')) {
+        event.respondWith(
+            fetch(event.request)
+                .then((response) => {
+                    // Sempre cache o manifest fresco
+                    if (response && response.status === 200) {
+                        const responseToCache = response.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseToCache);
+                        });
+                    }
+                    return response;
+                })
+                .catch(() => {
+                    // Se falhar, usar cache antigo
+                    return caches.match(event.request);
+                })
+        );
         return;
     }
 
