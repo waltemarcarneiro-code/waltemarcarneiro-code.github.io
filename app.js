@@ -362,8 +362,13 @@ async function initApp() {
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', updateKeyboardOffset);
             window.visualViewport.addEventListener('scroll', updateKeyboardOffset);
+            // Detectar zoom
+            window.visualViewport.addEventListener('resize', detectZoomChange);
         }
     }, 100);
+
+    // Inicializar detecção de zoom
+    initZoomDetection();
 
     safeRender();
 }
@@ -418,6 +423,63 @@ function updateKeyboardOffset() {
         '--keyboard-offset',
         `${validOffset}px`
     );
+}
+
+// ============================================================================
+// DETECÇÃO DE ZOOM (ACESSIBILIDADE)
+// ============================================================================
+
+let previousZoomLevel = 1;
+let zoomAlertShown = false; // Flag para evitar múltiplos alertas
+
+function initZoomDetection() {
+    // Detector inicial via visualViewport
+    if (window.visualViewport) {
+        previousZoomLevel = window.visualViewport.scale;
+    } else {
+        previousZoomLevel = 1;
+    }
+}
+
+function detectZoomChange() {
+    if (!window.visualViewport) return;
+    
+    const currentZoom = window.visualViewport.scale;
+    
+    // Detectar qualquer zoom acima do threshold (independente de velocidade)
+    if (currentZoom > 1.01 && !zoomAlertShown) {
+        // Mostrar alert apenas uma vez até o zoom ser cancelado
+        showZoomAlert();
+        zoomAlertShown = true;
+    }
+    // Se voltou ao normal (zoom = 1), resetar a flag
+    else if (currentZoom <= 1.01) {
+        zoomAlertShown = false;
+    }
+    
+    previousZoomLevel = currentZoom;
+}
+
+function showZoomAlert() {
+    const modal = document.getElementById('zoomAlertModal');
+    const understandBtn = document.getElementById('zoomUnderstandBtn');
+    
+    if (!modal) return;
+    
+    // Exibir modal
+    modal.style.display = 'flex';
+    
+    // Handler para botão "Entendi"
+    understandBtn.onclick = () => {
+        closeZoomAlert();
+    };
+}
+
+function closeZoomAlert() {
+    const modal = document.getElementById('zoomAlertModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
 // Criar UI template uma única vez

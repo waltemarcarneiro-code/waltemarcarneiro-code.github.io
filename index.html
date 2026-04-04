@@ -74,12 +74,12 @@
                 <ul class="sidebar-nav">
 
                     <li><a href="index.html"><i class="material-icons">home</i> Início</a></li>
-                    <li><a href="#" id="link-playlists"><i class="material-icons">library_music</i>
+                    <li><a href="#" id="link-playlists"><i class="material-icons">queue_music</i>
                             Playlists</a></li>
-                    <li><a href="#" id="link-criar-playlist"><i class="material-icons">library_music</i>
+                    <li><a href="#" id="link-criar-playlist"><i class="material-icons">add</i>
                             Criar Playlist</a></li>
                     <li><a href="#" id="link-artistas"><i class="material-icons">people</i>Artistas</a></li>
-                    <li><a href="#" id="link-favoritos"><i class="material-icons">favorite</i>Favoritos</a></li>
+                    <li><a href="#" id="link-favoritos"><i class="material-icons">favorite_border</i>Favoritos</a></li>
 
                     <li><a href="#"><i class="material-icons">free_breakfast</i> Contribuir</a></li>
 
@@ -91,6 +91,13 @@
             <div class="video-wrapper">
                 <div id="player" class="player-embed"></div>
                 <div class="overlay-layer"></div>
+            <!-- LEGENDAS -->
+                <div class="overlay-layer-legendas">
+                <button><i class="material-icons">queue_music</i></button>
+                <button><i class="material-icons">add</i></button>
+                <button><i class="material-icons">download</i></button>
+                <button><i class="material-icons">more_vert</i></button>
+                </div>
             </div>
 
         </main>
@@ -283,6 +290,22 @@
                         <button type="button" id="editPlaylistSaveBtn" class="btn-create">Salvar</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ZOOM ALERT MODAL -->
+    <div id="zoomAlertModal" class="zoom-alert-modal" style="display: none;">
+        <div class="zoom-alert-content">
+            <div class="zoom-alert-header">
+                <i class="material-icons">zoom_in</i>
+                <span>Modo zoom ativo</span>
+            </div>
+            <div class="zoom-alert-message">
+                Use pinch out (dois dedos) para reduzir o zoom.
+            </div>
+            <div class="zoom-alert-actions">
+                <button type="button" id="zoomUnderstandBtn" class="btn-primary">Entendi</button>
             </div>
         </div>
     </div>

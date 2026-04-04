@@ -6,6 +6,11 @@
       "cover": "lovesongs.jpg",
       "videos": [
         {
+          "id": "Sz9Ad81xBuY",
+          "title": "Hurts To Be In Love",
+          "artist": "Gino Vannelli"
+        },
+        {
           "id": "8RqnQKSP_Rk",
           "title": "Praying for Time",
           "artist": "George Michael"
@@ -199,11 +204,6 @@
           "id": "HIXhKRcIYQs",
           "title": "If You're Not Here",
           "artist": "Robby Rosa"
-        },
-        {
-          "id": "Sz9Ad81xBuY",
-          "title": "Hurts To Be In Love",
-          "artist": "Gino Vannelli"
         },
         {
           "id": "USsL0_S6HNc",
