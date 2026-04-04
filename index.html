@@ -313,6 +313,27 @@
         </div>
     </div>
 
+    <!-- PWA INSTALL PROMPT MODAL (BOTTOM-SHEET) -->
+    <div id="pwaInstallPromptModal" class="pwa-install-modal" style="display: none;">
+        <div class="pwa-install-overlay"></div>
+        <div class="pwa-install-content">
+            <div class="pwa-install-header">
+                <i class="material-icons">phones</i>
+                <span>Instalar SanPlayer</span>
+            </div>
+            <div class="pwa-install-message">
+                Adicione à sua tela inicial para melhor experiência de app nativo.
+            </div>
+            <div class="pwa-install-icon">
+                <i class="material-icons music-note">music_note</i>
+            </div>
+            <div class="pwa-install-actions">
+                <button type="button" id="pwaInstallCancelBtn" class="btn-secondary">Não agora</button>
+                <button type="button" id="pwaInstallConfirmBtn" class="btn-primary">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.youtube.com/iframe_api"></script>
     <script src="app.js"></script>
 

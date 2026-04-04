@@ -1,22 +1,57 @@
 {
-  "name": "San Player",
-  "short_name": "San Player",
-  "description": "O Seu Player de Vídeos Personalizado",
-  "start_url": "/index.html",
+  "name": "SanPlayer - Music Player",
+  "short_name": "SanPlayer",
+  "description": "Player de músicas personalizado com experiência estilo YouTube Music. Acesse suas playlists, artistas favoritos e músicas em qualquer lugar.",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0f0f0f",
-  "theme_color": "#0f0f0f",
-  "orientation": "portrait",
-  "icons": [
+  "orientation": "portrait-primary",
+  "background_color": "#000000",
+  "theme_color": "#ff0000",
+  "categories": ["music", "multimedia"],
+  "screenshots": [
     {
-      "src": "icons/icon192.png",
+      "src": "./icons/icon192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "form_factor": "narrow"
     },
     {
-      "src": "icons/icon512.png",
+      "src": "./icons/icon512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "icons": [
+    {
+      "src": "./icons/icon192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Playlists",
+      "short_name": "Playlists",
+      "description": "Acesse suas playlists salvas",
+      "url": "./index.html?page=playlists",
+      "icons": [{"src": "./icons/icon192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "Favoritos",
+      "short_name": "Favoritos",
+      "description": "Suas músicas favoritas",
+      "url": "./index.html?page=favorites",
+      "icons": [{"src": "./icons/icon192.png", "sizes": "192x192"}]
     }
   ]
 }

@@ -39,6 +39,10 @@ let addingItemToPlaylist = false;   // Flag para indicar se estamos adicionando 
 let previousPlaylistState = null;   // Guardar estado anterior de playlist
 let videoToAdd = null;              // Guardar vídeo a ser adicionado
 
+// PWA Install
+let pwaInstallPrompt = null;        // Será preenchido pelo evento beforeinstallprompt
+let pwaInstallTimeout = null;       // Timer para mostrar o prompt depois de 30s
+
 
 // ============================================================================
 // CAMADA DE DADOS - LAZY LOADING COM CACHE
@@ -370,6 +374,12 @@ async function initApp() {
     // Inicializar detecção de zoom
     initZoomDetection();
 
+    // Registrar Service Worker
+    initServiceWorker();
+    
+    // Inicializar listeners de PWA install
+    initPWAInstall();
+
     safeRender();
 }
 
@@ -480,6 +490,112 @@ function closeZoomAlert() {
     if (modal) {
         modal.style.display = 'none';
     }
+}
+
+// ============================================================================
+// PWA - SERVICE WORKER REGISTRATION
+// ============================================================================
+
+function initServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js').then((registration) => {
+            console.log('[App] Service Worker registrado com sucesso:', registration);
+            
+            // Verificar atualizações a cada 1 minuto
+            setInterval(() => {
+                registration.update();
+            }, 60 * 1000);
+        }).catch((error) => {
+            console.warn('[App] Erro ao registrar Service Worker:', error);
+        });
+    }
+}
+
+// ============================================================================
+// PWA - INSTALL PROMPT HANDLER
+// ============================================================================
+
+function initPWAInstall() {
+    // Capturar o evento beforeinstallprompt
+    window.addEventListener('beforeinstallprompt', (event) => {
+        console.log('[App] beforeinstallprompt disparado');
+        
+        // Prevenir o prompt nativo padrão
+        event.preventDefault();
+        
+        // Guardar o evento para usar depois
+        pwaInstallPrompt = event;
+        
+        // Mostrar o prompt customizado após 30 segundos
+        pwaInstallTimeout = setTimeout(() => {
+            showPWAInstallPrompt();
+        }, 30000); // 30 segundos
+    });
+
+    // Capturar quando o app for instalado
+    window.addEventListener('appinstalled', () => {
+        console.log('[App] PWA instalado com sucesso!');
+        pwaInstallPrompt = null;
+        closePWAInstallPrompt();
+    });
+
+    // Configurar botões do modal
+    const cancelBtn = document.getElementById('pwaInstallCancelBtn');
+    const confirmBtn = document.getElementById('pwaInstallConfirmBtn');
+    
+    if (cancelBtn) {
+        cancelBtn.onclick = () => {
+            closePWAInstallPrompt();
+        };
+    }
+    
+    if (confirmBtn) {
+        confirmBtn.onclick = () => {
+            triggerPWAInstall();
+        };
+    }
+}
+
+function showPWAInstallPrompt() {
+    if (!pwaInstallPrompt) return;
+    
+    const modal = document.getElementById('pwaInstallPromptModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        console.log('[App] Modal de instalação PWA exibido');
+    }
+}
+
+function closePWAInstallPrompt() {
+    const modal = document.getElementById('pwaInstallPromptModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    
+    // Limpar timer
+    if (pwaInstallTimeout) {
+        clearTimeout(pwaInstallTimeout);
+        pwaInstallTimeout = null;
+    }
+}
+
+function triggerPWAInstall() {
+    if (!pwaInstallPrompt) return;
+    
+    // Disparar o prompt nativo
+    pwaInstallPrompt.prompt();
+    
+    // Esperar o resultado do usuário
+    pwaInstallPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+            console.log('[App] Usuário aceitou a instalação PWA');
+        } else {
+            console.log('[App] Usuário rejeitou a instalação PWA');
+        }
+        
+        pwaInstallPrompt = null;
+        closePWAInstallPrompt();
+    });
 }
 
 // Criar UI template uma única vez
