@@ -1,7 +1,7 @@
 {
   "name": "San Player",
   "short_name": "San Player",
-  "description": "O seu player de música personalizado",
+  "description": "O Seu Player de Vídeos Personalizado",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#0f0f0f",
