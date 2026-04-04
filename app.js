@@ -43,6 +43,9 @@ let videoToAdd = null;              // Guardar vídeo a ser adicionado
 let pwaInstallPrompt = null;        // Será preenchido pelo evento beforeinstallprompt
 let pwaInstallTimeout = null;       // Timer para mostrar o prompt depois de 30s
 
+// Keyboard offset throttle
+let keyboardOffsetTimeout = null;   // Throttle para updateKeyboardOffset
+
 
 // ============================================================================
 // CAMADA DE DADOS - LAZY LOADING COM CACHE
@@ -416,8 +419,15 @@ function setLayoutVars() {
     }
 }
 
-// Atualiza offset do teclado mobile usando visualViewport
+// Atualiza offset do teclado mobile usando visualViewport (com throttle)
 function updateKeyboardOffset() {
+    // Throttle: só atualiza a cada 100ms máximo (evita flutuar em mobile)
+    if (keyboardOffsetTimeout) return;
+    
+    keyboardOffsetTimeout = setTimeout(() => {
+        keyboardOffsetTimeout = null;
+    }, 100);
+    
     const vv = window.visualViewport;
     if (!vv) return;
 

@@ -497,13 +497,14 @@ body {
         flex-direction: column;
         position: fixed;
         top: var(--header-height);
-        bottom: var(--footer-height);
+        bottom: 0;
         left: 0;
         right: 0;
         width: 100vw;
         height: auto;
         overflow: hidden;
         z-index: var(--main-z-index);
+        padding-bottom: var(--footer-height);
     }
 
     .video-stage {
@@ -1009,14 +1010,13 @@ img {
     box-sizing: border-box;
     position: fixed;
     top: var(--header-height);
-    bottom: var(--footer-height);
+    bottom: 0;
     left: 0;
     right: 0;
     display: flex;
     z-index: var(--main-z-index);
     overflow: hidden;
-    z-index: var(--main-z-index);
-
+    padding-bottom: var(--footer-height);
 }
 
 @media (min-width: 1024px) {
@@ -1236,7 +1236,7 @@ img {
 
 .app-player-footer {
     position: fixed;
-    bottom: var(--keyboard-offset, 0px);
+    bottom: 0;
     left: 0;
     width: 100%;
     background: linear-gradient(180deg, var(--footer-block-2) 80%, var(--footer-block-1) 100%);
@@ -1244,6 +1244,12 @@ img {
     display: flex;
     flex-direction: column;
     z-index: 999;
+    transition: transform 0.2s ease;
+}
+
+/* Mover footer para cima quando teclado abre (se necessário via JS) */
+.app-player-footer.keyboard-open {
+    transform: translateY(calc(-1 * var(--keyboard-offset, 0px)));
 }
 
 /* Barra de Progresso no Topo do Footer */
