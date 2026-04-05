@@ -131,8 +131,11 @@ body {
     color: var(--text-main);
     line-height: 1.4;
     overflow-x: hidden;
-    min-height: 100dvh;
     min-height: 100vh; /* Fallback para navegadores antigos */
+    min-height: 100dvh; /* Preferência em navegadores modernos */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    
 }
 
 /* Modal criar playlist (bottom-sheet) */
