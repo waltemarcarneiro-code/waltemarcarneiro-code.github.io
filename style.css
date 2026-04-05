@@ -1797,11 +1797,6 @@ img {
     }
 }
 
-.music-note {
-    color: var(--accent-red);
-    font-size: 1.8rem;
-}
-
 .title-pl {
     font-size: var(--font-lg);
     margin-bottom: 1.4rem;
@@ -2393,4 +2388,8 @@ img {
     aspect-ratio: 1 / 1;
     object-fit: contain;
     flex-shrink: 0;
+}
+
+.material-symbols-outlined {
+  font-weight: 400; 
 }
