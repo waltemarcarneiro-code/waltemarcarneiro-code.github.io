@@ -725,7 +725,6 @@ body {
     .modal-body button {
         color: inherit;
         border: 1px solid var(--border-rgba);
-        padding: clamp(0.4rem, 1vw, 0.75rem) clamp(1rem, 1.5vw, 1rem);
         border-radius: 20px;
         transition: background 0.2s ease, border-color 0.2s ease;
         cursor: pointer;
@@ -2155,6 +2154,7 @@ img {
     display: flex;
     gap: var(--gap-sm);
     flex-shrink: 0;
+    margin-left: 0.5rem;
 }
 
 /* Desktop: tornar modais fullscreen (exceto mobile) */
