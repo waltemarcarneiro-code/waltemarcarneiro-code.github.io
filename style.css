@@ -936,6 +936,15 @@ img {
     font-size: clamp(1.5rem, 3vw, 1.8rem);
 }
 
+/* Header App Logo - Responsive */
+.header-app-logo {
+    width: clamp(32px, 5vw, 44px);
+    height: clamp(32px, 5vw, 44px);
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
 /* Header Search: Mobile-first base (hidden by default), shown on mobile overlay, visible on desktop */
 .header-search {
     flex: 1;
