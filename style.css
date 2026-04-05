@@ -120,8 +120,9 @@
     box-sizing: border-box;
 }
 
-html {
-    color-scheme: dark;
+html, body {
+    /*color-scheme: dark;*/
+    background-color: #0f0f0f;
 }
 
 body {
