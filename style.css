@@ -133,8 +133,8 @@ body {
     overflow-x: hidden;
     min-height: 100vh; /* Fallback para navegadores antigos */
     min-height: 100dvh; /* Preferência em navegadores modernos */
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-top: env(safe-area-inset-top); /*san*/
+    padding-bottom: env(safe-area-inset-bottom); /*san*/
     
 }
 
