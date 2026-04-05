@@ -958,6 +958,7 @@ img {
 .header-search input {
     background: transparent;
     border: none;
+    border-right: 1px solid #333;
     color: var(--text-main);
     width: 100%;
     font-size: var(--font-md);
@@ -1617,6 +1618,8 @@ img {
 
     .header-search form {
         width: 100%;
+        background: rgba(0,0,0,0.3);
+        border-radius: 25px;
     }
 
     .header-actions .btn-search-mobile {
@@ -2317,7 +2320,7 @@ img {
 }
 
 .pwa-install-message {
-    font-size: var(--font-sm);
+    font-size: var(--font-md);
     color: var(--text-dim);
     line-height: 1.5;
 }
